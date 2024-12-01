@@ -5,7 +5,7 @@ import dash_bootstrap_components as dbc
 from dash import dcc, html
 
 # Create the application object (stored in app variable), along with CSS stylesheets
-app = dash.Dash(__name__)
+app = dash.Dash(__name__, external_stylesheets=[dbc.themes.ZEPHYR])
 
 # Make sure that callbacks are not activated when input elements enter the layout; config is setting quality of app
 app.config.suppress_callback_exceptions = True
