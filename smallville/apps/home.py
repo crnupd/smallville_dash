@@ -9,7 +9,7 @@ from app import app
 layout = html.Div(  # Wrap everything in a Div
     [
         html.Main(
-            style={'margin-left': '15%', 'padding': '10px'},
+            style={'padding': '10px'},
             children=[
                 html.Header(
                     style={'background-color': '#003093', 'padding': '10px 20px'},
