@@ -11,7 +11,7 @@ from app import app
 # Sample DataFrame (Replace this with your actual data)
 data = {
     "Grade Level": ["Grade 1", "Grade 1", "Grade 2", "Grade 2"],
-    "Class": ["Subject 1", "Subject 2", "Subject 3", "Subject 4"],
+    "Subject": ["Subject 1", "Subject 2", "Subject 3", "Subject 4"],
     "Teacher": ["Teacher 1", "Teacher 2", "Teacher 3", "Teacher 4"],
     "Schedule": ["MWF 10:00-11:00", "MWF 11:00-12:00", "TTh 12:00-1:00", "TTh 1:00-2:00"],
 }
@@ -39,12 +39,23 @@ layout = html.Div(
                                     style={"width": "300px"}
                                 ),
                                 
+                                html.Div([
+                                    dbc.Button("Add Class",
+                                        color='primary',
+                                        style={"margin-right": "10px", "margin-top":"10px"},
+                                        href=f'/teacher/teacher_sched_add',
+                                    ),
+                                    ], style={'display': 'flex', 'justify-content': 'flex-end'}
+                                ),  
+                                
                                 html.H3(id="student-schedule-header", style={"marginTop": "20px"}),
+                                
+                                html.H5("Class 1", style={"textAlign": "left"}),
                                 
                                 dash_table.DataTable(
                                     id="schedule-table",
                                     columns=[
-                                        {"name": "Class", "id": "Class"},
+                                        {"name": "Subject", "id": "Subject"},
                                         {"name": "Teacher", "id": "Teacher"},
                                         {"name": "Schedule", "id": "Schedule"}
                                     ],
