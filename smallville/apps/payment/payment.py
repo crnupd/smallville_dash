@@ -1,113 +1,102 @@
-# import dash
-# import dash_bootstrap_components as dbc
-# from dash import Output, Input, State, dcc, html
-# from dash.exceptions import PreventUpdate
+import dash
+import dash_bootstrap_components as dbc
+from dash import Output, Input, html
+from dash.exceptions import PreventUpdate
 
-# from app import app
-# from apps.dbconnect import getDataFromDB
+from app import app
+from apps.dbconnect import getDataFromDB
 
-# layout = html.Div(
-#     [
-#         html.H2('Movies'), # Page Header
-#         html.Hr(),
-#         dbc.Card( # Card Container
-#             [
-#                 dbc.CardHeader( # Define Card Header
-#                     [
-#                         html.H3('Manage Records')
-#                     ]
-#                 ),
-#                 dbc.CardBody( # Define Card Contents
-#                     [
-#                         html.Div( # Add Movie Btn
-#                             [
-#                                 # Add movie button will work like a 
-#                                 # hyperlink that leads to another page
-#                                 dbc.Button(
-#                                     "Add Movie",
-#                                     href='/movies/movie_management_profile?mode=add'
-#                                 )
-#                             ]
-#                         ),
-#                         html.Hr(),
-#                         html.Div( # Create section to show list of movies
-#                             [
-#                                 html.H4('Find Movies'),
-#                                 html.Div(
-#                                     dbc.Form(
-#                                         dbc.Row(
-#                                             [
-#                                                 dbc.Label("Search Title", width=1),
-#                                                 dbc.Col(
-#                                                     dbc.Input(
-#                                                         type='text',
-#                                                         id='movie_titlefilter',
-#                                                         placeholder='Movie Title'
-#                                                     ),
-#                                                     width=5
-#                                                 )
-#                                             ],
-#                                         )
-#                                     )
-#                                 ),
-#                                 html.Div(
-#                                     "Table with movies will go here.",
-#                                     id='movie_movielist'
-#                                 )
-#                             ]
-#                         )
-#                     ]
-#                 )
-#             ]
-#         )
-#     ]
-# )
+layout = html.Div(
+    [
+        # Page Header
+        html.Div(
+            [
+                html.H2('Payment Page'),
+                html.Hr(),
+            ],
+            style={'margin-top': '60px'}  # Adjust margin to avoid overlap with navbar
+        ),
+        dbc.Card(  # Card Container
+            [
+                dbc.CardHeader(  # Define Card Header
+                    [
+                        html.H3('Payment Plan Details')
+                    ]
+                ),
+                dbc.CardBody(  # Define Card Contents
+                    [
+                        html.Div(  
+                            [
+                                html.P("/insert payment plan details"),
+                            ]
+                        ), 
+                    ]       
+                )
+            ]
+        ),
+        html.Br(),
+        html.Div(
+            [
+                dbc.Button(
+                    "Upload",
+                    color='primary',
+                    href=f'/payment/payment_upload?mode=add',
+                )
+            ],
+            style={'textAlign': 'right'}  # Aligns the button on the right side
+        ),
+        html.Br(),
+        dbc.Card(  # Card Container
+            [
+                dbc.CardHeader(  # Define Card Header
+                    [
+                        html.H3('Payment History')
+                    ]
+                ),
+                dbc.CardBody(  # Define Card Contents
+                    [
+                        html.Div(  # payment history list
+                                id='payment_history'
+                        )
+                    ]
+                )
+            ]
+        )
+    ]
+)
 
-# @app.callback(
-#     [
-#         Output('movie_movielist', 'children'),
-#     ],
-#     [
-#         Input('url', 'pathname'),
-#         Input('movie_titlefilter', 'value'),
-#     ],
-# )
-# def updateRecordsTable(pathname, titlefilter):
+@app.callback(
+    Output('payment_history', 'children'),
+    [Input('url', 'pathname')]
+)
+def updateRecordsTable(pathname):
+    if pathname != '/students/payment':  # Corrected pathname check
+        raise PreventUpdate
 
-#     if pathname == '/movies/movie_management':
-#         pass
-#     else:
-#         raise PreventUpdate
+    sql = """ 
+        SELECT payment_date, payment_num, student_name, payment_plan, invoice_num, proof_link 
+        FROM payment 
+        WHERE NOT payment_delete_ind
+    """
+    col = ["Payment Date", "Payment No.", "Student Name", "Plan", "Invoice No.", "Proof"]
 
-#     sql = """ SELECT movie_name, genre_name, to_char(movie_release_date, 'DD Mon YYYY'), 
-#         movie_id
-#     FROM movies m
-#         INNER JOIN genres g ON m.genre_id = g.genre_id
-#     WHERE NOT movie_delete_ind
-#     """
-#     val = []
+    df = getDataFromDB(sql,[], col)
 
-#     if titlefilter:
-#         sql += """ AND movie_name ilike %s"""
-#         val += [f'%{titlefilter}%']
-    
-#     col = ["Movie Title", "Genre", "Release Date", 'id']
+    if df.empty:
+        return html.Div("No payment history found.")  # Provide feedback if no records exist
 
-#     df = getDataFromDB(sql, val, col)
+    df['Action'] = [
+        html.Div(
+            dbc.Button("View", color='warning', size='sm', 
+                        href=row["proof_link"], target="_blank"),
+            className='text-center'
+        ) for idx, row in df.iterrows()
+    ]
 
-#     df['Action'] = [
-#         html.Div(
-#             dbc.Button("Edit", color='warning', size='sm', 
-#                         href = f'/movies/movie_management_profile?mode=edit&id={row['id']}'),
-#             className='text-center'
-#         ) for idx, row in df.iterrows()
-#     ]
-    
-#     # we don't want to display the 'id' column -- let's exclude it
-#     df = df[['Movie Title', 'Genre', 'Release Date', 'Action']]
+    # Exclude 'proof' from display and replace with button
+    df = df[["Payment Date", "Payment No.", "Student Name", "Plan", "Invoice No.", "Action"]]
 
-#     movie_table = dbc.Table.from_dataframe(df, striped=True, bordered=True,
-#                                         hover=True, size='sm')
+    payment_table = dbc.Table.from_dataframe(df, striped=True, bordered=True,
+                                              hover=True, size='sm')
 
-    
-#     return [movie_table]
+    return [payment_table]  # Return the generated table directly
