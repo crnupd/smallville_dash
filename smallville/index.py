@@ -12,6 +12,7 @@ from apps import home  # Import the home layout
 from apps.student import student_profile, student_profile_edit
 from apps.schedule import student_sched
 from apps.payment import payment, payment_upload
+from apps.teacher import teacher_sched
 
 # Define the main layout of the app
 app.layout = html.Div(
@@ -54,6 +55,9 @@ def displaypage(pathname):
 
         elif pathname == '/student/payment_upload':
             return payment_upload.layout
+        
+        elif pathname == '/teacher/teacher_sched':
+            return teacher_sched.layout
         
         else:
             return '404 Error: Page Not Found'  # Handle unknown routes

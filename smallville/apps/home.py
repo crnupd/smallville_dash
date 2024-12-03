@@ -95,7 +95,7 @@ layout = html.Div(  # Wrap everything in a Div
                         'background-color': '#003093',
                         'position': 'fixed',
                         'bottom': 0,
-                        'width': "calc(100% - 15%)"
+                        'width': "100%"
                     },
                     children=[
                         html.P(style={'color': '#f1f1f1'}, children="© 2024 Smallville Montessori")
