@@ -3,6 +3,8 @@ import dash_bootstrap_components as dbc
 from dash import Output, Input, html
 from dash.exceptions import PreventUpdate
 
+import pandas as pd
+
 from app import app
 from apps.dbconnect import getDataFromDB
 
@@ -64,43 +66,52 @@ layout = html.Div(
 
 @app.callback(
     Output('student_studentlist', 'children'),
-    [Input('url', 'pathname'), Input('student_fnamefilter', 'value')]
+    [Input('url', 'pathname')]  # Watch for changes to the URL
 )
-def updateRecordsTable(pathname, fnamefilter):
-    if pathname != '/students/student_profile':  # Corrected pathname check
-        raise PreventUpdate
+def updateRecordsTable(pathname):
+    print(f"Callback triggered. Pathname: {pathname}")
 
-    sql = """ 
-        SELECT stud_id, stud_fname, stud_lname, stud_city, 
-               stud_address, stud_gradelvl 
-        FROM student 
-        WHERE NOT stud_delete_ind
+    # Only trigger the callback if the correct path is matched
+    if pathname != '/student/student_profile':
+        print(f"Incorrect Path: {pathname}")
+        return html.Div("This page doesn't exist.")
+    
+    sql = """ SELECT 
+    stud_id,
+    stud_fname AS "First Name",
+    stud_lname AS "Last Name",
+    stud_city AS "City",
+    stud_address AS "Address",
+    stud_gradelvl AS "Grade Level"
+    FROM student
+    WHERE NOT stud_delete_ind;
     """
     val = []
 
-    if fnamefilter:
-        sql += " AND stud_fname ILIKE %s"
-        val.append(f'%{fnamefilter}%')
-
-    col = ["Student ID", "First Name", "Last Name", "City", "Address", "Grade Level"]
+    col = ["stud_id", "First Name", "Last Name", "City", "Address", "Grade Level"]
 
     df = getDataFromDB(sql, val, col)
 
-    if df.empty:
-        return html.Div("No records found.")  # Provide feedback if no records exist
-
+    # Generate 'Action' button column with edit links
     df['Action'] = [
         html.Div(
-            dbc.Button("Edit", color='warning', size='sm', 
-                        href=f'/students/student_profile_edit?mode=edit&id={row["stud_id"]}'),
+            dbc.Button(
+                "Edit", color='warning', size='sm', 
+                href=f'/students/student_profile_edit?mode=edit&id={row["First Name"]}'  # Using fname as ID for simplicity
+            ),
             className='text-center'
         ) for idx, row in df.iterrows()
     ]
 
-    # Exclude 'stud_id' from display
-    df = df[['stud_fname', 'stud_lname', 'stud_city', 'stud_address', 'stud_gradelvl', 'Action']]
+    # Reorganize columns for display
+    df = df[["First Name", "Last Name", "City", "Address", "Grade Level", 'Action']]
 
-    student_table = dbc.Table.from_dataframe(df, striped=True, bordered=True,
-                                              hover=True, size='sm')
 
-    return [student_table]  # Return the generated table directly
+    # Generate the table from DataFrame
+    student_table = dbc.Table.from_dataframe(df, striped=True, bordered=True, hover=True, size='sm')
+
+    return student_table
+
+# Run the app in debug mode
+if __name__ == '__main__':
+    app.run_server(debug=True)
