@@ -1,10 +1,8 @@
 import dash
 import dash_bootstrap_components as dbc
-from dash import Output, Input, html
+from dash import Output, Input, State, dcc, html
 from dash.exceptions import PreventUpdate
-
 import pandas as pd
-
 from app import app
 from apps.dbconnect import getDataFromDB  # Assuming the database connection functions are implemented here
 
@@ -39,21 +37,47 @@ layout = html.Div(
                         html.Div(  # Create section to show list of students
                             [
                                 html.H4('Find Students'),
-                                dbc.Form(
-                                    dbc.Row(
-                                        [
-                                            dbc.Label("Search First Name", width=1.4),
-                                            dbc.Col(
-                                                dbc.Input(
-                                                    type='text',
-                                                    id='student_fnamefilter',
-                                                    placeholder='First Name'
-                                                ),
-                                                width=5
-                                            )
-                                        ],
+                                dbc.Row([
+                                    dbc.Col(
+                                        dbc.Label("Search by First Name", width=4),
+                                        width=4
+                                    ),
+                                    dbc.Col(
+                                        dbc.Input(
+                                            type='text',
+                                            id='student_fnamefilter',
+                                            placeholder='Enter First Name to Filter'
+                                        ),
+                                        width=5
                                     )
-                                ),
+                                ]),
+                                html.Hr(),
+                                html.H4('Sort Students'),
+                                # Dropdown for selecting the column to sort by
+                                dbc.Row([
+                                    dbc.Col(
+                                        dcc.Dropdown(
+                                            id="sort_column",
+                                            options=[
+                                                {'label': 'First Name', 'value': 'stud_fname'},
+                                                {'label': 'Last Name', 'value': 'stud_lname'},
+                                                {'label': 'City', 'value': 'stud_city'},
+                                                {'label': 'Grade Level', 'value': 'stud_gradelvl'}
+                                            ],
+                                            placeholder="Select Column to Sort",
+                                            value='stud_fname',  # Default column to sort
+                                            clearable=False
+                                        )
+                                    ),
+                                    dbc.Col(
+                                        dbc.Button(
+                                            'Sort',
+                                            id='sort_button',
+                                            color='primary',
+                                            n_clicks=0
+                                        )
+                                    ),
+                                ]),
                                 html.Div(id='student_studentlist')  # Placeholder for student table
                             ]
                         )
@@ -66,11 +90,16 @@ layout = html.Div(
 
 @app.callback(
     Output('student_studentlist', 'children'),
-    [Input('url', 'pathname'),
-     Input('student_fnamefilter', 'value')]  # Watch for changes to the URL and fnamefilter
+    [
+        Input('url', 'pathname'),
+        Input('sort_column', 'value'),  # The column to sort by
+        Input('sort_button', 'n_clicks'),  # The button to trigger the sorting
+        Input('student_fnamefilter', 'value')  # The filter value for First Name
+    ],
+    State('sort_column', 'value')  # To keep track of the last selected column
 )
-def updateRecordsTable(pathname, student_fnamefilter):
-    print(f"Callback triggered. Pathname: {pathname}")
+def updateRecordsTable(pathname, sort_column, n_clicks, student_fnamefilter, prev_sort_column):
+    print(f"Callback triggered. Pathname: {pathname}, Sort Column: {sort_column}, Filter: {student_fnamefilter}, Clicks: {n_clicks}")
 
     # Only trigger the callback if the correct path is matched
     if pathname != '/student/student_profile':
@@ -95,6 +124,17 @@ def updateRecordsTable(pathname, student_fnamefilter):
     if student_fnamefilter:
         sql += """ AND stud_fname ILIKE %s"""
         val += [f'%{student_fnamefilter}%']
+
+    # Handle sorting based on button clicks
+    # Alternate sorting direction on each button click
+    if n_clicks % 2 == 0:  # Even clicks -> ascending
+        sort_direction = "ASC"
+    else:  # Odd clicks -> descending
+        sort_direction = "DESC"
+
+    # Apply sorting to the selected column
+    if sort_column:
+        sql += f" ORDER BY {sort_column} {sort_direction}"
 
     # Columns for the DataFrame
     col = ["stud_id", "First Name", "Last Name", "City", "Address", "Grade Level"]
