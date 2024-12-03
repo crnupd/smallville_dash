@@ -9,7 +9,6 @@ from app import app
 layout = html.Div(  # Wrap everything in a Div
     [
         html.Main(
-            style={'padding': '10px'},
             children=[
                 html.Header(
                     style={'background-color': '#003093', 'padding': '10px 20px'},
@@ -21,9 +20,8 @@ layout = html.Div(  # Wrap everything in a Div
                 
                 # Introduction Section
                 html.Div(
-                    style={'margin-left': '15px'},
+                    style={'margin-left': '15px', 'margin-top': '7px'},
                     children=[
-                        html.H4('/this will display user number and type of user (student or teacher)/'),
                         html.P("In Smallville Montessori, we believe in Montessori curriculum the way Maria Montessori herself practiced her teaching."),
                         html.P(style={'font-weight': 'bold'}, children="Why choose Smallville Montessori?"),
                         html.P("Child-Centered Learning: Our Montessori approach nurtures independence, curiosity, and a passion for discovery."),
