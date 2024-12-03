@@ -1,7 +1,5 @@
-
 import pandas as pd
 import psycopg2
-
 
 def getdblocation():
     db = psycopg2.connect(
@@ -11,31 +9,19 @@ def getdblocation():
         port=5432, 
         password='ie172', 
     )
-
     return db
 
 def modifyDB(sql, values):
     db = getdblocation()
-
-    # We create a cursor object
-    # Cursor - a mechanism used to manipulate db objects on a per-row basis
-    # In this case, a cursor is used to add/edit each row
     cursor = db.cursor()
-
-    # Execute the sql code with the cursor value
     cursor.execute(sql, values)
-
-    # Make the changes to the db persistent
     db.commit()
-    # Close the connection (so nobody else can use it)
     db.close()
-
 
 def getDataFromDB(sql, values, dfcolumns):
     # ARGUMENTS
     # sql -- sql query with placeholders (%s)
     # values -- values for the placeholders
-    # dfcolumns -- column names for the output
 
     db = getdblocation()
     cur = db.cursor()
@@ -44,4 +30,24 @@ def getDataFromDB(sql, values, dfcolumns):
     db.close()
     return rows
 
-# print(getdblocation())
+    
+    try:
+        cur.execute(sql, values)
+        rows = pd.DataFrame(cur.fetchall(), columns=[desc[0] for desc in cur.description])
+        
+        # Print all elements of the DataFrame
+        print("Fetched Data:")
+        print(rows.to_string(index=False))  # Print DataFrame without index for cleaner output
+        
+    finally:
+        db.close()  # Ensure the database connection is closed even if an error occurs
+    
+    return rows
+
+# Example usage
+if __name__ == "__main__":
+    sql_query = "SELECT * FROM student WHERE NOT stud_delete_ind"  # Select all columns
+    values = []  # Add any parameters needed for your query
+
+    # Fetch and print data
+    data = getDataFromDB(sql_query, values)
