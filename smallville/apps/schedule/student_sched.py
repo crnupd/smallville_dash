@@ -1,113 +1,103 @@
-# import dash
-# import dash_bootstrap_components as dbc
-# from dash import Output, Input, State, dcc, html
-# from dash.exceptions import PreventUpdate
+import dash
+import dash_bootstrap_components as dbc
+from dash import Output, Input, State, dcc, html
+from dash.exceptions import PreventUpdate
+import pandas as pd
+import dash_table
 
-# from app import app
+from app import app
 # from apps.dbconnect import getDataFromDB
 
-# layout = html.Div(
-#     [
-#         html.H2('Movies'), # Page Header
-#         html.Hr(),
-#         dbc.Card( # Card Container
-#             [
-#                 dbc.CardHeader( # Define Card Header
-#                     [
-#                         html.H3('Manage Records')
-#                     ]
-#                 ),
-#                 dbc.CardBody( # Define Card Contents
-#                     [
-#                         html.Div( # Add Movie Btn
-#                             [
-#                                 # Add movie button will work like a 
-#                                 # hyperlink that leads to another page
-#                                 dbc.Button(
-#                                     "Add Movie",
-#                                     href='/movies/movie_management_profile?mode=add'
-#                                 )
-#                             ]
-#                         ),
-#                         html.Hr(),
-#                         html.Div( # Create section to show list of movies
-#                             [
-#                                 html.H4('Find Movies'),
-#                                 html.Div(
-#                                     dbc.Form(
-#                                         dbc.Row(
-#                                             [
-#                                                 dbc.Label("Search Title", width=1),
-#                                                 dbc.Col(
-#                                                     dbc.Input(
-#                                                         type='text',
-#                                                         id='movie_titlefilter',
-#                                                         placeholder='Movie Title'
-#                                                     ),
-#                                                     width=5
-#                                                 )
-#                                             ],
-#                                         )
-#                                     )
-#                                 ),
-#                                 html.Div(
-#                                     "Table with movies will go here.",
-#                                     id='movie_movielist'
-#                                 )
-#                             ]
-#                         )
-#                     ]
-#                 )
-#             ]
-#         )
-#     ]
-# )
+# Sample data for the schedule
+data = {
+    "Student": ["Student 1", "Student 2"],
+    "Class": [
+        ["Subject 1", "Subject 2", "Subject 3", "Subject 4"],
+        ["Subject 1", "Subject 2", "Subject 3", "Subject 4"],
+    ],
+    "Teacher": [
+        ["Teacher 1", "Teacher 2", "Teacher 3", "Teacher 4"],
+        ["Teacher A", "Teacher B", "Teacher C", "Teacher D"],
+    ],
+    "Schedule": [
+        ["MWF 10:00 AM-11:00 AM", "MWF 11:00 AM-12:00 PM", "TTh 12:00 PM-1:00 PM", "TTh 1:00 PM-2:00 PM"],
+        ["MWF 9:00 AM-10:00 AM", "MWF 10:00 AM-11:00 AM", "TTh 11:00 AM-12:00 PM", "TTh 12:00 PM-1:00 PM"],
+    ],
+}
 
-# @app.callback(
-#     [
-#         Output('movie_movielist', 'children'),
-#     ],
-#     [
-#         Input('url', 'pathname'),
-#         Input('movie_titlefilter', 'value'),
-#     ],
-# )
-# def updateRecordsTable(pathname, titlefilter):
+# Convert data into a DataFrame for easier handling
+students_data = pd.DataFrame(data)
 
-#     if pathname == '/movies/movie_management':
-#         pass
-#     else:
-#         raise PreventUpdate
+layout = html.Div(
+    [
+        dbc.Card( # Card Container
+            [
+                dbc.CardHeader( # Define Card Header
+                    [
+                        html.H2("Class Schedule", style={"textAlign": "center"}),
+                        html.Div("Use this page to view the class schedule assigned to your child.", style={"textAlign": "center"}),
+                    ]
+                ),
+                dbc.CardBody( # Define Card Contents
+                    [
+                        html.Div( # Add Movie Btn
+                            [
+                                html.Label("Select Student:"),
+                                dcc.Dropdown(
+                                    id="student-dropdown",
+                                    options=[{"label": student, "value": student} for student in students_data["Student"]],
+                                    value="Student 1",
+                                    clearable=False,
+                                    style={"width": "300px"}
+                                    ),
+                                
+                                html.H3(id="student-schedule-header", style={"marginTop": "20px"}),
+                                
+                                dash_table.DataTable(
+                                    id="schedule-table",
+                                    columns=[
+                                        {"name": "Class", "id": "Class"},
+                                        {"name": "Teacher", "id": "Teacher"},
+                                        {"name": "Schedule", "id": "Schedule"},
+                                    ],
+                                    style_table={"width": "80%", "margin": "auto"},
+                                    style_header={
+                                        "backgroundColor": "blue",
+                                        "color": "white",
+                                        "fontWeight": "bold",
+                                    },
+                                    style_cell={
+                                        "textAlign": "center",
+                                        "padding": "10px",
+                                        "border": "1px solid black",
+                                    },
+                                )
+                            ]
+                        ),
+                    ],
+                ),
+            ]
+        ),   
+    ]
+)
 
-#     sql = """ SELECT movie_name, genre_name, to_char(movie_release_date, 'DD Mon YYYY'), 
-#         movie_id
-#     FROM movies m
-#         INNER JOIN genres g ON m.genre_id = g.genre_id
-#     WHERE NOT movie_delete_ind
-#     """
-#     val = []
 
-#     if titlefilter:
-#         sql += """ AND movie_name ilike %s"""
-#         val += [f'%{titlefilter}%']
-    
-#     col = ["Movie Title", "Genre", "Release Date", 'id']
+@app.callback(
+    [Output("student-schedule-header", "children"),
+     Output("schedule-table", "data")],
+    [Input("student-dropdown", "value")]
+)
 
-#     df = getDataFromDB(sql, val, col)
+def update_schedule(selected_student):
+    idx = students_data[students_data["Student"] == selected_student].index[0]
+    classes = students_data.loc[idx, "Class"]
+    teachers = students_data.loc[idx, "Teacher"]
+    schedules = students_data.loc[idx, "Schedule"]
 
-#     df['Action'] = [
-#         html.Div(
-#             dbc.Button("Edit", color='warning', size='sm', 
-#                         href = f'/movies/movie_management_profile?mode=edit&id={row['id']}'),
-#             className='text-center'
-#         ) for idx, row in df.iterrows()
-#     ]
-    
-#     # we don't want to display the 'id' column -- let's exclude it
-#     df = df[['Movie Title', 'Genre', 'Release Date', 'Action']]
+    table_data = [
+        {"Class": cls, "Teacher": teacher, "Schedule": schedule}
+        for cls, teacher, schedule in zip(classes, teachers, schedules)
+    ]
 
-#     movie_table = dbc.Table.from_dataframe(df, striped=True, bordered=True,
-#                                         hover=True, size='sm')
-
-    
-#     return [movie_table]
+    header = f"{selected_student}'s Schedule"
+    return header, table_data
