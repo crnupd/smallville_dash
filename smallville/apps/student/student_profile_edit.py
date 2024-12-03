@@ -1,292 +1,263 @@
-# from urllib.parse import parse_qs, urlparse
+from urllib.parse import parse_qs, urlparse
+import dash
+import dash_bootstrap_components as dbc
+from dash import Input, Output, State, dcc, html
+from dash.exceptions import PreventUpdate
 
-# import dash
-# import dash_bootstrap_components as dbc
-# from dash import Input, Output, State, dcc, html
-# from dash.exceptions import PreventUpdate
+from app import app
+from apps.dbconnect import getDataFromDB, modifyDB
 
-# from app import app
-# from apps.dbconnect import getDataFromDB, modifyDB
-
-# layout = html.Div(
-#     [
-
-#         dcc.Store(id='movieprofile_movieid', storage_type='memory', data=0),
+layout = html.Div(
+    [
+        dcc.Store(id='studentprofile_studid', storage_type='memory', data=0),
         
-#         html.H2('Movie Details'), # Page Header
-#         html.Hr(),
-#         dbc.Alert(id='movieprofile_alert', is_open=False), # For feedback purposes
-#         dbc.Form(
-#             [
-#                 dbc.Row(
-#                     [
-#                         dbc.Label("Title", width=1),
-#                         dbc.Col(
-#                             dbc.Input(
-#                                 type='text', 
-#                                 id='movieprofile_title',
-#                                 placeholder="Title"
-#                             ),
-#                             width=5
-#                         )
-#                     ],
-#                     className='mb-3'
-#                 ),
-#                 dbc.Row(
-#                     [
-#                         dbc.Label("Genre", width=1),
-#                         dbc.Col(
-#                             html.Div(
-#                                 dcc.Dropdown(
-#                                     id='movieprofile_genre',
-#                                     placeholder='Genre'
-#                                 ),
-#                                 className='dash-bootstrap'
-#                             ),
-#                             width=5,
-#                         )
-#                     ],
-#                     className='mb-3'
-#                 ),
-#                 dbc.Row(
-#                     [
-#                         dbc.Label("Release Date", width=1),
-#                         dbc.Col(
-#                             dcc.DatePickerSingle(
-#                                 id='movieprofile_releasedate',
-#                                 placeholder='Release Date',
-#                                 month_format='MMM Do, YY',
-#                             ),
-#                             width=5, 
-#                             className='dash-bootstrap'
-#                         )
-#                     ],
-#                     className='mb-3'
-#                 ),
-#                 html.Div(
-#                     [
-#                         dbc.Checklist(
-#                             id='movieprofile_deleteind',
-#                             options= [dict(value=1, label="Mark as Deleted")],
-#                             value=[] 
-#                         )
-#                     ],
-#                     id='movieprofile_deletediv'
-#                 )
+        html.H2('Student Details'),  # Page Header
+        html.Hr(),
+        dbc.Alert(id='studentprofile_alert', is_open=False),  # For feedback purposes
+        dbc.Form(
+            [
+                dbc.Row(
+                    [
+                        dbc.Label("First Name", width=1),
+                        dbc.Col(
+                            dbc.Input(
+                                type='text', 
+                                id='studentprofile_fname',
+                                placeholder="First Name"
+                            ),
+                            width=5
+                        )
+                    ],
+                    className='mb-3'
+                ),
+                dbc.Row(
+                    [
+                        dbc.Label("Last Name", width=1),
+                        dbc.Col(
+                            dbc.Input(
+                                type='text', 
+                                id='studentprofile_lname',
+                                placeholder="Last Name"
+                            ),
+                            width=5
+                        )
+                    ],
+                    className='mb-3'
+                ),
+                dbc.Row(
+                    [
+                        dbc.Label("City", width=1),
+                        dbc.Col(
+                            dbc.Input(
+                                type='text', 
+                                id='studentprofile_city',
+                                placeholder="City"
+                            ),
+                            width=5
+                        )
+                    ],
+                    className='mb-3'
+                ),
+                dbc.Row(
+                    [
+                        dbc.Label("Address", width=1),
+                        dbc.Col(
+                            dbc.Input(
+                                type='text', 
+                                id='studentprofile_address',
+                                placeholder="Address"
+                            ),
+                            width=5
+                        )
+                    ],
+                    className='mb-3'
+                ),
+                dbc.Row(
+                    [
+                        dbc.Label("Grade Level", width=1),
+                        dbc.Col(
+                            dbc.Input(
+                                type='text', 
+                                id='studentprofile_gradelvl',
+                                placeholder="Grade Level"
+                            ),
+                            width=5
+                        )
+                    ],
+                    className='mb-3'
+                ),
+                html.Div(
+                    [
+                        dbc.Checklist(
+                            id='studentprofile_deleteind',
+                            options=[dict(value=1, label="Mark as Deleted")],
+                            value=[] 
+                        )
+                    ],
+                    id='studentprofile_deletediv'
+                )
+            ]
+        ),
+        dbc.Button(
+            'Submit',
+            id='studentprofile_submit',
+            n_clicks=0  # Initialize number of clicks
+        ),
+        dbc.Modal(  # Modal = dialog box; feedback for successful saving.
+            [
+                dbc.ModalHeader(html.H4('Save Success')),
+                dbc.ModalBody('Student details have been saved successfully!'),
+                dbc.ModalFooter(dbc.Button("Proceed", href='/students/student_profile'))  # Redirect after saving
+            ],
+            centered=True,
+            id='studentprofile_successmodal',
+            backdrop='static'  # Dialog box does not go away if you click at the background
+        )
+    ]
+)
 
-#             ]
-#         ),
-#           dbc.Button(
-#             'Submit',
-#             id='movieprofile_submit',
-#             n_clicks=0 # Initialize number of clicks
-#         ),
-#         dbc.Modal( # Modal = dialog box; feedback for successful saving.
-#             [
-#                 dbc.ModalHeader(
-#                     html.H4('Save Success')
-#                 ),
-#                 dbc.ModalBody(
-#                     'Message here! Edit me please!'
-#                 ),
-#                 dbc.ModalFooter(
-#                     dbc.Button(
-#                         "Proceed",
-#                         href='/movies/movie_management' # Clicking this would lead to a change of pages
-#                     )
-#                 )
-#             ],
-#             centered=True,
-#             id='movieprofile_successmodal',
-#             backdrop='static' # Dialog box does not go away if you click at the background
-#         )
-#     ]
-# )
-
-# @app.callback(
-#     [
-#         Output('movieprofile_genre', 'options'),
-#         Output('movieprofile_movieid', 'data'),
-#         Output('movieprofile_deletediv', 'className')
-#     ],
-#     [
-#         Input('url', 'pathname'),
-#     ],
-#     [
-#         State('url', 'search'),
-#     ]
-# )
-# def movieprofile_populategenres(pathname, urlsearch):
-#     if pathname == '/movies/movie_management_profile':
-#         sql = """
-#         SELECT genre_name as label, genre_id as value
-#         FROM genres 
-#         WHERE genre_delete_ind = False
-#         """
-#         values = []
-#         cols = ['label', 'value']
-
-#         df = getDataFromDB(sql, values, cols)
-#         # The output must be a dictionary with the following structure
-#         # options=[
-#         #     {'label': "Factorial", 'value': 1},
-#         #     {'label': "Palindrome Checker", 'value': 2},
-#         #     {'label': "Greeter", 'value': 3},
-#         # ]
-
-#         genre_options = df.to_dict('records')
-
-#         parsed = urlparse(urlsearch)
-#         create_mode = parse_qs(parsed.query)['mode'][0]
+@app.callback(
+    [
+        Output('studentprofile_deletediv', 'className'),
+        Output('studentprofile_studid', 'data'),
+        Output('studentprofile_fname', 'value'),
+        Output('studentprofile_lname', 'value'),
+        Output('studentprofile_city', 'value'),
+        Output('studentprofile_address', 'value'),
+        Output('studentprofile_gradelvl', 'value'),
+    ],
+    [Input('url', 'pathname')],
+    [State('url', 'search')]
+)
+def studentprofile_populate(pathname, urlsearch):
+    if pathname == '/students/student_profile_edit':
+        parsed = urlparse(urlsearch)
+        create_mode = parse_qs(parsed.query).get('mode', [None])[0]
         
-#         if create_mode == 'add':
-#             movieid = 0
-#             deletediv = 'd-none'
-#         else:
-#             movieid = int(parse_qs(parsed.query)['id'][0])
-#             deletediv = ''
+        if create_mode == 'add':
+            studid = 0
+            deletediv = 'd-none'  # Hide delete option when adding a new student
+            
+            return deletediv, studid, '', '', '', '', ''  # Clear fields for new student
         
-#         return [genre_options, movieid, deletediv]
-#     else:
-#         raise PreventUpdate
+        else:
+            studid = int(parse_qs(parsed.query).get('id', [0])[0])
+            deletediv = ''  # Show delete option when editing an existing student
+            
+            sql = """
+                SELECT stud_fname AS fname,
+                       stud_lname AS lname,
+                       stud_city AS city,
+                       stud_address AS address,
+                       stud_gradelvl AS gradelvl
+                FROM student WHERE stud_id = %s;
+            """
+            
+            values = [studid]
+            col = ['fname', 'lname', 'city', 'address', 'gradelvl']
+            
+            df = getDataFromDB(sql, values, col)
 
+            return deletediv, studid, df['fname'][0], df['lname'][0], df['city'][0], df['address'][0], df['gradelvl'][0]
+    
+    else:
+        raise PreventUpdate
+
+@app.callback(
+    [
+        Output('studentprofile_alert', 'color'),
+        Output('studentprofile_alert', 'children'),
+        Output('studentprofile_alert', 'is_open'),
+        Output('studentprofile_successmodal', 'is_open')
+    ],
+    [Input('studentprofile_submit', 'n_clicks')],
+    [
+        State('studentprofile_fname', 'value'),
+        State('studentprofile_lname', 'value'),
+        State('studentprofile_city', 'value'),
+        State('studentprofile_address', 'value'),
+        State('studentprofile_gradelvl', 'value'),
+        State('url', 'search'),
+        State('studentprofile_studid', 'data'),
+        State('studentprofile_deleteind', 'value'),
+    ]
+)
+def studentprofile_saveprofile(submitbtn, fname, lname, city, address, gradelvl, urlsearch, 
+                             studid, deleteind):
+    ctx = dash.callback_context
+    if ctx.triggered:
+        eventid = ctx.triggered[0]['prop_id'].split('.')[0]
+
+        parsed = urlparse(urlsearch)
+        create_mode = parse_qs(parsed.query).get('mode', [None])[0]
+
+    else:
+        raise PreventUpdate
+
+    if eventid == 'studentprofile_submit' and submitbtn:
+        # Set default outputs
+        alert_open = False
+        modal_open = False
+        alert_color = ''
+        alert_text = ''
+
+        # Check inputs
+        if not fname:  # If first name is blank
+            alert_open = True
+            alert_color = 'danger'
+            alert_text = 'Check your inputs. Please supply the first name.'
+        elif not lname:
+            alert_open = True
+            alert_color = 'danger'
+            alert_text = 'Check your inputs. Please supply the last name.'
+        elif not city:
+            alert_open = True
+            alert_color = 'danger'
+            alert_text = 'Check your inputs. Please supply the city.'
+        elif not address:
+            alert_open = True
+            alert_color = 'danger'
+            alert_text = 'Check your inputs. Please supply the address.'
+        elif not gradelvl:
+            alert_open = True
+            alert_color = 'danger'
+            alert_text = 'Check your inputs. Please supply the grade level.'
         
-# @app.callback(
-#     [
-#         # dbc.Alert Properties
-#         Output('movieprofile_alert', 'color'),
-#         Output('movieprofile_alert', 'children'),
-#         Output('movieprofile_alert', 'is_open'),
-#         # dbc.Modal Properties
-#         Output('movieprofile_successmodal', 'is_open')
-#     ],
-#     [
-#         # For buttons, the property n_clicks 
-#         Input('movieprofile_submit', 'n_clicks')
-#     ],
-#     [
-#         # The values of the fields are States 
-#         # They are required in this process but they 
-#         # do not trigger this callback
-#         State('movieprofile_title', 'value'),
-#         State('movieprofile_genre', 'value'),
-#         State('movieprofile_releasedate', 'date'),
+        else:  # All inputs are valid
+            # Add or update the data in the db based on mode
+            if create_mode == 'add':
+                sql = '''
+                    INSERT INTO student (stud_fname, stud_lname, stud_city,
+                                         stud_address, stud_gradelvl, stud_delete_ind)
+                    VALUES (%s, %s, %s, %s, %s, %s)
+                '''
+                values = [fname, lname, city, address, gradelvl, False]
 
-#         State('url', 'search'),
-#         State('movieprofile_movieid', 'data'),
-#         State('movieprofile_deleteind', 'value'),
-#     ]
-# )
-# def movieprofile_saveprofile(submitbtn, title, genre, releasedate, urlsearch, 
-#                              movieid, deleteind):
-#     ctx = dash.callback_context
-#     # The ctx filter -- ensures that only a change in url will activate this callback
-#     if ctx.triggered:
-#         eventid = ctx.triggered[0]['prop_id'].split('.')[0]
+            elif create_mode == 'edit':
+                sql = '''
+                    UPDATE student 
+                    SET 
+                        stud_fname = %s,
+                        stud_lname = %s,
+                        stud_city = %s,
+                        stud_address = %s,
+                        stud_gradelvl = %s,
+                        stud_delete_ind = %s
+                    WHERE
+                        stud_id = %s
+                '''
+                values = [fname, lname, city, address, gradelvl,
+                          bool(deleteind), studid]
 
-#         parsed = urlparse(urlsearch)
-#         create_mode = parse_qs(parsed.query)['mode'][0]
+            else:
+                raise PreventUpdate
 
-#     else:
-#         raise PreventUpdate
+            modifyDB(sql, values)
 
-#     if eventid == 'movieprofile_submit' and submitbtn:
-#         # the submitbtn condition checks if the callback was indeed activated by a click
-#         # and not by having the submit button appear in the layout
+            # If this is successful, we want the success modal to show
+            modal_open = True
 
-#         # Set default outputs
-#         alert_open = False
-#         modal_open = False
-#         alert_color = ''
-#         alert_text = ''
+        return [alert_color, alert_text, alert_open, modal_open]
 
-#         # We need to check inputs
-#         if not title: # If title is blank, not title = True
-#             alert_open = True
-#             alert_color = 'danger'
-#             alert_text = 'Check your inputs. Please supply the movie title.'
-#         elif not genre:
-#             alert_open = True
-#             alert_color = 'danger'
-#             alert_text = 'Check your inputs. Please supply the movie genre.'
-#         elif not releasedate:
-#             alert_open = True
-#             alert_color = 'danger'
-#             alert_text = 'Check your inputs. Please supply the movie release date.'
-#         else: # all inputs are valid
-#             # Add the data into the db
-
-#             if create_mode == 'add':
-#                 sql = '''
-#                     INSERT INTO movies (movie_name, genre_id,
-#                         movie_release_date, movie_delete_ind)
-#                     VALUES (%s, %s, %s, %s)
-#                 '''
-#                 values = [title, genre, releasedate, False]
-
-#             elif create_mode == 'edit':
-#                 sql = '''
-#                     UPDATE movies 
-#                     SET 
-#                         movie_name = %s,
-#                         genre_id = %s,
-#                         movie_release_date = %s, 
-#                         movie_delete_ind = %s
-#                     WHERE
-#                         movie_id = %s
-#                 '''
-#                 values = [title, genre, releasedate, 
-#                           bool(deleteind),
-#                           movieid]
-
-#             else:
-#                 raise PreventUpdate
-
-#             modifyDB(sql, values)
-
-#             # If this is successful, we want the successmodal to show
-#             modal_open = True
-
-#         return [alert_color, alert_text, alert_open, modal_open]
-
-#     else: 
-#         raise PreventUpdate
-
-
-# @app.callback(
-#     [
-#         Output('movieprofile_title', 'value'),
-#         Output('movieprofile_genre', 'value'),
-#         Output('movieprofile_releasedate', 'date'),
-#     ],
-#     [
-#         Input('movieprofile_movieid', 'modified_timestamp')
-#     ],
-#     [
-#         State('movieprofile_movieid', 'data'),
-#     ]
-# )
-# def movieprofile_loadprofile(timestamp, movieid):
-#     if movieid: # check if movieid > 0
-
-#         # Query from db
-#         sql = """
-#             SELECT movie_name, genre_id, movie_release_date
-#             FROM movies
-#             WHERE movie_id = %s
-#         """
-#         values = [movieid]
-#         col = ['moviename', 'genreid', 'releasedate']
-
-#         df = getDataFromDB(sql, values, col)
-
-#         moviename = df['moviename'][0]
-#         # Our dropdown list has the genreids as values then it will 
-#         # display the correspoinding labels
-#         genreid = int(df['genreid'][0])
-#         releasedate = df['releasedate'][0]
-
-#         return [moviename, genreid, releasedate]
-
-#     else:
-#         raise PreventUpdate
+    else: 
+        raise PreventUpdate
