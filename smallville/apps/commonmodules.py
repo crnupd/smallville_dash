@@ -8,7 +8,7 @@ from dash.exceptions import PreventUpdate
 from app import app
 
 # Define a default style for nav links
-navlink_style = {'margin-left': '1em', 'color': '#000'}  # Adjust margin and color as needed
+navlink_style = {'margin-left': '1em'}  # Adjust margin and color as needed
 
 # Create a horizontal navbar using dbc.Navbar
 navbar = dbc.Navbar(
@@ -21,6 +21,7 @@ navbar = dbc.Navbar(
                 'margin-right': '10px'  # Add some margin to the right of the image
             }
         ),
+
         dbc.NavbarBrand("Smallville Montessori", href="/home"),  # Brand name with link
 
         dbc.Nav(
@@ -30,10 +31,21 @@ navbar = dbc.Navbar(
                 dbc.NavLink("Class Schedule", href="/student/student_sched", active="exact", style=navlink_style),
                 dbc.NavLink("Payment", href="/student/payment", active="exact", style=navlink_style),
                 dbc.NavLink("Teacher's Schedule", href="/teacher/teacher_sched", active="exact", style=navlink_style),
+                dbc.NavLink("Sign out", href="#", active="exact", style=navlink_style),
+                dbc.NavItem(html.Span("Welcome User1",className="navbar-text",style={
+                'margin-left': '630px'})),
             ],
             className="ml-auto",  # Aligns nav links to the right
             pills=True,  # Optional: adds pill styling to links
-        )
+        ),
+
+        html.Img(
+            src=app.get_asset_url('account.png'),  # Replace 'logo.png' with your actual image filename
+            style={
+                'height': '50px',  # Set height for uniformity
+                'margin-left': '10px'  # Add some margin to the right of the image
+            }
+        ),
     ],
     color="light",  # Background color of the navbar
     dark=False,     # Set to True for dark mode styling
