@@ -22,7 +22,12 @@ tab1_content = dbc.Card(
 tab2_content = dbc.Card(
     dbc.CardBody(
         [
-            html.P("This is tab 2!", className="card-text"),
+            html.H5("Open House", className="card-text"),
+            html.P("Join us for our Open House on Saturday, March 15th, from 10 AM to 1 PM. This is a great opportunity for prospective families to tour our classrooms and meet our dedicated staff.", className="card-text"),
+            html.H5("January 15, 2024: Winter Parent-Teacher Conferences", className="card-text"),
+            html.P("Time: 3:00 PM - 7:00 PM. Location will be at the School Gymnasium", className="card-text"),
+            html.H5("February 5, 2024: Montessori Education Week", className="card-text"),
+            html.P("A week-long celebration of Montessori education with special activities planned each day.", className="card-text"),
         ]
     ),
     className="mt-3",
@@ -35,42 +40,60 @@ tabs = dbc.Tabs(
     ]
 )
 
+row = html.Div(
+    [
+        dbc.Row(
+            [
+                dbc.Col(html.Div(
+                    style={'margin-left': '15px', 'margin-top': '20px', 'padding': '10px'},
+                    children=[
+                        html.H5(style={'font-weight': 'bold'}, children="Our Mission at Smallville Montessori"),
+                        html.P("At Smallville Montessori, we are dedicated to fostering a nurturing and stimulating environment that embodies the principles of the Montessori curriculum as envisioned by Dr. Maria Montessori herself. We believe in self-directed, hands-on learning that empowers children to explore their interests and develop a lifelong love for education."),
+                        html.H5(style={'font-weight': 'bold'}, children="Why choose Smallville Montessori?"),
+                        html.P("Child-Centered Learning: Our Montessori approach prioritizes the individual needs and interests of each child. We create an environment where children can thrive by nurturing their independence, curiosity, and passion for discovery. By allowing children to choose their activities, we encourage them to take ownership of their learning journey, fostering critical thinking and problem-solving skills that will serve them throughout their lives."),
+                        html.P("Inclusive Community: At Smallville Montessori, we celebrate every child's unique journey and learning style. Our classrooms are designed to be inclusive, recognizing that each child brings their own strengths and perspectives. We foster a sense of belonging and community, where children learn from one another and develop social skills through collaboration and teamwork. Our diverse environment prepares children to embrace differences and build meaningful relationships."),
+                        html.P("Holistic Development: We focus on the holistic development of each child, integrating academic learning with social-emotional growth. Our curriculum encompasses not only core subjects like mathematics and language but also emphasizes practical life skills, sensory experiences, and creative expression through art and music. We believe that education should nurture the whole child—intellectually, emotionally, socially, and physically—preparing them for future challenges in a rapidly changing world.")
+                    ],
+                    className='divBorder'
+                )),
+                dbc.Col(html.Div(tabs)),
+            ]
+        ),
+    ]
+)
+
 
 # Define the layout variable instead of modifying app.layout directly
 layout = html.Div(  # Wrap everything in a Div
     [
-        html.Div (style={
-            'background-image':"home.png",
-            'background-repeat':'no-repeat',
-            'background-position': 'right top',
-            'background-size': '150px 1000px'
-        }
+        html.Div([
+            html.Img(src='/assets/home.png', 
+                     style={'width': '100%', 'height': 'auto','padding': '0px 0px'})  # Adjust size as needed
+        ]),
+
+                # # Introduction Section
+                # html.Div(
+                #     style={'margin-left': '15px', 'margin-top': '10px'},
+                #     children=[
+                #         html.P("In Smallville Montessori, we believe in Montessori curriculum the way Maria Montessori herself practiced her teaching."),
+                #         html.P(style={'font-weight': 'bold'}, children="Why choose Smallville Montessori?"),
+                #         html.P("Child-Centered Learning: Our Montessori approach nurtures independence, curiosity, and a passion for discovery."),
+                #         html.P("Inclusive Community: We celebrate every child's unique journey and learning style."),
+                #         html.P("Holistic Development: Focusing on academics, social skills, and emotional growth.")
+                #     ]
+                # ),
+
+        row,
+        #Button
+        html.A(
+                dbc.Button("Register", color="primary", className="me-1"), href="/student/student_profile",  # Specify the page to redirect to
+            style={
+                'position': 'absolute',
+                'top': '280px',  # Distance from the top of the parent container
+                'right': '1100px',  # Distance from the right of the parent container
+                'z-index': 1000,  # Ensure it appears above other elements
+            }
         ),
-
-        # html.Main(
-        #     children=[
-        #         html.Header(
-        #             style={'background-color': '#003093', 'padding': '10px 20px'},
-        #             children=[
-        #                 html.H1('Smallville Montessori - Katipunan', style={'color': '#f1f1f1'}),
-        #                 html.H3('Welcome User!', style={'color': '#f1f1f1'})
-        #             ]
-        #         ),
-        
-        # dbc.Card()
-                # Introduction Section
-                html.Div(
-                    style={'margin-left': '15px', 'margin-top': '7px'},
-                    children=[
-                        html.P("In Smallville Montessori, we believe in Montessori curriculum the way Maria Montessori herself practiced her teaching."),
-                        html.P(style={'font-weight': 'bold'}, children="Why choose Smallville Montessori?"),
-                        html.P("Child-Centered Learning: Our Montessori approach nurtures independence, curiosity, and a passion for discovery."),
-                        html.P("Inclusive Community: We celebrate every child's unique journey and learning style."),
-                        html.P("Holistic Development: Focusing on academics, social skills, and emotional growth.")
-                    ]
-                ),
-
-        tabs,
 
                 # Footer
                 html.Footer(
@@ -78,9 +101,10 @@ layout = html.Div(  # Wrap everything in a Div
                         'text-align': 'center',
                         'padding': '6px',
                         'background-color': '#003093',
-                        'position': 'fixed',
+                        # 'position': 'fixed',
                         'bottom': 0,
-                        'width': "100%"
+                        'width': "100%",
+                        'margin-top': '500px'
                     },
                     children=[
                         html.P(style={'color': '#f1f1f1'}, children="© 2024 Smallville Montessori")
@@ -88,5 +112,3 @@ layout = html.Div(  # Wrap everything in a Div
                 )
             ]
         )
-#     ]
-# )
