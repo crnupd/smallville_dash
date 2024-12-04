@@ -6,6 +6,18 @@ from dash.exceptions import PreventUpdate
 from app import app
 from apps.dbconnect import getDataFromDB
 
+table_header = [
+    html.Thead(html.Tr([html.Th("PLAN"), html.Th("Amount per Payment (in pesos)"),  html.Th("Total to Pay (in pesos)")]))
+]
+
+row1 = html.Tr([html.Td("Monthly"), html.Td("6,125.00"), html.Td("73,500")])
+row2 = html.Tr([html.Td("Quarterly"), html.Td("18,025.00"), html.Td("72,100")])
+row3 = html.Tr([html.Td("Yearly"), html.Td("70,000"), html.Td("70,000")])
+
+table_body = [html.Tbody([row1, row2, row3])]
+
+table = dbc.Table(table_header + table_body, bordered=True)
+
 layout = html.Div(
     [
         dcc.Location(id='/student/payment', refresh=False),
@@ -22,14 +34,35 @@ layout = html.Div(
             [
                 dbc.CardHeader(  # Define Card Header
                     [
-                        html.H3('Payment Plan Details')
+                        html.P("Payment Plans")
                     ]
                 ),
                 dbc.CardBody(  # Define Card Contents
                     [
                         html.Div(  
                             [
-                                html.P("/insert payment plan details"),
+                                table,
+                                html.H5("Payment Plan Details"),
+                                html.P("Total Tuition Fee: 70,000 pesos"),
+                                html.H6("Important Notice"),
+                                html.P(["- Families are encouraged to select the payment plan that best fits their financial situation.", html.Br(), 
+                                        "- All payments are due on the first of each month or quarter as applicable.", html.Br(),
+                                        "- Please ensure that all payments are made before the due dates to avoid any late fees.", html.Br(),
+                                        "- You may upload the transaction receipt at this website. Your Payment History is also shown below for your reference.",]),
+                                html.H6("Payment Options for Enrollment at Smallville Montessori"),
+                                html.P(["Bank Transfer via BDO", html.Br(), 
+                                        "Account Name: Smallville Montessori School", html.Br(), 
+                                        "Account Number: 1234-5678-9012", html.Br(),
+                                        "Branch: Smallville Branch", html.Br(),
+                                        "Payment Reference: Please include your child's name and grade level in the reference.", html.Br(),
+                                        ]),
+                                html.P(["Bank Transfer via BPI", html.Br(), 
+                                        "Account Name: Smallville Montessori School", html.Br(), 
+                                        "Account Number: 9876-5432-1098", html.Br(),
+                                        "Branch: Main Branch", html.Br(),
+                                        "Payment Reference: Please include your child's name and grade level in the reference.", html.Br(),
+                                        ]),
+                                
                             ]
                         ), 
                     ]       
