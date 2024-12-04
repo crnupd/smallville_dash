@@ -32,7 +32,7 @@ layout = html.Div(
             [
                 dbc.CardHeader(  # Define Card Header
                     [
-                        html.P("Payment Plans")
+                        html.H3("Payment Plans")
                     ]
                 ),
                 dbc.CardBody(  # Define Card Contents
