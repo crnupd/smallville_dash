@@ -11,71 +11,87 @@ layout = html.Div(
         # Page Header
         html.Div(
             [
-                html.H2('Students'),
+                html.H2('Students Registration Records'),
                 html.Hr(),
             ],
-            style={'margin-top': '60px'}  # Adjust margin to avoid overlap with navbar
+            style={'margin-top': '15px'}  # Adjust margin to avoid overlap with navbar
         ),
         dbc.Card(  # Card Container
             [
                 dbc.CardHeader(  # Define Card Header
-                    [
-                        html.H3('Manage Records')
-                    ]
+                    dbc.Row(  # Use Row to align text and button
+                        [
+                            dbc.Col(
+                                html.H3('Manage Records'),
+                                width=10  # Occupy 10 parts of the row
+                            ),
+                            dbc.Col(  # Wrap the button properly inside a column
+                                dbc.Button(
+                                    "Add Student",
+                                    href='/student/student_profile_edit?mode=add',
+                                    color='primary',
+                                    style={'float': 'right'}
+                                ),
+                                width=2,  # Occupy 2 parts of the row
+                                className="text-right"  # Align the button to the right
+                            ),
+                        ],
+                        justify="between",  # Spread the columns across the row
+                        align="center",  # Vertically align items in the row to the center
+                    ),
                 ),
                 dbc.CardBody(  # Define Card Contents
                     [
-                        html.Div(  # Add Student Btn
-                            [
-                                dbc.Button(
-                                    "Add Student",
-                                    href='/student/student_profile_edit?mode=add'
-                                )
-                            ]
-                        ),
                         html.Hr(),
                         html.Div(  # Create section to show list of students
                             [
                                 html.H4('Find Students'),
-                                dbc.Row([
-                                    dbc.Col(
-                                        dbc.Label("Search by First Name", width=4),
-                                        width=4
-                                    ),
+                                dbc.Row([  # Row for the label and filter text box
+                                    # dbc.Col(
+                                    #     dbc.Label("Search by First Name", width=4),  # Label with width 4
+                                    #     width=4
+                                    # ),
                                     dbc.Col(
                                         dbc.Input(
                                             type='text',
                                             id='student_fnamefilter',
-                                            placeholder='Enter First Name to Filter'
+                                            placeholder='Search by First Name to Filter'
                                         ),
-                                        width=5
+                                        width=12  # Text box next to the label, occupies remaining space
                                     )
-                                ]),
+                                ]), 
                                 html.Hr(),
                                 html.H4('Sort Students'),
-                                # Dropdown for selecting the column to sort by
+                                # Place dropdown and button side by side inside one column
                                 dbc.Row([
-                                    dbc.Col(
-                                        dcc.Dropdown(
-                                            id="sort_column",
-                                            options=[
-                                                {'label': 'First Name', 'value': 'stud_fname'},
-                                                {'label': 'Last Name', 'value': 'stud_lname'},
-                                                {'label': 'City', 'value': 'stud_city'},
-                                                {'label': 'Grade Level', 'value': 'stud_gradelvl'}
-                                            ],
-                                            placeholder="Select Column to Sort",
-                                            value='stud_fname',  # Default column to sort
-                                            clearable=False
-                                        )
-                                    ),
-                                    dbc.Col(
-                                        dbc.Button(
-                                            'Sort',
-                                            id='sort_button',
-                                            color='primary',
-                                            n_clicks=0
-                                        )
+                                    dbc.Col(  # One column for both the dropdown and the button
+                                        dbc.Row([  # Use another Row to place them side by side inside this column
+                                            dbc.Col(  # Column for the dropdown
+                                                dcc.Dropdown(
+                                                    id="sort_column",
+                                                    options=[
+                                                        {'label': 'First Name', 'value': 'stud_fname'},
+                                                        {'label': 'Last Name', 'value': 'stud_lname'},
+                                                        {'label': 'City', 'value': 'stud_city'},
+                                                        {'label': 'Grade Level', 'value': 'stud_gradelvl'}
+                                                    ],
+                                                    placeholder="Select Column to Sort",
+                                                    value='stud_fname',  # Default column to sort
+                                                    clearable=False,
+                                                    style={'margin': '2px 0px'}  # 2px margin top and bottom, 0px margin right
+                                                ),
+                                            ),
+                                            dbc.Col(  # Column for the button
+                                                dbc.Button(
+                                                    'Sort',
+                                                    id='sort_button',
+                                                    color='primary',
+                                                    n_clicks=0,
+                                                    style={'margin': '2px 0px'}  # 2px margin for the button
+                                                ),
+                                            ),
+                                        ]),
+                                        width=12,  # Occupy full width for the parent column (12/12)
                                     ),
                                 ]),
                                 html.Div(id='student_studentlist')  # Placeholder for student table
