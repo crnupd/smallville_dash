@@ -56,7 +56,7 @@ row = html.Div(
                     ],
                     className='divBorder'
                 )),
-                dbc.Col(html.Div(tabs)),
+                dbc.Col(html.Div(tabs,style={'margin-top': '20px'})),
             ]
         ),
     ]
