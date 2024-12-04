@@ -15,92 +15,89 @@ layout = html.Div(
         html.Hr(),
         dbc.Alert(id='paymentupload_alert', is_open=False),  # For feedback purposes
         dbc.Form(
-            [
-                dbc.Row(
-                    [
-                        dbc.Label("Student Name", width=1),
-                        dbc.Col(
+            dbc.Table(
+                [
+                    html.Tr([
+                        html.Td(dbc.Label("Student Name"), style={'width': '10%'}),
+                        html.Td(
                             dbc.Input(
                                 type='text', 
                                 id='stud_name',
                                 placeholder="Student Name"
                             ),
-                            width=5
+                            style={'width': '80%'}
                         )
                     ],
                     className='mb-3'
-                ),
-                dbc.Row(
-                    [
-                        dbc.Label("Chosen Payment Plan", width=1),
-                        dbc.Col(
+                    ),
+                    html.Tr([
+                        html.Td(dbc.Label("Chosen Payment Plan"), style={'width': '10%'}),
+                        html.Td(
                             dbc.Input(
                                 type='text', 
                                 id='pay_plan',
                                 placeholder="Plan"
                             ),
-                            width=5
+                            style={'width': '80%'}
                         )
                     ],
                     className='mb-3'
-                ),
-                dbc.Row(
-                    [
-                        dbc.Label("Payment Number", width=1),
-                        dbc.Col(
+                    ),
+                    html.Tr([
+                        html.Td(dbc.Label("Reference Number"), style={'width': '10%'}),
+                        html.Td(
                             dbc.Input(
                                 type='text', 
                                 id='pay_num',
-                                placeholder="Payment Number"
+                                placeholder="Reference Number"
                             ),
-                            width=5
+                            style={'width': '80%'}
                         )
                     ],
                     className='mb-3'
-                ),
-                dbc.Row(
-                    [
-                        dbc.Label("Date", width=1),
-                        dbc.Col(
-                            dcc.DatePickerSingle(
-                                month_format='YYYY-MM-DD',
-                                placeholder='YYYY-MM-DD',
-                                id='pay_date',
-                            ),
-                            width=5
-                        )
-                    ],
-                    className='mb-3'
-                ),
-                dbc.Row(
-                    [
-                        dbc.Label("Payment Method", width=1),
-                        dbc.Col(
+                    ),
+                    html.Tr([
+                        html.Td(dbc.Label("Date"), style={'width': '10%'}),
+                        html.Td(
                             dbc.Input(
-                                type='text', 
-                                id='pay_method',
-                                placeholder="Payment Method"
+                                type='date',
+                                id='pay_date'
                             ),
-                            width=5
+                            style={'width': '80%'}
                         )
                     ],
                     className='mb-3'
-                ),
-                dbc.Row(
-                    [
-                        dbc.Label("Upload Proof of Payment", width=1),
-                        dbc.Col(
+                    ),
+                    html.Tr([
+                        html.Td(dbc.Label("Payment Method"), style={'width': '10%'}),
+                        html.Td(
+                            dbc.Select(
+                                id='pay_method',
+                                options=[
+                                    {"label": "BDO", "value": "BDO"},
+                                    {"label": "BPI", "value": "BPI"},
+                                ],
+                                placeholder="Select Payment Method"
+                            ),
+                            style={'width': '80%'}
+                        )
+                    ],
+                    className='mb-3'
+                    ),
+                    html.Tr([
+                        html.Td(dbc.Label("Upload Proof of Payment"), style={'width': '10%'}),
+                        html.Td(
                             dcc.Upload(
                                 id='pay_proof',
-                                children=html.Div(
-                                    ["Drag and Drop or ", html.A("Select Files")]
-                                ),
+                                children=html.Button('Upload Proof'),
+                                multiple=False
                             ),
-                            width=5
+                            style={'width': '80%'},
                         )
                     ],
-                )
-            ]
+                    )
+                ]
+            )
         ),
         dbc.Button(
             'Submit',
@@ -132,7 +129,7 @@ layout = html.Div(
         State('stud_name', 'value'),
         State('pay_plan', 'value'),
         State('pay_num', 'value'),
-        State('pay_date', 'date'),
+        State('pay_date', 'value'),
         State('pay_method', 'value'),
         State('pay_proof', 'contents'),
     ]
@@ -155,20 +152,25 @@ def paymentupload_populate(n_clicks, stud_name, pay_plan, pay_num, pay_date, pay
     elif not pay_proof:
         return True, 'danger', 'Please upload proof of payment.', False
 
-    else:
-    # Decode the uploaded proof
-        proof_data = base64.b64decode(pay_proof.split(',')[1])
-
-    # Insert into database
-        sql = '''
-            INSERT INTO payment (stud_name, pay_plan, pay_num, pay_date, pay_method, pay_proof)
-            VALUES (%s, %s, %s, %s, %s, %s)
-        '''
-        values = (stud_name, pay_plan, pay_num, pay_date, pay_method, proof_data)
-
     try:
-        modifyDB(sql, values)
-        return False, '', '', True
+        # Decode the uploaded proof (base64 format)
+        if pay_proof:
+            proof_data = base64.b64decode(pay_proof.split(',')[1])  # Remove base64 metadata
+
+            # Insert into database
+            sql = '''
+                INSERT INTO payment (stud_name, pay_plan, pay_num, pay_date, pay_method, pay_proof)
+                VALUES (%s, %s, %s, %s, %s, %s)
+            '''
+            values = (stud_name, pay_plan, pay_num, pay_date, pay_method, proof_data)
+
+            # Perform the database insert operation
+            modifyDB(sql, values)
+
+            return False, '', '', True  # Success modal will show
+        else:
+            return True, 'danger', 'Error processing payment proof.', False
+
     except Exception as e:
         print(e)
-        return True, 'danger', 'Error saving payment. Please try again.', False
+        return True, 'danger', 'Error saving payment. Please try again.', False  # Error feedback
