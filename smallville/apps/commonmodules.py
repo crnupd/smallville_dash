@@ -32,7 +32,7 @@ navbar = dbc.Navbar(
                 dbc.NavLink("Payment", href="/student/payment", active="exact", style=navlink_style),
                 dbc.NavLink("Teacher's Schedule", href="/teacher/teacher_sched", active="exact", style=navlink_style),
                 dbc.NavLink("Sign out", href="#", active="exact", style=navlink_style),
-                dbc.NavLink("Welcome User1", href="#", style={'margin-left': '630px'}),
+                dbc.NavLink("Welcome, User1", href="#", className="mr-auto")
             ],
             className="ml-auto",  # Aligns nav links to the right
             pills=True,  # Optional: adds pill styling to links
@@ -56,7 +56,7 @@ layout = html.Div(
     [
         navbar,  # Include the navbar at the top of your layout
         html.Div(
-            style={'margin-top': '70px'},  # Adjust margin to avoid overlap with navbar
+            style={'margin-top': '0px'},  # Adjust margin to avoid overlap with navbar
             children=[
                 html.H2('Students'),
                 html.Hr(),

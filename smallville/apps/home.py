@@ -5,19 +5,59 @@ from dash.exceptions import PreventUpdate
 
 from app import app
 
+tab1_content = dbc.Card(
+    dbc.CardBody(
+        [
+            html.H5("Spring Break", className="card-text"),
+            html.P("Please note that Spring Break will take place from April 1st to April 5th. Classes will resume on April 8th.", className="card-text"),
+            html.H5("Enrollment for Next Year", className="card-text"),
+            html.P("Enrollment for the 2024-2025 school year is now open! Secure your child's spot by completing the registration forms available on our website.", className="card-text"),
+            html.H5("Parent Workshops", className="card-text"),
+            html.P("Join us for a series of workshops focused on Montessori education and parenting strategies, starting on March 25th. Details will be sent out via email.", className="card-text"),
+        ]
+    ),
+    className="mt-3",
+)
+
+tab2_content = dbc.Card(
+    dbc.CardBody(
+        [
+            html.P("This is tab 2!", className="card-text"),
+        ]
+    ),
+    className="mt-3",
+)
+
+tabs = dbc.Tabs(
+    [
+        dbc.Tab(tab1_content, label="Announcements"),
+        dbc.Tab(tab2_content, label="Schedules"),
+    ]
+)
+
+
 # Define the layout variable instead of modifying app.layout directly
 layout = html.Div(  # Wrap everything in a Div
     [
-        html.Main(
-            children=[
-                html.Header(
-                    style={'background-color': '#003093', 'padding': '10px 20px'},
-                    children=[
-                        html.H1('Smallville Montessori - Katipunan', style={'color': '#f1f1f1'}),
-                        html.H3('Welcome User!', style={'color': '#f1f1f1'})
-                    ]
-                ),
-                
+        html.Div (style={
+            'background-image':"home.png",
+            'background-repeat':'no-repeat',
+            'background-position': 'right top',
+            'background-size': '150px 1000px'
+        }
+        ),
+
+        # html.Main(
+        #     children=[
+        #         html.Header(
+        #             style={'background-color': '#003093', 'padding': '10px 20px'},
+        #             children=[
+        #                 html.H1('Smallville Montessori - Katipunan', style={'color': '#f1f1f1'}),
+        #                 html.H3('Welcome User!', style={'color': '#f1f1f1'})
+        #             ]
+        #         ),
+        
+        # dbc.Card()
                 # Introduction Section
                 html.Div(
                     style={'margin-left': '15px', 'margin-top': '7px'},
@@ -30,60 +70,7 @@ layout = html.Div(  # Wrap everything in a Div
                     ]
                 ),
 
-                # Tabs Section
-                html.Div(
-                    className='tab',
-                    children=[
-                        html.H2('Enroll Now!'),
-                        html.Div(
-                            className='btab',
-                            children=[
-                                html.Button('Announcements', id='announcements-tab', n_clicks=0, className='tablink w3-red'),
-                                html.Button('Schedules', id='schedules-tab', n_clicks=0, className='tablink'),
-                                html.Button('Grade', id='grade-tab', n_clicks=0, className='tablink')
-                            ]
-                        ),
-                        
-                        # Announcements Tab Content
-                        html.Div(id='announcements-content', style={'display': 'block'}, children=[
-                            html.Table([
-                                html.Thead(html.Tr([html.Th("Announcements")])),
-                                html.Tbody([
-                                    html.Tr([html.Td("Announcement 1")]),
-                                    html.Tr([html.Td("Announcement 2")]),
-                                    html.Tr([html.Td("Announcement 3")]),
-                                    html.Tr([html.Td("Announcement 4")])
-                                ])
-                            ])
-                        ]),
-
-                        # Schedules Tab Content
-                        html.Div(id='schedules-content', style={'display': 'none'}, children=[
-                            html.Table([
-                                html.Thead(html.Tr([html.Th("Schedule")])),
-                                html.Tbody([
-                                    html.Tr([html.Td("Schedule 1")]),
-                                    html.Tr([html.Td("Schedule 2")]),
-                                    html.Tr([html.Td("Schedule 3")]),
-                                    html.Tr([html.Td("Schedule 4")])
-                                ])
-                            ])
-                        ]),
-
-                        # Grade Tab Content
-                        html.Div(id='grade-content', style={'display': 'none'}, children=[
-                            html.Table([
-                                html.Thead(html.Tr([html.Th("Grade")])),
-                                html.Tbody([
-                                    html.Tr([html.Td("Grade A")]),
-                                    html.Tr([html.Td("Grade B")]),
-                                    html.Tr([html.Td("Grade C")]),
-                                    html.Tr([html.Td("Grade D")])
-                                ])
-                            ])
-                        ])
-                    ]
-                ),
+        tabs,
 
                 # Footer
                 html.Footer(
@@ -101,5 +88,5 @@ layout = html.Div(  # Wrap everything in a Div
                 )
             ]
         )
-    ]
-)
+#     ]
+# )
