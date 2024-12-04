@@ -20,8 +20,6 @@ table = dbc.Table(table_header + table_body, bordered=True)
 
 layout = html.Div(
     [
-        dcc.Location(id='/student/payment', refresh=False),
-
         # Page Header
         html.Div(
             [
@@ -89,11 +87,7 @@ layout = html.Div(
                     ]
                 ),
                 dbc.CardBody(  # Define Card Contents
-                    [
-                        html.Div(  # payment history list
-                                id='payment_history'
-                        )
-                    ]
+                        html.Div(id='payment_history') # payment history list
                 )
             ]
         )
@@ -112,9 +106,10 @@ def updateRecordsTable(pathname):
         SELECT stud_name, pay_plan, pay_num, pay_date, pay_method, pay_proof 
         FROM payment 
     """
-    col = ["Student Name", "Plan", "Invoice No.","Payment Date", "Payment Method", "Proof"]
+    val = []
+    col = ["Student Name", "Plan", "Reference No.","Payment Date", "Payment Method", "Proof"]
 
-    df = getDataFromDB(sql,[], col)
+    df = getDataFromDB(sql, val, col)
 
     if df.empty:
         return html.Div("No payment history found.")  # Provide feedback if no records exist
@@ -122,15 +117,18 @@ def updateRecordsTable(pathname):
     df['Action'] = [
         html.Div(
             dbc.Button("View", color='warning', size='sm', 
-                        href=row["pay_proof"], target="_blank"),
+                        href=row["pay_proof"]),
             className='text-center'
         ) for idx, row in df.iterrows()
     ]
 
     # Exclude 'proof' from display and replace with button
-    df = df[["Student Name", "Plan", "Invoice No.","Payment Date", "Payment Method","Action"]]
+    df = df[["Student Name", "Plan", "Reference No.","Payment Date", "Payment Method", "Action"]]
 
     payment_table = dbc.Table.from_dataframe(df, striped=True, bordered=True,
                                               hover=True, size='sm')
 
     return [payment_table]  # Return the generated table directly
+
+
+
