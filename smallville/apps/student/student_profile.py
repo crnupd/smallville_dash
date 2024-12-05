@@ -59,7 +59,8 @@ layout = html.Div(
                                                         {'label': 'First Name', 'value': 'stud_fname'},
                                                         {'label': 'Last Name', 'value': 'stud_lname'},
                                                         {'label': 'City', 'value': 'stud_city'},
-                                                        {'label': 'Grade Level', 'value': 'stud_gradelvl'}
+                                                        {'label': 'Grade Level', 'value': 'stud_gradelvl'},
+                                                        {'label': 'Enrollment Status', 'value': 'enroll_status'}  # Added Enrollment Status
                                                     ],
                                                     placeholder="Select Column to Sort",
                                                     value='stud_fname',  # Default column to sort
@@ -79,7 +80,7 @@ layout = html.Div(
                                         ]), 
                                         width=12,  # Occupy full width for the parent column (12/12)
                                     ),
-                                ]),
+                                ]), 
 
                                 html.Hr(),
 
@@ -135,7 +136,8 @@ def updateRecordsTable(pathname, sort_column, n_clicks, student_fnamefilter, pre
         stud_lname AS "Last Name",
         stud_city AS "City",
         stud_address AS "Address",
-        stud_gradelvl AS "Grade Level"
+        stud_gradelvl AS "Grade Level",
+        enroll_status AS "Enrollment Status"  -- Add enroll_status column
     FROM student
     WHERE NOT stud_delete_ind
     """
@@ -143,8 +145,21 @@ def updateRecordsTable(pathname, sort_column, n_clicks, student_fnamefilter, pre
 
     # Apply filter based on the selected column and filter value
     if student_fnamefilter and sort_column:
-        sql += f""" AND {sort_column} ILIKE %s"""
-        val += [f'%{student_fnamefilter}%']
+        # If the selected sort column is 'enroll_status', treat the filter as specific to that column.
+        if sort_column == "enroll_status":
+            # We expect 'Enrolled' or 'Not Enrolled' as the filter value
+            student_fnamefilter = student_fnamefilter.lower()
+            if student_fnamefilter == 'enrolled':
+                sql += " AND enroll_status = TRUE"
+            elif student_fnamefilter == 'not enrolled':
+                sql += " AND enroll_status = FALSE"
+            else:
+                # If the filter is not 'Enrolled' or 'Not Enrolled', don't filter by this column
+                pass
+        else:
+            # For other columns, apply the filter normally (ILIKE for case-insensitive search)
+            sql += f""" AND {sort_column} ILIKE %s"""
+            val += [f'%{student_fnamefilter}%']
 
     # Handle sorting based on button clicks
     # Alternate sorting direction on each button click
@@ -158,7 +173,7 @@ def updateRecordsTable(pathname, sort_column, n_clicks, student_fnamefilter, pre
         sql += f" ORDER BY {sort_column} {sort_direction}"
 
     # Columns for the DataFrame
-    col = ["Student ID", "First Name", "Last Name", "City", "Address", "Grade Level"]
+    col = ["Student ID", "First Name", "Last Name", "City", "Address", "Grade Level", "Enrollment Status"]
 
     # Fetch data from the database
     df = getDataFromDB(sql, val, col)
@@ -166,6 +181,15 @@ def updateRecordsTable(pathname, sort_column, n_clicks, student_fnamefilter, pre
     # If no data found, return a message
     if df.empty:
         return html.Div("No data available"), student_fnamefilter
+
+    # Debug: Check the values in the 'Enrollment Status' column before applying the transformation
+    print("Enrollment Status Values before transformation:", df['Enrollment Status'].unique())
+
+    # Replace the enroll_status True/False values with 'Enrolled'/'Not Enrolled'
+    df['Enrollment Status'] = df['Enrollment Status'].apply(lambda x: 'Enrolled' if x else 'Not Enrolled')
+
+    # Debug: Check the values after applying the transformation
+    print("Enrollment Status Values after transformation:", df['Enrollment Status'].unique())
 
     # Generate 'Action' button column with edit links
     df['Action'] = [
@@ -181,7 +205,7 @@ def updateRecordsTable(pathname, sort_column, n_clicks, student_fnamefilter, pre
     ]
 
     # Reorganize columns for display
-    df = df[["Student ID", "First Name", "Last Name", "City", "Address", "Grade Level", 'Action']]
+    df = df[["Student ID", "First Name", "Last Name", "City", "Address", "Grade Level", "Enrollment Status", 'Action']]
 
     # Generate the table from DataFrame
     student_table = dbc.Table.from_dataframe(df, striped=True, bordered=True, hover=True, size='sm')
