@@ -66,7 +66,7 @@ layout = html.Div(
                                     {'label': 'Prefer not to say', 'value': 'Prefer not to say'},
                                 ],
                                 value='Prefer not to say',  # Default value
-                                style={'width': '80%'}
+                                style={'width': '100%'}
                             )
                         ),
                     ]),
@@ -111,18 +111,26 @@ layout = html.Div(
                                     {'label': 'Grade 6', 'value': 'Grade 6'},
                                 ],
                                 value='Kindergarten',  # Default value
-                                style={'width': '80%'}
+                                style={'width': '100%'}
                             )
                         ),
                     ]),
+                ]   
+            )
+        ),
+        html.H2('Parent Details'),  # Page Header
+        html.Hr(),
+        dbc.Form(
+            dbc.Table(
+                [
                     # Parent First Name Row
                     html.Tr([
-                        html.Td(dbc.Label("Parent First Name"), style={'width': '10%'}),
+                        html.Td(dbc.Label("Parent Full Name"), style={'width': '10%'}),
                         html.Td(
                             dbc.Input(
                                 type='text', 
                                 id='studentprofile_parent_fname',
-                                placeholder="Parent First Name"
+                                placeholder="Parent Full Name"
                             ),
                             style={'width': '80%'}
                         ),
@@ -163,10 +171,11 @@ layout = html.Div(
                                     {'label': 'Guardian', 'value': 'Guardian'},
                                 ],
                                 value='Mother',  # Default value
-                                style={'width': '80%'}
+                                style={'width': '100%'}
                             )
                         ),
                     ]),
+                
                     # Delete Option Row
                     html.Tr([
                         html.Td(dbc.Label("Mark as deleted?"), style={'width': '10%'}),
