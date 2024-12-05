@@ -6,6 +6,9 @@ import pandas as pd
 from app import app
 from apps.dbconnect import getDataFromDB  # Assuming the database connection functions are implemented here
 
+from flask_login import current_user
+dash.register_page(__name__)
+
 layout = html.Div(
     [
         # Page Header

@@ -5,6 +5,8 @@ from dash.exceptions import PreventUpdate
 
 from app import app
 
+dash.register_page(__name__, path="/")
+
 tab1_content = dbc.Card(
     dbc.CardBody(
         [
@@ -104,7 +106,6 @@ row = html.Div(
         ),
     ]
 )
-
 
 # Define the layout variable instead of modifying app.layout directly
 layout = html.Div(  # Wrap everything in a Div
