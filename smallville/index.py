@@ -12,12 +12,8 @@ from apps import home  # Import the home layout
 from apps.student import student_profile, student_profile_edit
 from apps.schedule import student_sched, sched_edit, sched_form, sched_management
 from apps.payment import payment, payment_upload
-<<<<<<< HEAD
-=======
-from apps.teacher import teacher_sched
 from apps import login
 from apps import profile
->>>>>>> 9263eccdc1ea98682482aac08ca587de2a56739a
 
 # Define the main layout of the app
 app.layout = html.Div(
