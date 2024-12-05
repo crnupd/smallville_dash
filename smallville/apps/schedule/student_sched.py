@@ -6,101 +6,99 @@ import pandas as pd
 import dash_table
 
 from app import app
-# from apps.dbconnect import getDataFromDB
+from apps.dbconnect import getDataFromDB
 
-# Sample data for the schedule
-data = {
-    "Grade": ["Grade 1", "Grade 2", "Grade 3"],
-    "Class": [
-        ["Subject 1", "Subject 2", "Subject 3", "Subject 4"],
-        ["Subject 1", "Subject 2", "Subject 3", "Subject 4"],
-        ["Subject 1", "Subject 2", "Subject 3", "Subject 4"],
-    ],
-    "Teacher": [
-        ["Teacher 1", "Teacher 2", "Teacher 3", "Teacher 4"],
-        ["Teacher A", "Teacher B", "Teacher C", "Teacher D"],
-        ["Teacher 5", "Teacher 6", "Teacher 7", "Teacher 8"],
-    ],
-    "Schedule": [
-        ["MWF 10:00 AM-11:00 AM", "MWF 11:00 AM-12:00 PM", "TTh 12:00 PM-1:00 PM", "TTh 1:00 PM-2:00 PM"],
-        ["MWF 9:00 AM-10:00 AM", "MWF 10:00 AM-11:00 AM", "TTh 11:00 AM-12:00 PM", "TTh 12:00 PM-1:00 PM"],
-        ["MWF 8:00 AM-9:00 AM", "MWF 9:00 AM-10:00 AM", "TTh 10:00 AM-11:00 AM", "TTh 11:00 AM-12:00 PM"],
-    ],
-}
+sql = """
+SELECT 
+    grade_level AS "Grade Level",
+    subject AS "Subject",
+    teacher AS "Teacher",
+    schedule AS "Schedule",
+    id
+FROM class_sched
+WHERE TRUE
+"""
 
-# Convert data into a DataFrame for easier handling
-schedule_data = pd.DataFrame(data)
+val = []
+
+col = ["Grade Level", "Subject", "Teacher", "Schedule", "id"]
+
+df = getDataFromDB(sql, val, col)
+
+df_grouped = df.groupby('Grade Level').agg({
+    'Subject': list, 
+    'Teacher': list, 
+    'Schedule': list
+}).reset_index()
 
 layout = html.Div(
     [
-        dbc.Card( # Card Container
+        html.Div(
             [
-                dbc.CardHeader( # Define Card Header
+                html.H2('View Schedules'),
+                html.Hr(),
+            ],
+            style={'margin-top': '15px'}
+        ),
+
+        dbc.Card(
+            [
+                dbc.CardHeader(
                     [
                         html.H2("Class Schedule", style={"textAlign": "center"}),
-                        html.Div("Use this page to view the class schedule for each grade level.", style={"textAlign": "center"}),
+                        html.Div("View the class schedules for each grade level below.", style={"textAlign": "center"}),
                     ]
                 ),
-                dbc.CardBody( # Define Card Contents
+                dbc.CardBody(
                     [
-                        html.Div( # Add Movie Btn
+                        # Wrap dynamically generated elements in a list
+                        html.Div(
                             [
-                                html.Label("Select Grade Level:"),
-                                dcc.Dropdown(
-                                    id="student-dropdown",
-                                    options=[{"label": grade, "value": grade} for grade in schedule_data["Grade"]],
-                                    value="Grade 1",
-                                    clearable=False,
-                                    style={"width": "300px"}
-                                    ),
-                                
-                                html.H3(id="student-schedule-header", style={"marginTop": "20px"}),
-                                
-                                dash_table.DataTable(
-                                    id="schedule-table",
-                                    columns=[
-                                        {"name": "Class", "id": "Class"},
-                                        {"name": "Teacher", "id": "Teacher"},
-                                        {"name": "Schedule", "id": "Schedule"},
+                                html.Div(
+                                    [
+                                        html.H3(f"Grade {grade_data['Grade Level']} Schedule", style={"marginTop": "20px", 'textAlign':'center','marginBottom':'20px'}),
+                                        dbc.Table(
+                                            id=f"schedule-table-{grade_data['Grade Level']}",  # Unique id for each table
+                                            children=[
+                                                html.Thead(
+                                                    html.Tr(
+                                                        [
+                                                            html.Th("Subject", style={'textAlign': 'center'}),
+                                                            html.Th("Teacher", style={'textAlign': 'center'}),
+                                                            html.Th("Schedule", style={'textAlign': 'center'}),
+                                                        ]
+                                                    )
+                                                ),
+                                                html.Tbody(
+                                                    [
+                                                        html.Tr(
+                                                            [
+                                                                html.Td(subject),
+                                                                html.Td(teacher),
+                                                                html.Td(schedule),
+                                                            ]
+                                                        )
+                                                        for subject, teacher, schedule in zip(
+                                                            grade_data['Subject'], 
+                                                            grade_data['Teacher'], 
+                                                            grade_data['Schedule']
+                                                        )
+                                                    ]
+                                                ),
+                                            ],
+                                            style={'tableLayout': 'fixed', 'width': '100%'},
+                                            bordered=True, striped=True, hover=True, className="table-sm"
+                                        ),
+                                        html.Hr(style={'borderTop':'5px solid'})
                                     ],
-                                    style_table={"width": "80%", "margin": "auto"},
-                                    style_header={
-                                        "backgroundColor": "blue",
-                                        "color": "white",
-                                        "fontWeight": "bold",
-                                    },
-                                    style_cell={
-                                        "textAlign": "center",
-                                        "padding": "10px",
-                                        "border": "1px solid black",
-                                    },
+                                    style={"marginBottom": "50px"}  # Add spacing between tables
                                 )
+                                for _, grade_data in df_grouped.iterrows()  # Loop through each grade level
                             ]
-                        ),
-                    ],
+                        )
+                    ]
                 ),
             ]
-        ),   
+        ),
     ]
 )
-
-
-@app.callback(
-    [Output("student-schedule-header", "children"),
-     Output("schedule-table", "data")],
-    [Input("student-dropdown", "value")]
-)
-
-def update_schedule(selected_student):
-    idx = schedule_data[schedule_data["Grade"] == selected_student].index[0]
-    classes = schedule_data.loc[idx, "Class"]
-    teachers = schedule_data.loc[idx, "Teacher"]
-    schedules = schedule_data.loc[idx, "Schedule"]
-
-    table_data = [
-        {"Class": cls, "Teacher": teacher, "Schedule": schedule}
-        for cls, teacher, schedule in zip(classes, teachers, schedules)
-    ]
-
-    header = f"{selected_student}'s Schedule"
-    return header, table_data

@@ -53,7 +53,7 @@ layout = html.Div(
                                     dbc.Form(
                                         dbc.Row(
                                             [
-                                                dbc.Label("Search", width=1),
+                                                dbc.Label("Search by Grade Level", width=2),
                                                 dbc.Col(
                                                     dbc.Input(
                                                         type='text',
@@ -169,13 +169,14 @@ def updateScheduleTable(pathname, sort_column, n_clicks, sched_filter, prev_sort
             dbc.Button("Edit", color='warning', size='sm', 
                        href=f'/student/sched_edit?mode=edit&id={row["id"]}'),
             className='text-center'
-        ) for idx, row in df.iterrows()
+        ) for _, row in df.iterrows()
     ]
     
     # Exclude 'id' column
-    df = df[["Grade Level", "Subject", "Teacher", "Schedule"]]
+    df = df[["Grade Level", "Subject", "Teacher", "Schedule","Action"]]
 
     # Create the table to display the filtered data
-    sched_table = dbc.Table.from_dataframe(df, striped=True, bordered=True, hover=True, size='sm')
+    sched_table = dbc.Table.from_dataframe(df, striped=True, bordered=True, hover=True, size='sm',
+                                           style={'textAlign':'center'})
 
     return [sched_table]
