@@ -6,40 +6,55 @@ import pandas as pd
 from app import app
 from apps.dbconnect import getDataFromDB  # Assuming the database connection functions are implemented here
 
-email_input = html.Div(
-    [
-        dbc.Label("Email", html_for="example-email"),
-        dbc.Input(type="email", id="example-email", placeholder="Enter email"),
-        dbc.FormText(
-            "Are you on email? You simply have to be these days",
-            color="secondary",
-        ),
-    ],
-    className="mb-3",
-)
+dash.register_page(__name__)
 
-password_input = html.Div(
-    [
-        dbc.Label("Password", html_for="example-password"),
-        dbc.Input(
-            type="password",
-            id="example-password",
-            placeholder="Enter password",
-        ),
-        dbc.FormText(
-            "A password stops mean people taking your stuff", color="secondary"
-        ),
-    ],
-    className="mb-3",
-)
+# Login screen
+# layout = html.Div(
+#     [
+#         html.H2("Please log in to continue:", id="h1"),
+#         dcc.Input(placeholder="Enter your username", type="text", id="uname-box"),
+#         dcc.Input(placeholder="Enter your password", type="password", id="pwd-box"),
+#         html.Button(children="Login", n_clicks=0, type="submit", id="login-button"),
+#         html.Div(children="", id="output-state"),
+#         html.Br(),
+#         dcc.Link("Home", href="/"),
+#     ]
+# )
 
-button = html.Div(
-    [
-        dbc.Button("Submit", color="primary"),
-    ]
-)
+# email_input = html.Div(
+#     [
+#         dbc.Label("Email", html_for="example-email"),
+#         dbc.Input(type="email", id="example-email", placeholder="Enter email"),
+#         dbc.FormText(
+#             "Are you on email? You simply have to be these days",
+#             color="secondary",
+#         ),
+#     ],
+#     className="mb-3",
+# )
 
-form = dbc.Form([email_input, password_input, button])
+# password_input = html.Div(
+#     [
+#         dbc.Label("Password", html_for="example-password"),
+#         dbc.Input(
+#             type="password",
+#             id="example-password",
+#             placeholder="Enter password",
+#         ),
+#         dbc.FormText(
+#             "A password stops mean people taking your stuff", color="secondary"
+#         ),
+#     ],
+#     className="mb-3",
+# )
+
+# button = html.Div(
+#     [
+#         dbc.Button("Submit", color="primary"),
+#     ]
+# )
+
+# form = dbc.Form([email_input, password_input, button])
 
 
 layout = html.Div(
@@ -59,7 +74,7 @@ layout = html.Div(
 
 html.Div(
     className="d-flex justify-content-center align-items-center",
-    style={"height": "100vh", "background-color": "#f8f9fa"},  # Light background for aesthetics
+    style={"height": "100vh", "background-color": "#f8f9fa"},  
     children=[
         dbc.Card(
             dbc.CardBody(
@@ -68,7 +83,7 @@ html.Div(
                         [
                             # Left side for logo
                             dbc.Col(
-                                html.Img(src="path_to_your_logo.png", style={"width": "100%", "max-width": "200px"}),
+                                html.Img(src="/assets/login.png", style={"width": "100%", "max-width": "200px"}),
                                 width=5,
                             ),
                             # Right side for form inputs
@@ -76,28 +91,29 @@ html.Div(
                                 [
                                     html.H4("Login", className="text-center"),
                                     dbc.CardGroup([
-                                        dbc.Label("Email", html_for="email-input"),
-                                        dbc.Input(type="email", id="email-input", placeholder="Enter your email"),
+                                        dbc.Label("Username", html_for="uname-input", id="uname-box"),
+                                        dbc.Input(type="text", id="username", placeholder="Enter your email"),
                                     ]),
                                     dbc.CardGroup([
-                                        dbc.Label("Password", html_for="password-input"),
-                                        dbc.Input(type="password", id="password-input", placeholder="Enter your password"),
+                                        dbc.Label("Password", html_for="password-input", id="pwd-box", style = {'margin-top':'10px'}),
+                                        dbc.Input(type="password", id="password", placeholder="Enter your password"), 
                                     ]),
-                                    dbc.CardGroup([
-                                        dbc.Label("Role"),
-                                        dbc.RadioItems(
-                                            options=[
-                                                {"label": "Student", "value": "student"},
-                                                {"label": "Teacher", "value": "teacher"},
-                                            ],
-                                            value="student",
-                                            id="role-radio",
-                                            inline=True,
-                                        ),
-                                    ]),
-                                    dbc.Button("Submit", id="submit-button", color="primary"),
-                                    html.Div(className="text-center mt-3",
-                                             children=[html.A("Sign Up", href="/signup")])
+                                    # dbc.CardGroup([
+                                    #     dbc.Label("Role"),
+                                    #     dbc.RadioItems(
+                                    #         options=[
+                                    #             {"label": "Student", "value": "student"},
+                                    #             {"label": "Teacher", "value": "teacher"},
+                                    #         ],
+                                    #         value="student",
+                                    #         id="role-radio",
+                                    #         inline=True,
+                                    #     ),
+                                    # ]),
+                                    dbc.Button("Login", id="login-button", n_clicks=0, type="submit", color="primary", style = {'margin-top':'10px'}),
+                                    html.Div(children="", id="output-state")
+                                    # html.Div(className="text-center mt-3",
+                                    #          children=[html.A("Sign Up", href="/signup")])
                                 ],
                                 width=7,
                             ),
