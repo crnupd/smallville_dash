@@ -11,6 +11,16 @@ layout = html.Div(
         html.P('Fill out the form to submit your tuition fee proof of payment.'),
         html.Hr(),
         dbc.Alert(id='paymentupload_alert', is_open=False),
+        html.Div(
+            [
+                dbc.Button(
+                    "Return",
+                    color='primary',
+                    href=f'/student/payment',
+                )
+            ],
+        ),
+        html.Br(),
         dbc.Form(
             dbc.Table(
                 [
