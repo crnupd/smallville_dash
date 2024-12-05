@@ -27,7 +27,7 @@ layout = html.Div(
                                 id='studentprofile_fname',
                                 placeholder="First Name"
                             ),
-                            style={'width': '80%'}  # Set the width via style for better alignment
+                            style={'width': '80%'}
                         ),
                     ]),
                     # Last Name Row
@@ -39,7 +39,35 @@ layout = html.Div(
                                 id='studentprofile_lname',
                                 placeholder="Last Name"
                             ),
-                            style={'width': '80%'}  # Set the width via style for better alignment
+                            style={'width': '80%'}
+                        ),
+                    ]),
+                    # Age Row
+                    html.Tr([
+                        html.Td(dbc.Label("Age"), style={'width': '10%'}),
+                        html.Td(
+                            dbc.Input(
+                                type='number', 
+                                id='studentprofile_age',
+                                placeholder="Age"
+                            ),
+                            style={'width': '80%'}
+                        ),
+                    ]),
+                    # Gender Row
+                    html.Tr([
+                        html.Td(dbc.Label("Gender"), style={'width': '10%'}),
+                        html.Td(
+                            dcc.Dropdown(
+                                id='studentprofile_gender',
+                                options=[
+                                    {'label': 'Male', 'value': 'Male'},
+                                    {'label': 'Female', 'value': 'Female'},
+                                    {'label': 'Prefer not to say', 'value': 'Prefer not to say'},
+                                ],
+                                value='Prefer not to say',  # Default value
+                                style={'width': '80%'}
+                            )
                         ),
                     ]),
                     # City Row
@@ -51,7 +79,7 @@ layout = html.Div(
                                 id='studentprofile_city',
                                 placeholder="City"
                             ),
-                            style={'width': '80%'}  # Set the width via style for better alignment
+                            style={'width': '80%'}
                         ),
                     ]),
                     # Address Row
@@ -63,19 +91,80 @@ layout = html.Div(
                                 id='studentprofile_address',
                                 placeholder="Address"
                             ),
-                            style={'width': '80%'}  # Set the width via style for better alignment
+                            style={'width': '80%'}
                         ),
                     ]),
                     # Grade Level Row
                     html.Tr([
                         html.Td(dbc.Label("Grade Level"), style={'width': '10%'}),
                         html.Td(
+                            dcc.Dropdown(
+                                id='studentprofile_gradelvl',
+                                options=[
+                                    {'label': 'Kindergarten', 'value': 'Kindergarten'},
+                                    {'label': 'Pre-school', 'value': 'Pre-school'},
+                                    {'label': 'Grade 1', 'value': 'Grade 1'},
+                                    {'label': 'Grade 2', 'value': 'Grade 2'},
+                                    {'label': 'Grade 3', 'value': 'Grade 3'},
+                                    {'label': 'Grade 4', 'value': 'Grade 4'},
+                                    {'label': 'Grade 5', 'value': 'Grade 5'},
+                                    {'label': 'Grade 6', 'value': 'Grade 6'},
+                                ],
+                                value='Kindergarten',  # Default value
+                                style={'width': '80%'}
+                            )
+                        ),
+                    ]),
+                    # Parent First Name Row
+                    html.Tr([
+                        html.Td(dbc.Label("Parent First Name"), style={'width': '10%'}),
+                        html.Td(
                             dbc.Input(
                                 type='text', 
-                                id='studentprofile_gradelvl',
-                                placeholder="Grade Level"
+                                id='studentprofile_parent_fname',
+                                placeholder="Parent First Name"
                             ),
-                            style={'width': '80%'}  # Set the width via style for better alignment
+                            style={'width': '80%'}
+                        ),
+                    ]),
+                    # Parent Email Row
+                    html.Tr([
+                        html.Td(dbc.Label("Parent Email"), style={'width': '10%'}),
+                        html.Td(
+                            dbc.Input(
+                                type='email', 
+                                id='studentprofile_parent_email',
+                                placeholder="Parent Email"
+                            ),
+                            style={'width': '80%'}
+                        ),
+                    ]),
+                    # Parent Job Row
+                    html.Tr([
+                        html.Td(dbc.Label("Parent Job"), style={'width': '10%'}),
+                        html.Td(
+                            dbc.Input(
+                                type='text', 
+                                id='studentprofile_parent_job',
+                                placeholder="Parent Job"
+                            ),
+                            style={'width': '80%'}
+                        ),
+                    ]),
+                    # Relationship Row
+                    html.Tr([
+                        html.Td(dbc.Label("Relationship"), style={'width': '10%'}),
+                        html.Td(
+                            dcc.Dropdown(
+                                id='studentprofile_relationship',
+                                options=[
+                                    {'label': 'Mother', 'value': 'Mother'},
+                                    {'label': 'Father', 'value': 'Father'},
+                                    {'label': 'Guardian', 'value': 'Guardian'},
+                                ],
+                                value='Mother',  # Default value
+                                style={'width': '80%'}
+                            )
                         ),
                     ]),
                     # Delete Option Row
@@ -87,7 +176,7 @@ layout = html.Div(
                                 options=[dict(value=1, label="")],
                                 value=[]
                             ),
-                            style={'width': '80%'}  # Set the width via style for better alignment
+                            style={'width': '80%'}
                         ),
                     ]),
                 ]
@@ -125,9 +214,15 @@ layout = html.Div(
         Output('studentprofile_studid', 'data'),
         Output('studentprofile_fname', 'value'),
         Output('studentprofile_lname', 'value'),
+        Output('studentprofile_age', 'value'),
+        Output('studentprofile_gender', 'value'),
         Output('studentprofile_city', 'value'),
         Output('studentprofile_address', 'value'),
         Output('studentprofile_gradelvl', 'value'),
+        Output('studentprofile_parent_fname', 'value'),
+        Output('studentprofile_parent_email', 'value'),
+        Output('studentprofile_parent_job', 'value'),
+        Output('studentprofile_relationship', 'value'),
     ],
     [Input('url', 'pathname')],
     [State('url', 'search')]
@@ -141,7 +236,8 @@ def studentprofile_populate(pathname, urlsearch):
             studid = 0
             deletediv = 'd-none'  # Hide delete option when adding a new student
             
-            return deletediv, studid, '', '', '', '', ''  # Clear fields for new student
+            # Return default values for a new student, ensuring all 13 fields are accounted for
+            return deletediv, studid, '', '', '', 'Prefer not to say', '', '', 'Kindergarten', '', '', 'Mother'
         
         else:
             studid = int(parse_qs(parsed.query).get('id', [0])[0])
@@ -150,18 +246,26 @@ def studentprofile_populate(pathname, urlsearch):
             sql = """
                 SELECT stud_fname AS fname,
                        stud_lname AS lname,
+                       stud_age AS age,
+                       stud_gender AS gender,
                        stud_city AS city,
                        stud_address AS address,
-                       stud_gradelvl AS gradelvl
+                       stud_gradelvl AS gradelvl,
+                       parent_fname AS parent_fname,
+                       parent_email AS parent_email,
+                       parent_job AS parent_job,
+                       relationship AS relationship
                 FROM student WHERE stud_id = %s;
             """
             
             values = [studid]
-            col = ['fname', 'lname', 'city', 'address', 'gradelvl']
+            col = ['fname', 'lname', 'age', 'gender', 'city', 'address', 'gradelvl', 
+                   'parent_fname', 'parent_email', 'parent_job', 'relationship']
             
             df = getDataFromDB(sql, values, col)
 
-            return deletediv, studid, df['fname'][0], df['lname'][0], df['city'][0], df['address'][0], df['gradelvl'][0]
+            # Ensure all 13 fields are returned even when editing an existing student
+            return deletediv, studid, df['fname'][0], df['lname'][0], df['age'][0], df['gender'][0], df['city'][0], df['address'][0], df['gradelvl'][0], df['parent_fname'][0], df['parent_email'][0], df['parent_job'][0], df['relationship'][0]
     
     else:
         raise PreventUpdate
@@ -178,23 +282,27 @@ def studentprofile_populate(pathname, urlsearch):
     [
         State('studentprofile_fname', 'value'),
         State('studentprofile_lname', 'value'),
+        State('studentprofile_age', 'value'),
+        State('studentprofile_gender', 'value'),
         State('studentprofile_city', 'value'),
         State('studentprofile_address', 'value'),
         State('studentprofile_gradelvl', 'value'),
+        State('studentprofile_parent_fname', 'value'),
+        State('studentprofile_parent_email', 'value'),
+        State('studentprofile_parent_job', 'value'),
+        State('studentprofile_relationship', 'value'),
         State('url', 'search'),
         State('studentprofile_studid', 'data'),
         State('studentprofile_deleteind', 'value'),
     ]
 )
-def studentprofile_saveprofile(submitbtn, fname, lname, city, address, gradelvl, urlsearch, 
-                             studid, deleteind):
+def studentprofile_saveprofile(submitbtn, fname, lname, age, gender, city, address, gradelvl, parent_fname, parent_email, parent_job, relationship, urlsearch, studid, deleteind):
     ctx = dash.callback_context
     if ctx.triggered:
         eventid = ctx.triggered[0]['prop_id'].split('.')[0]
 
         parsed = urlparse(urlsearch)
         create_mode = parse_qs(parsed.query).get('mode', [None])[0]
-
     else:
         raise PreventUpdate
 
@@ -231,11 +339,12 @@ def studentprofile_saveprofile(submitbtn, fname, lname, city, address, gradelvl,
             # Add or update the data in the db based on mode
             if create_mode == 'add':
                 sql = '''
-                    INSERT INTO student (stud_fname, stud_lname, stud_city,
-                                         stud_address, stud_gradelvl, stud_delete_ind)
-                    VALUES (%s, %s, %s, %s, %s, %s)
+                    INSERT INTO student (stud_fname, stud_lname, stud_age, stud_gender, stud_city,
+                                         stud_address, stud_gradelvl, parent_fname, parent_email,
+                                         parent_job, relationship, stud_delete_ind)
+                    VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
                 '''
-                values = [fname, lname, city, address, gradelvl, False]
+                values = [fname, lname, age, gender, city, address, gradelvl, parent_fname, parent_email, parent_job, relationship, False]
 
             elif create_mode == 'edit':
                 sql = '''
@@ -243,14 +352,20 @@ def studentprofile_saveprofile(submitbtn, fname, lname, city, address, gradelvl,
                     SET 
                         stud_fname = %s,
                         stud_lname = %s,
+                        stud_age = %s,
+                        stud_gender = %s,
                         stud_city = %s,
                         stud_address = %s,
                         stud_gradelvl = %s,
+                        parent_fname = %s,
+                        parent_email = %s,
+                        parent_job = %s,
+                        relationship = %s,
                         stud_delete_ind = %s
                     WHERE
                         stud_id = %s
                 '''
-                values = [fname, lname, city, address, gradelvl,
+                values = [fname, lname, age, gender, city, address, gradelvl, parent_fname, parent_email, parent_job, relationship,
                           bool(deleteind), studid]
 
             else:
