@@ -13,6 +13,8 @@ from apps.student import student_profile, student_profile_edit
 from apps.schedule import student_sched
 from apps.payment import payment, payment_upload
 from apps.teacher import teacher_sched
+from apps import login
+from apps import profile
 
 # Define the main layout of the app
 app.layout = html.Div(
@@ -59,36 +61,42 @@ def displaypage(pathname):
         elif pathname == '/teacher/teacher_sched':
             return teacher_sched.layout
         
+        elif pathname == '/login':
+            return login.layout
+        
+        elif pathname == '/profile':
+            return profile.layout
+        
         else:
             return '404 Error: Page Not Found'  # Handle unknown routes
     
     raise PreventUpdate  # Prevent updates if no valid event is triggered
 
 # Callback for tab functionality in home layout
-@app.callback(
-    Output('announcements-content', 'style'),
-    Output('schedules-content', 'style'),
-    Output('grade-content', 'style'),
-    Input('announcements-tab', 'n_clicks'),
-    Input('schedules-tab', 'n_clicks'),
-    Input('grade-tab', 'n_clicks')
-)
-def update_tab(announcements_clicks, schedules_clicks, grade_clicks):
-    ctx = dash.callback_context
+# @app.callback(
+#     Output('announcements-content', 'style'),
+#     Output('schedules-content', 'style'),
+#     Output('grade-content', 'style'),
+#     Input('announcements-tab', 'n_clicks'),
+#     Input('schedules-tab', 'n_clicks'),
+#     Input('grade-tab', 'n_clicks')
+# )
+# def update_tab(announcements_clicks, schedules_clicks, grade_clicks):
+#     ctx = dash.callback_context
 
-    if not ctx.triggered:
-        return {'display': 'block'}, {'display': 'none'}, {'display': 'none'}
+#     if not ctx.triggered:
+#         return {'display': 'block'}, {'display': 'none'}, {'display': 'none'}
 
-    button_id = ctx.triggered[0]['prop_id'].split('.')[0]
+#     button_id = ctx.triggered[0]['prop_id'].split('.')[0]
 
-    if button_id == "announcements-tab":
-        return {'display': 'block'}, {'display': 'none'}, {'display': 'none'}
-    elif button_id == "schedules-tab":
-        return {'display': 'none'}, {'display': 'block'}, {'display': 'none'}
-    elif button_id == "grade-tab":
-        return {'display': 'none'}, {'display': 'none'}, {'display': 'block'}
+#     if button_id == "announcements-tab":
+#         return {'display': 'block'}, {'display': 'none'}, {'display': 'none'}
+#     elif button_id == "schedules-tab":
+#         return {'display': 'none'}, {'display': 'block'}, {'display': 'none'}
+#     elif button_id == "grade-tab":
+#         return {'display': 'none'}, {'display': 'none'}, {'display': 'block'}
 
-    return {'display': 'block'}, {'display': 'none'}, {'display': 'none'}
+#     return {'display': 'block'}, {'display': 'none'}, {'display': 'none'}
 
 if __name__ == '__main__':
     webbrowser.open('http://127.0.0.1:8050/', new=0, autoraise=True)
