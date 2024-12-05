@@ -11,6 +11,10 @@ from apps.dbconnect import getDataFromDB, modifyDB
 # Layout for the page
 layout = html.Div(
     [
+        html.H2('Schedule Management'), # Page Header
+        
+        html.Hr(),
+        
         dbc.Card(  # Card Container
             [
                 dbc.Alert(id='movieprofile_alert', is_open=False), 
@@ -117,9 +121,9 @@ def sched_save(submitbtn, backbtn, grade_level, subject, teacher, schedule):
             alert_color = ''
             alert_text = ''
             if not grade_level: # If title is blank, not title = True
-                    alert_open = True
-                    alert_color = 'danger'
-                    alert_text = 'Check your inputs. Please supply the grade level.'
+                alert_open = True
+                alert_color = 'danger'
+                alert_text = 'Check your inputs. Please supply the grade level.'
             elif not subject:
                 alert_open = True
                 alert_color = 'danger'
@@ -137,7 +141,7 @@ def sched_save(submitbtn, backbtn, grade_level, subject, teacher, schedule):
                         INSERT INTO class_sched (grade_level, subject, teacher, schedule, sched_edit)
                         VALUES (%s, %s, %s, %s, %s)
                     '''
-                values = [grade_level, subject, teacher, subject, False]
+                values = [grade_level, subject, teacher, schedule, False]
 
                 modifyDB(sql, values)
 
