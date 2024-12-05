@@ -6,6 +6,7 @@ import pandas as pd
 from app import app
 from apps.dbconnect import getDataFromDB  # Assuming the database connection functions are implemented here
 
+# Layout for the Students Registration Records page
 layout = html.Div(
     [
         # Page Header
@@ -45,31 +46,16 @@ layout = html.Div(
                         html.Hr(),
                         html.Div(  # Create section to show list of students
                             [
-                                html.H4('Find Students'),
-                                dbc.Row([  # Row for the label and filter text box
-                                    # dbc.Col(
-                                    #     dbc.Label("Search by First Name", width=4),  # Label with width 4
-                                    #     width=4
-                                    # ),
-                                    dbc.Col(
-                                        dbc.Input(
-                                            type='text',
-                                            id='student_fnamefilter',
-                                            placeholder='Search by First Name to Filter'
-                                        ),
-                                        width=12  # Text box next to the label, occupies remaining space
-                                    )
-                                ]), 
-                                html.Hr(),
                                 html.H4('Sort Students'),
                                 # Place dropdown and button side by side inside one column
-                                dbc.Row([
+                                dbc.Row([  # Sorting section first
                                     dbc.Col(  # One column for both the dropdown and the button
                                         dbc.Row([  # Use another Row to place them side by side inside this column
                                             dbc.Col(  # Column for the dropdown
                                                 dcc.Dropdown(
                                                     id="sort_column",
                                                     options=[
+                                                        {'label': 'Student ID', 'value': 'stud_id'},
                                                         {'label': 'First Name', 'value': 'stud_fname'},
                                                         {'label': 'Last Name', 'value': 'stud_lname'},
                                                         {'label': 'City', 'value': 'stud_city'},
@@ -90,10 +76,26 @@ layout = html.Div(
                                                     style={'margin': '2px 0px'}  # 2px margin for the button
                                                 ),
                                             ),
-                                        ]),
+                                        ]), 
                                         width=12,  # Occupy full width for the parent column (12/12)
                                     ),
                                 ]),
+
+                                html.Hr(),
+
+                                html.H4('Find Students'),
+                                dbc.Row([  # Row for the label and filter text box
+                                    dbc.Col(
+                                        dbc.Input(
+                                            type='text',
+                                            id='student_fnamefilter',
+                                            placeholder='Search by Selected Column',
+                                            value=''  # Set empty value for the filter textbox
+                                        ),
+                                        width=12  # Text box next to the label, occupies remaining space
+                                    )
+                                ]), 
+                                html.Hr(),
                                 html.Div(id='student_studentlist')  # Placeholder for student table
                             ]
                         )
@@ -105,12 +107,15 @@ layout = html.Div(
 )
 
 @app.callback(
-    Output('student_studentlist', 'children'),
+    [
+        Output('student_studentlist', 'children'),
+        Output('student_fnamefilter', 'value')  # Update the filter textbox value
+    ],
     [
         Input('url', 'pathname'),
         Input('sort_column', 'value'),  # The column to sort by
         Input('sort_button', 'n_clicks'),  # The button to trigger the sorting
-        Input('student_fnamefilter', 'value')  # The filter value for First Name
+        Input('student_fnamefilter', 'value')  # The filter value for the selected column
     ],
     State('sort_column', 'value')  # To keep track of the last selected column
 )
@@ -120,12 +125,12 @@ def updateRecordsTable(pathname, sort_column, n_clicks, student_fnamefilter, pre
     # Only trigger the callback if the correct path is matched
     if pathname != '/student/student_profile':
         print(f"Incorrect Path: {pathname}")
-        return html.Div("This page doesn't exist.")
-    
+        return html.Div("This page doesn't exist."), ''
+
     # SQL query for fetching data
     sql = """ 
     SELECT 
-        stud_id,
+        stud_id AS "Student ID",
         stud_fname AS "First Name",
         stud_lname AS "Last Name",
         stud_city AS "City",
@@ -136,9 +141,9 @@ def updateRecordsTable(pathname, sort_column, n_clicks, student_fnamefilter, pre
     """
     val = []
 
-    # Add filter for first name if provided
-    if student_fnamefilter:
-        sql += """ AND stud_fname ILIKE %s"""
+    # Apply filter based on the selected column and filter value
+    if student_fnamefilter and sort_column:
+        sql += f""" AND {sort_column} ILIKE %s"""
         val += [f'%{student_fnamefilter}%']
 
     # Handle sorting based on button clicks
@@ -153,33 +158,36 @@ def updateRecordsTable(pathname, sort_column, n_clicks, student_fnamefilter, pre
         sql += f" ORDER BY {sort_column} {sort_direction}"
 
     # Columns for the DataFrame
-    col = ["stud_id", "First Name", "Last Name", "City", "Address", "Grade Level"]
+    col = ["Student ID", "First Name", "Last Name", "City", "Address", "Grade Level"]
 
     # Fetch data from the database
     df = getDataFromDB(sql, val, col)
 
     # If no data found, return a message
     if df.empty:
-        return html.Div("No data available")
+        return html.Div("No data available"), student_fnamefilter
 
     # Generate 'Action' button column with edit links
     df['Action'] = [
         html.Div(
             dbc.Button(
-                "Edit", color='warning', size='sm', 
-                href=f'/student/student_profile_edit?mode=edit&id={row["stud_id"]}'  # Using stud_id as the ID
+                "Edit", 
+                style={'backgroundColor': 'Maroon', 'color': 'white'},  # Crimson red button with white text
+                size='sm',
+                href=f'/student/student_profile_edit?mode=edit&id={row["Student ID"]}'  # Using Student ID as the ID
             ),
             className='text-center'
         ) for _, row in df.iterrows()
     ]
 
     # Reorganize columns for display
-    df = df[["First Name", "Last Name", "City", "Address", "Grade Level", 'Action']]
+    df = df[["Student ID", "First Name", "Last Name", "City", "Address", "Grade Level", 'Action']]
 
     # Generate the table from DataFrame
     student_table = dbc.Table.from_dataframe(df, striped=True, bordered=True, hover=True, size='sm')
 
-    return student_table
+    # Return the table and reset the filter text box to an empty string
+    return student_table, student_fnamefilter  # The filter textbox state remains the same
 
 # Run the app in debug mode
 if __name__ == '__main__':
