@@ -1,140 +1,183 @@
 import dash
 import dash_bootstrap_components as dbc
 from dash import Input, Output, State, dcc, html
-from datetime import date
 from dash.exceptions import PreventUpdate
-import base64
-
 from app import app
 from apps.dbconnect import modifyDB
 
 layout = html.Div(
     [
-        html.H2('New Payment Form'),  # Page Header
+        html.H2('New Payment Form'),
         html.P('Fill out the form to submit your tuition fee proof of payment.'),
         html.Hr(),
-        dbc.Alert(id='paymentupload_alert', is_open=False),  # For feedback purposes
+        dbc.Alert(id='paymentupload_alert', is_open=False),
         dbc.Form(
             dbc.Table(
                 [
                     html.Tr([
-                        html.Td(dbc.Label("Student Name"), style={'width': '10%'}),
+                        html.Td(
+                            dbc.Label("Student Name"), 
+                            style={'width': '10%'}
+                        ),
                         html.Td(
                             dbc.Input(
                                 type='text', 
-                                id='stud_name',
+                                id='stud_name', 
                                 placeholder="Student Name"
-                            ),
+                            ), 
                             style={'width': '80%'}
                         )
-                    ],
-                    className='mb-3'
+                        ], 
+                        className='mb-3'
                     ),
+
                     html.Tr([
-                        html.Td(dbc.Label("Chosen Payment Plan"), style={'width': '10%'}),
+                        html.Td(
+                            dbc.Label("Chosen Payment Plan"), 
+                            style={'width': '10%'}
+                        ),
                         html.Td(
                             dbc.Input(
                                 type='text', 
-                                id='pay_plan',
+                                id='payment_plan', 
                                 placeholder="Plan"
-                            ),
+                            ), 
                             style={'width': '80%'}
                         )
-                    ],
+                    ], 
                     className='mb-3'
                     ),
+
                     html.Tr([
-                        html.Td(dbc.Label("Reference Number"), style={'width': '10%'}),
+                        html.Td(
+                            dbc.Label("Reference Number"), 
+                            style={'width': '10%'}
+                        ),
                         html.Td(
                             dbc.Input(
                                 type='text', 
-                                id='pay_num',
+                                id='payment_num', 
                                 placeholder="Reference Number"
                             ),
                             style={'width': '80%'}
                         )
-                    ],
+                    ], 
                     className='mb-3'
                     ),
+
                     html.Tr([
-                        html.Td(dbc.Label("Date"), style={'width': '10%'}),
+                        html.Td(
+                            dbc.Label("Date"), 
+                            style={'width': '10%'} 
+                        ),
                         html.Td(
                             dbc.Input(
-                                type='date',
-                                id='pay_date'
-                            ),
+                                type='date', 
+                                id='payment_date'
+                            ), 
                             style={'width': '80%'}
                         )
-                    ],
+                    ], 
                     className='mb-3'
                     ),
+
                     html.Tr([
-                        html.Td(dbc.Label("Payment Method"), style={'width': '10%'}),
+                        html.Td(
+                            dbc.Label("Payment Method"), 
+                            style={'width': '10%'}
+                        ),
                         html.Td(
                             dbc.Select(
-                                id='pay_method',
-                                options=[
-                                    {"label": "BDO", "value": "BDO"},
-                                    {"label": "BPI", "value": "BPI"},
-                                ],
+                                id='payment_method', 
+                                options=[{"label": "BDO", "value": "BDO"}, 
+                                         {"label": "BPI", "value": "BPI"}], 
                                 placeholder="Select Payment Method"
-                            ),
+                            ), 
                             style={'width': '80%'}
                         )
-                    ],
+                    ], 
                     className='mb-3'
                     ),
+
                     html.Tr([
-                        html.Td(dbc.Label("Upload Proof of Payment"), style={'width': '10%'}),
+                        html.Td(
+                            dbc.Label("Upload Proof of Payment"), 
+                            style={'width': '10%'}
+                        ),
                         html.Td(
                             dcc.Upload(
-                                id='pay_proof',
-                                children=html.Button('Upload Proof'),
+                                id='paymentupload_proof', 
+                                children=html.Button('Upload Proof'), 
                                 multiple=False
-                            ),
-                            style={'width': '80%'},
+                            ), 
+                            style={'width': '80%'}
                         )
-                    ],
-                    )
+                    ]),
+                    html.Tr([
+                        html.Td(
+                            dbc.Label(" "), 
+                            style={'width': '10%'}
+                        ), 
+                        html.Td(
+                            html.Div(id='output-image-upload'), 
+                            style={'width': '80%'}
+                            )
+                    ])
                 ]
             )
         ),
-        dbc.Button(
-            'Submit',
-            id='submit_payment',
-            n_clicks=0  # Initialize number of clicks
-        ),
-        dbc.Modal(  # Modal = dialog box; feedback for successful saving.
-            [
-                dbc.ModalHeader(html.H4('Upload Success')),
-                dbc.ModalBody('Proof of payment have been uploaded successfully!'),
-                dbc.ModalFooter(dbc.Button("Proceed", href='/student/payment'))  # Redirect after saving
-            ],
-            centered=True,
-            id='paymentupload_successmodal',
-            backdrop='static'  # Dialog box does not go away if you click at the background
-        )
+        dbc.Button('Submit', id='submit_payment', n_clicks=0),
+        dbc.Modal([
+            dbc.ModalHeader(html.H4('Upload Success')),
+            dbc.ModalBody('Proof of payment has been uploaded successfully!'),
+            dbc.ModalFooter(dbc.Button("Proceed", href='/student/payment'))
+        ], centered=True, id='paymentupload_successmodal', backdrop='static')
     ]
 )
 
+def parse_contents(contents, filename):
+    if contents:
+        return html.Div([
+            html.H5(filename), 
+            # HTML images accept base64 encoded strings in the same format
+            # that is supplied by the upload
+            html.Img(src=contents, style={'width': '100%', 'height': 'auto'})
+        ])
+    return html.Div(["No image uploaded."])
+
+#callback for displaying file before submission
+@app.callback(
+    Output('output-image-upload', 'children'),
+    [Input('paymentupload_proof', 'contents')],
+    [State('paymentupload_proof', 'filename')]
+)
+
+def update_image_preview(contents, filename):
+    if contents:
+        return parse_contents(contents, filename)
+    return html.Div(["No image uploaded."])
+
+#callback for form fillup
 @app.callback(
     [
         Output('paymentupload_alert', 'is_open'),
         Output('paymentupload_alert', 'color'),
         Output('paymentupload_alert', 'children'),
-        Output('paymentupload_successmodal', 'is_open'),
+        Output('paymentupload_successmodal', 'is_open')
     ],
     Input('submit_payment', 'n_clicks'),
     [
         State('stud_name', 'value'),
-        State('pay_plan', 'value'),
-        State('pay_num', 'value'),
-        State('pay_date', 'value'),
-        State('pay_method', 'value'),
-        State('pay_proof', 'contents'),
+        State('payment_plan', 'value'),
+        State('payment_num', 'value'),
+        State('payment_date', 'value'),
+        State('payment_method', 'value'),
+        State('paymentupload_proof', 'contents'),
+        State('paymentupload_proof', 'filename')
     ]
 )
-def paymentupload_populate(n_clicks, stud_name, pay_plan, pay_num, pay_date, pay_method, pay_proof):
+
+def paymentupload_populate(n_clicks, stud_name, pay_plan, pay_num, pay_date, pay_method, pay_proof, filename):
     if not n_clicks:
         raise PreventUpdate
 
@@ -153,9 +196,9 @@ def paymentupload_populate(n_clicks, stud_name, pay_plan, pay_num, pay_date, pay
         return True, 'danger', 'Please upload proof of payment.', False
 
     try:
-        # Decode the uploaded proof (base64 format)
+        # Decode the uploaded proof 
         if pay_proof:
-            proof_data = base64.b64decode(pay_proof.split(',')[1])  # Remove base64 metadata
+            proof_data = pay_proof.split(',')[1]  # Remove base64 metadata
 
             # Insert into database
             sql = '''
