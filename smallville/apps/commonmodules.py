@@ -44,7 +44,8 @@ navbar = dbc.Navbar(
             [
                 dbc.NavLink("Home", href="/home", active="exact", style=navlink_style),
                 dbc.NavLink("Student Registration", href="/student/student_profile", active="exact", style=navlink_style),
-                dbc.NavLink("Class Schedule", href="/student/student_sched", active="exact", style=navlink_style),
+                dbc.NavLink("View Schedules", href="/student/student_sched", active="exact", style=navlink_style),
+                dbc.NavLink("Manage Schedules", href="/student/sched_management", active="exact", style=navlink_style),
                 dbc.NavLink("Payment", href="/student/payment", active="exact", style=navlink_style),
                 dbc.NavLink("Teacher's Schedule", href="/teacher/teacher_sched", active="exact", style=navlink_style),
                 dbc.NavItem(dbc.NavLink(id='auth-nav-link')),

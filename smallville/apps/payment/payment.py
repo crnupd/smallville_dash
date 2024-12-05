@@ -2,6 +2,7 @@ import dash
 import dash_bootstrap_components as dbc
 from dash import Input, Output, State, html
 from dash.exceptions import PreventUpdate
+import base64
 
 from app import app
 from apps.dbconnect import getDataFromDB
@@ -82,12 +83,10 @@ layout = html.Div(
         dbc.Card(  # Card Container
             [
                 dbc.CardHeader(  # Define Card Header
-                    [
-                        html.H3('Payment History')
-                    ]
+                    html.H3('Payment History')
                 ),
                 dbc.CardBody(  # Define Card Contents
-                        html.Div(id='payment_history') # payment history list
+                    html.Div(id='payment_history') # payment history list
                 )
             ]
         ),
@@ -95,9 +94,6 @@ layout = html.Div(
             [
                 dbc.ModalHeader(dbc.ModalTitle("Proof of Payment")),
                 dbc.ModalBody(html.Img(id='payment_image', src='', style={'width': '100%'})),
-                dbc.ModalFooter(
-                    dbc.Button("Close", id="close-modal", color="secondary")
-                ),
             ],
             id="payment-modal",
             is_open=False,
@@ -118,7 +114,7 @@ def updateRecordsTable(pathname):
         FROM payment 
     """
     val = []
-    col = ["Payment ID", "Student Name", "Plan", "Reference No.", "Amount", "Payment Date", "Payment Method", "Proof"]
+    col = ["Payment ID", "Student ID", "Plan", "Reference No.", "Amount", "Payment Date", "Payment Method", "Proof"]
 
     df = getDataFromDB(sql, val, col)
 
@@ -134,7 +130,7 @@ def updateRecordsTable(pathname):
     ]
 
     # Exclude 'proof' from display and replace with button
-    df = df[["Student Name", "Plan", "Reference No.","Amount","Payment Date", "Payment Method", "Proofs"]]
+    df = df[["Student ID", "Plan", "Reference No.","Amount","Payment Date", "Payment Method", "Proofs"]]
 
     payment_table = dbc.Table.from_dataframe(df, striped=True, bordered=True,
                                               hover=True, size='sm')
@@ -142,5 +138,33 @@ def updateRecordsTable(pathname):
     return [payment_table]  # Return the generated table directly
 
 
+@app.callback(
+    [Output("payment-modal", "is_open"), Output("payment_image", "src")],
+    [Input({"type": "view-button", "index": dash.ALL}, "n_clicks"),],
+    [State({"type": "view-button", "index": dash.ALL}, "id")]
+)
+def displayPaymentProof(n_clicks_list, button_ids):
+    ctx = dash.callback_context
+    if not ctx.triggered:
+        raise PreventUpdate
 
+    triggered_id = ctx.triggered[0]['prop_id'].split('.')[0]
+    button_id = eval(triggered_id) if isinstance(triggered_id, str) else triggered_id
+    payment_id = button_id.get('index') if button_id else None
 
+    # Check if clicked button exists and was clicked
+    if payment_id is None or not any(n_clicks_list):
+        raise PreventUpdate
+
+    sql = "SELECT pay_proof FROM payment WHERE pay_id = %s"
+    proof_data = getDataFromDB(sql, (payment_id,), ["pay_proof"])
+
+    if proof_data.empty or proof_data.iloc[0]['pay_proof'] is None:
+        return False, ''  # If no proof data, do not open the modal
+
+    # Convert the binary bytea data to base64
+    binary_data = proof_data.iloc[0]['pay_proof']
+    base64_image = base64.b64encode(binary_data).decode('utf-8')
+    image_src = f"data:image/png;base64,{base64_image}"
+
+    return True, image_src
