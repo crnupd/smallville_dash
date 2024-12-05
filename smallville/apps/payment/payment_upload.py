@@ -16,14 +16,14 @@ layout = html.Div(
                 [
                     html.Tr([
                         html.Td(
-                            dbc.Label("Student Name"), 
+                            dbc.Label("Student ID"), 
                             style={'width': '10%'}
                         ),
                         html.Td(
                             dbc.Input(
                                 type='text', 
-                                id='stud_name', 
-                                placeholder="Student Name"
+                                id='student_id', 
+                                placeholder="Student ID"
                             ), 
                             style={'width': '80%'}
                         )
@@ -37,11 +37,13 @@ layout = html.Div(
                             style={'width': '10%'}
                         ),
                         html.Td(
-                            dbc.Input(
-                                type='text', 
+                            dbc.Select(
                                 id='payment_plan', 
-                                placeholder="Plan"
-                            ), 
+                                options=[{"label": "Monthly", "value": "monthly"}, 
+                                         {"label": "Quarterly", "value": "quarterly"},
+                                         {"label": "Yearly", "value": "yearly"}], 
+                                placeholder="Select Payment Plan"
+                            ),  
                             style={'width': '80%'}
                         )
                     ], 
@@ -184,7 +186,7 @@ def update_image_preview(contents, filename):
     ],
     Input('submit_payment', 'n_clicks'),
     [
-        State('stud_name', 'value'),
+        State('student_id', 'value'),
         State('payment_plan', 'value'),
         State('payment_num', 'value'),
         State('payment_amt', 'value'),
@@ -195,12 +197,12 @@ def update_image_preview(contents, filename):
     ]
 )
 
-def paymentupload_populate(n_clicks, stud_name, pay_plan, pay_num, pay_amt, pay_date, pay_method, pay_proof, filename):
+def paymentupload_populate(n_clicks, stud_id, pay_plan, pay_num, pay_amt, pay_date, pay_method, pay_proof, filename):
     if not n_clicks:
         raise PreventUpdate
 
     # Validate inputs
-    if not stud_name:
+    if not stud_id:
         return True, 'danger', 'Please supply the student name.', False
     elif not pay_plan:
         return True, 'danger', 'Please supply the chosen payment plan.', False
@@ -219,13 +221,13 @@ def paymentupload_populate(n_clicks, stud_name, pay_plan, pay_num, pay_amt, pay_
         # Decode the uploaded proof 
         if pay_proof:
             proof_data = pay_proof.split(',')[1]  # Remove base64 metadata
-
+    
             # Insert into database
             sql = '''
-                INSERT INTO payment (stud_name, pay_plan, pay_num, pay_amt, pay_date, pay_method, pay_proof)
+                INSERT INTO payment (stud_id, pay_plan, pay_num, pay_amt, pay_date, pay_method, pay_proof)
                 VALUES (%s, %s, %s, %s, %s, %s, %s)
             '''
-            values = (stud_name, pay_plan, pay_num, pay_amt, pay_date, pay_method, pay_proof)
+            values = (stud_id, pay_plan, pay_num, pay_amt, pay_date, pay_method, pay_proof)
 
             # Perform the database insert operation
             modifyDB(sql, values)
