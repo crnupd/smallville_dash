@@ -67,6 +67,23 @@ layout = html.Div(
 
                     html.Tr([
                         html.Td(
+                            dbc.Label("Amount"), 
+                            style={'width': '10%'}
+                        ),
+                        html.Td(
+                            dbc.Input(
+                                type='text', 
+                                id='payment_amt', 
+                                placeholder="Payment Amount"
+                            ),
+                            style={'width': '80%'}
+                        )
+                    ], 
+                    className='mb-3'
+                    ),
+
+                    html.Tr([
+                        html.Td(
                             dbc.Label("Date"), 
                             style={'width': '10%'} 
                         ),
@@ -170,6 +187,7 @@ def update_image_preview(contents, filename):
         State('stud_name', 'value'),
         State('payment_plan', 'value'),
         State('payment_num', 'value'),
+        State('payment_amt', 'value'),
         State('payment_date', 'value'),
         State('payment_method', 'value'),
         State('paymentupload_proof', 'contents'),
@@ -177,7 +195,7 @@ def update_image_preview(contents, filename):
     ]
 )
 
-def paymentupload_populate(n_clicks, stud_name, pay_plan, pay_num, pay_date, pay_method, pay_proof, filename):
+def paymentupload_populate(n_clicks, stud_name, pay_plan, pay_num, pay_amt, pay_date, pay_method, pay_proof, filename):
     if not n_clicks:
         raise PreventUpdate
 
@@ -187,6 +205,8 @@ def paymentupload_populate(n_clicks, stud_name, pay_plan, pay_num, pay_date, pay
     elif not pay_plan:
         return True, 'danger', 'Please supply the chosen payment plan.', False
     elif not pay_num:
+        return True, 'danger', 'Please supply the payment number.', False
+    elif not pay_amt:
         return True, 'danger', 'Please supply the payment number.', False
     elif not pay_date:
         return True, 'danger', 'Please supply the payment date.', False
@@ -202,10 +222,10 @@ def paymentupload_populate(n_clicks, stud_name, pay_plan, pay_num, pay_date, pay
 
             # Insert into database
             sql = '''
-                INSERT INTO payment (stud_name, pay_plan, pay_num, pay_date, pay_method, pay_proof)
-                VALUES (%s, %s, %s, %s, %s, %s)
+                INSERT INTO payment (stud_name, pay_plan, pay_num, pay_amt, pay_date, pay_method, pay_proof)
+                VALUES (%s, %s, %s, %s, %s, %s, %s)
             '''
-            values = (stud_name, pay_plan, pay_num, pay_date, pay_method, proof_data)
+            values = (stud_name, pay_plan, pay_num, pay_amt, pay_date, pay_method, pay_proof)
 
             # Perform the database insert operation
             modifyDB(sql, values)

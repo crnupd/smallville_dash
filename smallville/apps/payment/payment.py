@@ -1,6 +1,6 @@
 import dash
 import dash_bootstrap_components as dbc
-from dash import Output, Input,dcc, html
+from dash import Input, Output, State, html
 from dash.exceptions import PreventUpdate
 
 from app import app
@@ -90,6 +90,17 @@ layout = html.Div(
                         html.Div(id='payment_history') # payment history list
                 )
             ]
+        ),
+        dbc.Modal(
+            [
+                dbc.ModalHeader(dbc.ModalTitle("Proof of Payment")),
+                dbc.ModalBody(html.Img(id='payment_image', src='', style={'width': '100%'})),
+                dbc.ModalFooter(
+                    dbc.Button("Close", id="close-modal", color="secondary")
+                ),
+            ],
+            id="payment-modal",
+            is_open=False,
         )
     ]
 )
@@ -103,32 +114,33 @@ def updateRecordsTable(pathname):
         raise PreventUpdate
 
     sql = """ 
-        SELECT stud_name, pay_plan, pay_num, pay_date, pay_method, pay_proof 
+        SELECT pay_id, stud_name, pay_plan, pay_num, pay_amt, pay_date, pay_method, pay_proof 
         FROM payment 
     """
     val = []
-    col = ["Student Name", "Plan", "Reference No.","Payment Date", "Payment Method", "Proof"]
+    col = ["Payment ID", "Student Name", "Plan", "Reference No.", "Amount", "Payment Date", "Payment Method", "Proof"]
 
     df = getDataFromDB(sql, val, col)
 
     if df.empty:
         return html.Div("No payment history found.")  # Provide feedback if no records exist
 
-    df['Action'] = [
+    df['Proofs'] = [
         html.Div(
             dbc.Button("View", color='warning', size='sm', 
-                        href=row["pay_proof"]),
+                        id={'type': 'view-button', 'index': row["Payment ID"]}),
             className='text-center'
         ) for idx, row in df.iterrows()
     ]
 
     # Exclude 'proof' from display and replace with button
-    df = df[["Student Name", "Plan", "Reference No.","Payment Date", "Payment Method", "Action"]]
+    df = df[["Student Name", "Plan", "Reference No.","Amount","Payment Date", "Payment Method", "Proofs"]]
 
     payment_table = dbc.Table.from_dataframe(df, striped=True, bordered=True,
                                               hover=True, size='sm')
 
     return [payment_table]  # Return the generated table directly
+
 
 
 
