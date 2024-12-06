@@ -4,7 +4,8 @@ import dash_bootstrap_components as dbc
 from dash import Output, Input, State, dcc, html
 from dash.exceptions import PreventUpdate
 from app import app
-from apps.dbconnect import modifyDB
+from apps.dbconnect import getDataFromDB, modifyDB
+import pandas as pd
 
 # Layout Definition
 layout = html.Div(
@@ -19,6 +20,7 @@ layout = html.Div(
         ),
         dcc.Store(id="sched_id", storage_type="memory", data=0),
         dbc.Alert(id="sched_alert", is_open=False),  # For feedback purposes
+        
         dbc.Form(
             [
                 dbc.Row(
@@ -105,12 +107,15 @@ layout = html.Div(
     ]
 )
 
-
 # Callback for Parsing the URL and Setting Initial States
 @app.callback(
     [
         Output("sched_id", "data"),
         Output("sched_deletediv", "className"),
+        Output("sched_grade_level", "value"),
+        Output("sched_subject", "value"),
+        Output("sched_teacher", "value"),
+        Output("sched_schedule", "value"),
     ],
     [
         Input("url", "pathname"),
@@ -128,11 +133,33 @@ def sched_editprofile(pathname, urlsearch):
         if create_mode == "add":
             id = 0
             deletediv = "d-none"  # Hide the delete checkbox for new entries
+            # Return empty values if creating a new entry
+            return [id, deletediv, "", "", "", ""]
         else:
             id = int(parse_qs(parsed.query)["id"][0])
             deletediv = ""  # Show the delete checkbox for editing
 
-        return [id, deletediv]
+            # Fetch current data from the database
+            sql = '''
+                SELECT grade_level, subject, teacher, schedule
+                FROM class_sched
+                WHERE id = %s AND sched_delete_ind = False
+            '''
+            result = getDataFromDB(sql, [id], ["grade_level", "subject", "teacher", "schedule"])
+
+            if not result.empty:
+                # Return current values as placeholders
+                return [
+                    id,
+                    deletediv,
+                    result["grade_level"].iloc[0],
+                    result["subject"].iloc[0],
+                    result["teacher"].iloc[0],
+                    result["schedule"].iloc[0],
+                ]
+            else:
+                return [id, deletediv, "", "", "", ""]
+
     else:
         raise PreventUpdate
 
@@ -231,4 +258,3 @@ def sched_submit_action(submitbtn, delete_value, grade_level, subject, teacher, 
             modal_open = True
 
     return [alert_color, alert_text, alert_open, modal_open]
-
