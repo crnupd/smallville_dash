@@ -125,9 +125,6 @@ def displaypage(pathname):
         elif pathname == '/student/sched_form':
             return sched_form.layout
         
-        elif pathname == '/student/sched_edit':
-            return sched_edit.layout
-        
         elif pathname == '/profile':
             return profile.layout
         
