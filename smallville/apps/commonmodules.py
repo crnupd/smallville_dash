@@ -30,6 +30,7 @@ navbar = dbc.Navbar(
                 dbc.NavLink("Class Schedule", href="/student/student_sched", active="exact", style=navlink_style),
                 dbc.NavLink("Payment", href="/student/payment", active="exact", style=navlink_style),
                 dbc.NavLink("Teacher's Student List", href="/teacher/teacher_stud_list", active="exact", style=navlink_style),
+                dbc.NavLink("Sign Out", href="#", active="exact", style=navlink_style),
             ],
             className="ml-auto",  # Aligns nav links to the right
             pills=True,  # Optional: adds pill styling to links
