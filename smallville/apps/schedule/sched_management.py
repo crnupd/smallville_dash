@@ -26,7 +26,7 @@ layout = html.Div(
                             dbc.Col(
                                 [
                                 html.H3('Manage Schedules'),
-                                html.P("Use this page to view and manage the class schedules.")
+                                html.P("Use this page to view and manage the class schedules.", className='m-0')
                                 ],
                                 width=10  # Occupy 10 parts of the row
                             ),
