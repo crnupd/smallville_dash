@@ -10,7 +10,7 @@ from app import app
 from apps import commonmodules as cm  # Assuming you have a common module for navbar etc.
 from apps import home, login, signup  # Import the home layout
 from apps.student import student_profile, student_profile_edit
-from apps.schedule import student_sched, sched_edit, sched_form, sched_management
+from apps.schedule import student_sched, sched_edit, sched_form, sched_management, sched_assign
 from apps.payment import payment, payment_upload
 
 
@@ -89,6 +89,9 @@ def displaypage(pathname):
         
         elif pathname == '/student/sched_edit':
             return sched_edit.layout
+        
+        elif pathname == '/student/sched_assign':
+            return sched_assign.layout
         
         else:
             return '404 Error: Page Not Found'  # Handle unknown routes
