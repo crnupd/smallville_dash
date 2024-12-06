@@ -27,7 +27,7 @@ layout = html.Div(
                 html.H2('Payment Page'),
                 html.Hr(),
             ],
-            style={'margin-top': '60px'}  # Adjust margin to avoid overlap with navbar
+            style={'margin-top': '15px'}  # Adjust margin to avoid overlap with navbar
         ),
         dbc.Card(  # Card Container
             [
@@ -96,6 +96,7 @@ layout = html.Div(
                 dbc.ModalBody(html.Img(id='payment_image', src='', style={'width': '100%'})),
             ],
             id="payment-modal",
+            size='lg',
             is_open=False,
         )
     ]
@@ -110,7 +111,7 @@ def updateRecordsTable(pathname):
         raise PreventUpdate
 
     sql = """ 
-        SELECT pay_id, stud_name, pay_plan, pay_num, pay_amt, pay_date, pay_method, pay_proof 
+        SELECT pay_id, stud_id, pay_plan, pay_num, pay_amt, pay_date, pay_method, pay_proof 
         FROM payment 
     """
     val = []
@@ -138,12 +139,13 @@ def updateRecordsTable(pathname):
     return [payment_table]  # Return the generated table directly
 
 
+#callback for viewing photo proofs
 @app.callback(
     [Output("payment-modal", "is_open"), Output("payment_image", "src")],
     [Input({"type": "view-button", "index": dash.ALL}, "n_clicks"),],
     [State({"type": "view-button", "index": dash.ALL}, "id")]
 )
-def displayPaymentProof(n_clicks_list, button_ids):
+def displayPaymentProof(n_clicks_list, button_id):
     ctx = dash.callback_context
     if not ctx.triggered:
         raise PreventUpdate

@@ -56,7 +56,7 @@ layout = html.Div(
                             [
                                 html.Div(
                                     [
-                                        html.H3(f"Grade {grade_data['Grade Level']} Schedule", style={"marginTop": "20px", 'textAlign':'center','marginBottom':'20px'}),
+                                        html.H3(f"Grade {grade_data['Grade Level']}", style={"marginTop": "20px", 'textAlign':'center','marginBottom':'20px'}),
                                         dbc.Table(
                                             id=f"schedule-table-{grade_data['Grade Level']}",  # Unique id for each table
                                             children=[
@@ -87,7 +87,7 @@ layout = html.Div(
                                                 ),
                                             ],
                                             style={'tableLayout': 'fixed', 'width': '100%'},
-                                            bordered=True, striped=True, hover=True, className="table-sm"
+                                            bordered=True, striped=True, hover=True, className="table-info"
                                         ),
                                         html.Hr(style={'borderTop':'5px solid'})
                                     ],

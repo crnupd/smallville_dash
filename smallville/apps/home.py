@@ -65,7 +65,7 @@ tabs = dbc.Tabs(
     ]
 )
 
-# Define row content
+#Define row content
 row = html.Div(
     [
         dbc.Row(
@@ -148,3 +148,4 @@ layout = html.Div(  # Wrap everything in a single Div
         ),
     ]
 )
+

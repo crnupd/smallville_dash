@@ -3,10 +3,11 @@ import dash
 import dash_bootstrap_components as dbc
 from dash import dcc, html, Input, Output
 from dash.exceptions import PreventUpdate
-from flask_login import current_user
+# from flask_login import current_user
 
 # Let us import the app object in case we need to define callbacks here
 from app import app
+# from login import username
 
 # Define a default style for nav links
 navlink_style = {'margin-left': '1em'}  # Adjust margin and color as needed
@@ -48,7 +49,7 @@ navbar = dbc.Navbar(
                 dbc.NavLink("Manage Schedules", href="/student/sched_management", active="exact", style=navlink_style),
                 dbc.NavLink("Payment", href="/student/payment", active="exact", style=navlink_style),
                 dbc.NavLink("Teacher's Schedule", href="/teacher/teacher_sched", active="exact", style=navlink_style),
-                dbc.NavItem(dbc.NavLink(id='auth-nav-link')),
+                dbc.NavLink("Sign Out", href="/logout", active="exact", style=navlink_style),
                 dbc.NavItem("Welcome, User1", className="mr-auto")
             ],
             className="ml-auto",  # Aligns nav links to the right
@@ -84,16 +85,18 @@ layout = html.Div(
     ]
 )
 
-@app.callback(
-    Output('auth-nav-link', 'children'),
-    Output('auth-nav-link', 'href'),
-    Input('url', 'pathname'),
-)
-def update_auth_nav_link(_):
-    if current_user.is_authenticated:
-        return "Sign out", "/logout"  # Change href and text for logged-in users
-    else:
-        return "Sign in", "/login"  # Change href and text for logged-out users
+# user_logged = False
+
+# @app.callback(
+#     Output('auth-nav-link', 'children'),
+#     Output('auth-nav-link', 'href'),
+#     Input('url', 'pathname'),
+# )
+# def update_auth_nav_link(_):
+#     if user_logged == True:
+#         return "Sign out", "/logout"  # Change href and text for logged-in users
+#     else:
+#         return "Sign in", "/login"  # Change href and text for logged-out users
     
 if __name__ == "__main__":
     app.run_server(debug=True)

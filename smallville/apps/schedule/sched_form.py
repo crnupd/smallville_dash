@@ -17,7 +17,7 @@ layout = html.Div(
         
         dbc.Card(  # Card Container
             [
-                dbc.Alert(id='movieprofile_alert', is_open=False), 
+                dbc.Alert(id='sched_alert', is_open=False), 
                 dbc.CardHeader(  # Define Card Header
                     html.H2("Add a Schedule", style={"textAlign": "center"}),
                 ),
@@ -138,7 +138,7 @@ def sched_save(submitbtn, backbtn, grade_level, subject, teacher, schedule):
                 alert_text = 'Check your inputs. Please supply the schedule.'
             else:
                 sql = '''
-                        INSERT INTO class_sched (grade_level, subject, teacher, schedule, sched_edit)
+                        INSERT INTO class_sched (grade_level, subject, teacher, schedule, sched_delete_ind)
                         VALUES (%s, %s, %s, %s, %s)
                     '''
                 values = [grade_level, subject, teacher, schedule, False]
