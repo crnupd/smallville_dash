@@ -56,7 +56,18 @@ layout = html.Div(
                             [
                                 html.Div(
                                     [
-                                        html.H3(f"Grade {grade_data['Grade Level']}", style={"marginTop": "20px", 'textAlign':'center','marginBottom':'20px'}),
+                                        html.H3(f"Grade {grade_data['Grade Level']}", style={"marginTop": "20px", 'textAlign':'center'}),
+                                        
+                                        html.Div(
+                                            dbc.Button(
+                                                "Assign Students",  # Button text
+                                                href=f"/student/sched_assign={grade_data['Grade Level']}",  # URL for the button
+                                                color="primary",  # Button styling
+                                                className="mb-2"  # Add margin on bottom for spacing
+                                            ),
+                                            style={'textAlign': 'center', 'margin-bottom':'10px'}
+                                        ),
+                                        
                                         dbc.Table(
                                             id=f"schedule-table-{grade_data['Grade Level']}",  # Unique id for each table
                                             children=[
