@@ -5,9 +5,9 @@ from dash import dcc, html
 from dash.dependencies import Input, Output, State
 from dash.exceptions import PreventUpdate
 
-import os
-from flask import Flask
-from flask_login import login_user, LoginManager, UserMixin, current_user
+# import os
+# from flask import Flask
+# from flask_login import login_user, LoginManager, UserMixin, current_user
 
 # Importing your app variable from app.py so we can use it
 from app import app, server
@@ -19,34 +19,33 @@ from apps.payment import payment, payment_upload
 from apps import login
 from apps import profile
 
+# from dotenv import load_dotenv
+# load_dotenv()
+
 # Updating the Flask Server configuration with Secret Key to encrypt the user session cookie
-server.config.update(SECRET_KEY=os.getenv("SECRET_KEY"))
+# server.config.update(SECRET_KEY=os.getenv("SECRET_KEY"))
 
-login_manager = LoginManager()
-login_manager.init_app(server)
-login_manager.login_view = "/login"
+# login_manager = LoginManager()
+# login_manager.init_app(server)
+# login_manager.login_view = "/login"
 
-class User(UserMixin):
-    # User data model. It has to have at least self.id as a minimum
-    def __init__(self, username, role):
-        self.id = username
-        self.role = role 
+# class User(UserMixin):
+#     # User data model. It has to have at least self.id as a minimum
+#     def __init__(self, username, role):
+#         self.id = username
+#         self.role = role 
 
-VALID_USERNAME_PASSWORD = {"test": "test", "hello": "world"}
+# VALID_USERNAME_PASSWORD = {"test": "test", "hello": "world"}
 
-VALID_USERS = {
-    "teacher": User("teacher", "teacher"),
-    "parent": User("parent", "parent")
-}
+# VALID_USERS = {
+#     "teacher": User("teacher", "teacher"),
+#     "parent": User("parent", "parent")
+# }
 
 
-@login_manager.user_loader
-def load_user(username):
-    """This function loads the user by user id. Typically this looks up the user from a user database.
-    We won't be registering or looking up users in this example, since we'll just login using LDAP server.
-    So we'll simply return a User object with the passed in username.
-    """
-    return User(username)
+# @login_manager.user_loader
+# def load_user(username):
+#     return VALID_USERS.get(username)
 
 #to check if logged in:
 # is_logged_in = False
@@ -61,24 +60,24 @@ app.layout = html.Div(
     ]
 )
 
-@app.callback(
-    Output("output_state", "children"),
-    Input("login-button", "n_clicks"),
-    State("username", "value"),
-    State("password", "value"),
-    prevent_initial_call=True,
-)
-def login_button_click(n_clicks, username, password):
-    # global is_logged_in  # Access the global variable
-    if n_clicks > 0:
-        if username not in VALID_USERNAME_PASSWORD:
-            return "Invalid username"
-        if VALID_USERNAME_PASSWORD[username] == password:
-            user = User(username, "user")  # Create a user instance with role
-            login_user(user)
-            # is_logged_in = True
-            return "Login Successful"
-        return "Incorrect  password"
+# @app.callback(
+#     Output("output_state", "children"),
+#     Input("login-button", "n_clicks"),
+#     State("username", "value"),
+#     State("password", "value"),
+#     prevent_initial_call=True,
+# )
+# def login_button_click(n_clicks, username, password):
+#     # global is_logged_in  # Access the global variable
+#     if n_clicks > 0:
+#         if username not in VALID_USERNAME_PASSWORD:
+#             return "Invalid username"
+#         if VALID_USERNAME_PASSWORD[username] == password:
+#             user = User(username, "user")  # Create a user instance with role
+#             login_user(user)
+#             # is_logged_in = True
+#             return "Login Successful"
+#         return "Incorrect  password"
 
 
 @app.callback(

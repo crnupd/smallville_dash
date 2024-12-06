@@ -5,8 +5,6 @@ from dash.exceptions import PreventUpdate
 
 from app import app
 
-dash.register_page(__name__, path="/")
-
 tab1_content = dbc.Card(
     dbc.CardBody(
         [

@@ -7,9 +7,6 @@ from dash.exceptions import PreventUpdate
 from app import app
 from apps.dbconnect import getDataFromDB, modifyDB
 
-from flask_login import current_user
-dash.register_page(__name__)
-
 layout = html.Div(
     [
         dcc.Store(id='studentprofile_studid', storage_type='memory', data=0),
