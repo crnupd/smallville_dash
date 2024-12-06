@@ -2,6 +2,7 @@ import dash
 import dash_bootstrap_components as dbc
 from dash import Input, Output, State, dcc, html
 from dash.exceptions import PreventUpdate
+import base64
 from app import app
 from apps.dbconnect import modifyDB
 
@@ -49,9 +50,9 @@ layout = html.Div(
                         html.Td(
                             dbc.Select(
                                 id='payment_plan', 
-                                options=[{"label": "Monthly", "value": "monthly"}, 
-                                         {"label": "Quarterly", "value": "quarterly"},
-                                         {"label": "Yearly", "value": "yearly"}], 
+                                options=[{"label": "Monthly", "value": "Monthly"}, 
+                                         {"label": "Quarterly", "value": "Quarterly"},
+                                         {"label": "Yearly", "value": "Yearly"}], 
                                 placeholder="Select Payment Plan"
                             ),  
                             style={'width': '80%'}
@@ -230,14 +231,14 @@ def paymentupload_populate(n_clicks, stud_id, pay_plan, pay_num, pay_amt, pay_da
     try:
         # Decode the uploaded proof 
         if pay_proof:
-            proof_data = pay_proof.split(',')[1]  # Remove base64 metadata
+            proof_data = base64.b64decode(pay_proof.split(',')[1])  # Remove base64 metadata
     
             # Insert into database
             sql = '''
                 INSERT INTO payment (stud_id, pay_plan, pay_num, pay_amt, pay_date, pay_method, pay_proof)
                 VALUES (%s, %s, %s, %s, %s, %s, %s)
             '''
-            values = (stud_id, pay_plan, pay_num, pay_amt, pay_date, pay_method, pay_proof)
+            values = (stud_id, pay_plan, pay_num, pay_amt, pay_date, pay_method, proof_data)
 
             # Perform the database insert operation
             modifyDB(sql, values)
