@@ -12,7 +12,6 @@ from apps import home  # Import the home layout
 from apps.student import student_profile, student_profile_edit
 from apps.schedule import student_sched
 from apps.payment import payment, payment_upload
-from apps.teacher import teacher_sched
 from apps.teacher import teacher_stud_list, teacher_stud_list_edit
 
 # Define the main layout of the app
@@ -56,9 +55,6 @@ def displaypage(pathname):
 
         elif pathname == '/student/payment_upload':
             return payment_upload.layout
-        
-        elif pathname == '/teacher/teacher_sched':
-            return teacher_sched.layout
         
         elif pathname == '/teacher/teacher_stud_list':
             return teacher_stud_list.layout
