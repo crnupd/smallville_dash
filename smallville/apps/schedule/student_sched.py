@@ -92,8 +92,8 @@ def display_table(data):
                     
                     html.Div(
                         dbc.Button(
-                            "Assign Students",  # Button text
-                            href=f"/student/sched_assign={grade_data['Grade Level']}",  # URL for the button
+                            "View Assigned Students",  # Button text
+                            href=f"/student/sched_assign?grade_level={grade_data['Grade Level']}",  # URL for the button
                             color="primary",  # Button styling
                             className="mb-2"  # Add margin on bottom for spacing
                         ),
