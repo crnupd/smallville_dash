@@ -1,27 +1,24 @@
 from urllib.parse import urlparse, parse_qs
-
 import dash
 import dash_bootstrap_components as dbc
 from dash import Output, Input, State, dcc, html
 from dash.exceptions import PreventUpdate
-
 from app import app
-from apps.dbconnect import getDataFromDB, modifyDB
+from apps.dbconnect import modifyDB
 
+# Layout Definition
 layout = html.Div(
     [
         # Page Header
         html.Div(
             [
-                html.H2('Payment Page'),
+                html.H2("Update Schedule"),
                 html.Hr(),
             ],
-            style={'margin-top': '15px'}  # Adjust margin to avoid overlap with navbar
+            style={"margin-top": "15px"},  # Adjust margin to avoid overlap with navbar
         ),
-
-        dcc.Store(id='sched_id', storage_type='memory', data=0),
-        
-        dbc.Alert(id='sched_alert', is_open=False), # For feedback purposes
+        dcc.Store(id="sched_id", storage_type="memory", data=0),
+        dbc.Alert(id="sched_alert", is_open=False),  # For feedback purposes
         dbc.Form(
             [
                 dbc.Row(
@@ -29,230 +26,209 @@ layout = html.Div(
                         dbc.Label("Grade Level", width=1),
                         dbc.Col(
                             dbc.Input(
-                                type='text', 
-                                id='sched_grade_level',
-                                placeholder="Grade Level"
+                                type="text", id="sched_grade_level", placeholder="Grade Level"
                             ),
-                            width=5
-                        )
+                            width=5,
+                        ),
                     ],
-                    className='mb-3'
+                    className="mb-3",
                 ),
                 dbc.Row(
                     [
                         dbc.Label("Subject", width=1),
                         dbc.Col(
                             dbc.Input(
-                                type='text', 
-                                id='sched_subject',
-                                placeholder="Subject"
+                                type="text", id="sched_subject", placeholder="Subject"
                             ),
-                            width=5
-                        )
+                            width=5,
+                        ),
                     ],
-                    className='mb-3'
+                    className="mb-3",
                 ),
                 dbc.Row(
                     [
                         dbc.Label("Teacher", width=1),
                         dbc.Col(
                             dbc.Input(
-                                type='text', 
-                                id='sched_teacher',
-                                placeholder="Teacher"
+                                type="text", id="sched_teacher", placeholder="Teacher"
                             ),
-                            width=5
-                        )
+                            width=5,
+                        ),
                     ],
-                    className='mb-3'
+                    className="mb-3",
                 ),
                 dbc.Row(
                     [
                         dbc.Label("Schedule", width=1),
                         dbc.Col(
                             dbc.Input(
-                                type='text', 
-                                id='sched_schedule',
-                                placeholder="Schedule"
+                                type="text", id="sched_schedule", placeholder="Schedule"
                             ),
-                            width=5
-                        )
+                            width=5,
+                        ),
                     ],
-                    className='mb-3'
+                    className="mb-3",
                 ),
             ]
         ),
         html.Div(
             [
                 dbc.Checklist(
-                    id='sched_delete',
-                    style={'margin-top':'10px'},
-                    options= [dict(value=1, label="Mark as Deleted")],
-                    value=[] 
-                )
-            ], 
-            id='sched_deletediv'
-                ),
-        dbc.Button(
-            'Submit',
-            id='sched_submit',
-            n_clicks=0, # Initialize number of clicks
-            style={'margin-top':'20px'}
-            ),
-        
-        dbc.Modal( # Modal = dialog box; feedback for successful saving.
-            [
-                dbc.ModalHeader(
-                    html.H4('Save Success!')
-                ),
-                dbc.ModalBody(
-                    'Schedule successfully updated.'
-                ),
-                dbc.ModalFooter(
-                    dbc.Button(
-                        "Proceed",
-                        href='/student/sched_management' # Clicking this would lead to a change of pages
-                    )
+                    id="sched_delete",
+                    style={"margin-top": "10px"},
+                    options=[dict(value=1, label="Tick to Delete")],
+                    value=[],
                 )
             ],
+            id="sched_deletediv",
+        ),
+        dbc.Button(
+            "Submit",
+            id="sched_submit",
+            n_clicks=0,  # Initialize number of clicks
+            style={"margin-top": "20px"},
+        ),
+        dbc.Modal(
+            [
+                dbc.ModalHeader(html.H4("Save Success!")),
+                dbc.ModalBody("Schedule successfully updated."),
+                dbc.ModalFooter(
+                    dbc.Button(
+                        "Proceed", href="/student/sched_management"  # Redirect after saving
+                    )
+                ),
+            ],
             centered=True,
-            id='sched2_successmodal',
-            backdrop='static' # Dialog box does not go away if you click at the background
-        )
+            id="sched2_successmodal",
+            backdrop="static",  # Prevent modal dismissal by clicking outside
+        ),
     ]
 )
-    
+
+
+# Callback for Parsing the URL and Setting Initial States
 @app.callback(
     [
-        Output('sched_id', 'data'),
-        Output('sched_deletediv', 'className')
+        Output("sched_id", "data"),
+        Output("sched_deletediv", "className"),
     ],
     [
-        Input('url', 'pathname'),
+        Input("url", "pathname"),
     ],
     [
-        State('url', 'search'),
-    ]
+        State("url", "search"),
+    ],
 )
 def sched_editprofile(pathname, urlsearch):
-    if pathname == '/student/sched_edit':
+    if pathname == "/student/sched_edit":
         parsed = urlparse(urlsearch)
-        create_mode = parse_qs(parsed.query)['mode'][0]
-        
-        # Determine movie id and delete div class based on the mode
-        if create_mode == 'add':
+        create_mode = parse_qs(parsed.query)["mode"][0]
+
+        # Determine ID and delete div class based on mode
+        if create_mode == "add":
             id = 0
-            deletediv = 'd-none'
+            deletediv = "d-none"  # Hide the delete checkbox for new entries
         else:
-            id = int(parse_qs(parsed.query)['id'][0])
-            deletediv = ''
-        
-        # Return movie ID and delete div class (no genre options here)
+            id = int(parse_qs(parsed.query)["id"][0])
+            deletediv = ""  # Show the delete checkbox for editing
+
         return [id, deletediv]
     else:
         raise PreventUpdate
 
-       
+
+# Callback for Saving or Deleting the Schedule
 @app.callback(
     [
-        # dbc.Alert Properties
-        Output('sched_alert', 'color'),
-        Output('sched_alert', 'children'),
-        Output('sched_alert', 'is_open'),
-        # dbc.Modal Properties
-        Output('sched2_successmodal', 'is_open')
+        Output("sched_alert", "color"),
+        Output("sched_alert", "children"),
+        Output("sched_alert", "is_open"),
+        Output("sched2_successmodal", "is_open"),
     ],
     [
-        # For buttons, the property n_clicks 
-        Input('sched_submit', 'n_clicks')
+        Input("sched_submit", "n_clicks"),  # Trigger when the submit button is clicked
     ],
     [
-        # The values of the fields are States 
-        # They are required in this process but they 
-        # do not trigger this callback
-        State('sched_grade_level', 'value'),
-        State('sched_subject', 'value'),
-        State('sched_teacher', 'value'),
-        State('sched_schedule', 'value'),
-
-        State('url', 'search'),
-        State('sched_id', 'data'),
-        State('sched_delete', 'value'),
-    ]
+        State("sched_delete", "value"),
+        State("sched_grade_level", "value"),
+        State("sched_subject", "value"),
+        State("sched_teacher", "value"),
+        State("sched_schedule", "value"),
+        State("url", "search"),
+        State("sched_id", "data"),
+    ],
 )
-def sched_savesched(submitbtn, grade_level, subject, teacher, schedule, urlsearch, 
-                             id, sched_delete_ind):
+def sched_submit_action(submitbtn, delete_value, grade_level, subject, teacher, schedule, urlsearch, id):
     ctx = dash.callback_context
-    # The ctx filter -- ensures that only a change in url will activate this callback
-    if ctx.triggered:
-        eventid = ctx.triggered[0]['prop_id'].split('.')[0]
 
-        parsed = urlparse(urlsearch)
-        create_mode = parse_qs(parsed.query)['mode'][0]
-
-    else:
+    if not ctx.triggered or not submitbtn:
         raise PreventUpdate
 
-    if eventid == 'sched_submit' and submitbtn:
+    alert_open = False
+    modal_open = False
+    alert_color = ""
+    alert_text = ""
 
-        alert_open = False
-        modal_open = False
-        alert_color = ''
-        alert_text = ''
+    # Parse the URL for mode
+    parsed = urlparse(urlsearch)
+    create_mode = parse_qs(parsed.query)["mode"][0]
 
-        # We need to check inputs
-        if not grade_level: # If title is blank, not title = True
+    # Check if the delete checkbox is ticked
+    if delete_value:
+        # Mark the record as deleted
+        sql = '''
+            UPDATE class_sched
+            SET sched_delete_ind = %s
+            WHERE id = %s
+        '''
+        values = [True, id]
+        modifyDB(sql, values)
+
+        alert_open = True
+        alert_color = "success"
+        alert_text = f"Schedule has been deleted."
+        modal_open = True
+
+    else:
+        # Validate inputs for regular updates or additions
+        if not grade_level:
             alert_open = True
-            alert_color = 'danger'
-            alert_text = 'Check your inputs. Please supply the grade level.'
+            alert_color = "danger"
+            alert_text = "Check your inputs. Please supply the grade level."
         elif not subject:
             alert_open = True
-            alert_color = 'danger'
-            alert_text = 'Check your inputs. Please supply the subject.'
+            alert_color = "danger"
+            alert_text = "Check your inputs. Please supply the subject."
         elif not teacher:
             alert_open = True
-            alert_color = 'danger'
-            alert_text = 'Check your inputs. Please supply the name of the teacher.'
+            alert_color = "danger"
+            alert_text = "Check your inputs. Please supply the name of the teacher."
         elif not schedule:
             alert_open = True
-            alert_color = 'danger'
-            alert_text = 'Check your inputs. Please supply the schedule.'
-        else: # all inputs are valid
-            # Add the data into the db
-
-            if create_mode == 'add':
+            alert_color = "danger"
+            alert_text = "Check your inputs. Please supply the schedule."
+        else:
+            # Insert or update the record in the database
+            if create_mode == "add":
                 sql = '''
-                    INSERT INTO class_sched (grade_level, subject,
-                        teacher, schedule, sched_delete_ind)
+                    INSERT INTO class_sched (grade_level, subject, teacher, schedule, sched_delete_ind)
                     VALUES (%s, %s, %s, %s, %s)
                 '''
                 values = [grade_level, subject, teacher, schedule, False]
-
-            elif create_mode == 'edit':
+            elif create_mode == "edit":
                 sql = '''
-                    UPDATE class_sched 
-                    SET 
-                        grade_level = %s,
-                        subject = %s,
-                        teacher = %s,
-                        schedule = %s, 
-                        sched_delete_ind = %s
-                    WHERE
-                        id = %s
+                    UPDATE class_sched
+                    SET grade_level = %s, subject = %s, teacher = %s, schedule = %s
+                    WHERE id = %s
                 '''
-                values = [grade_level, subject, teacher, schedule, 
-                          bool(sched_delete_ind),
-                          id]
-
-            else:
-                raise PreventUpdate
+                values = [grade_level, subject, teacher, schedule, id]
 
             modifyDB(sql, values)
 
-            # If this is successful, we want the successmodal to show
+            alert_open = True
+            alert_color = "success"
+            alert_text = "Schedule successfully updated."
             modal_open = True
 
-        return [alert_color, alert_text, alert_open, modal_open]
+    return [alert_color, alert_text, alert_open, modal_open]
 
-    else: 
-        raise PreventUpdate
