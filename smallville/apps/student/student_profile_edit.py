@@ -31,205 +31,202 @@ layout = html.Div(
         html.Hr(),
         dbc.Alert(id='studentprofile_alert', is_open=False),  # For feedback purposes
         
-        dbc.Form(
-            dbc.Table(
-                [
-                    # First Name Row
-                    html.Tr([ 
-                        html.Td(dbc.Label("First Name"), style={'width': '10%'}),
-                        html.Td(
-                            dbc.Input(
-                                type='text', 
-                                id='studentprofile_fname',
-                                placeholder="First Name"
-                            ),
-                            style={'width': '80%'}
-                        ),
-                    ]),
-                    # Last Name Row
-                    html.Tr([
-                        html.Td(dbc.Label("Last Name"), style={'width': '10%'}),
-                        html.Td(
-                            dbc.Input(
-                                type='text', 
-                                id='studentprofile_lname',
-                                placeholder="Last Name"
-                            ),
-                            style={'width': '80%'}
-                        ),
-                    ]),
-                    # Age Row
-                    html.Tr([ 
-                        html.Td(dbc.Label("Age"), style={'width': '10%'}),
-                        html.Td(
-                            dbc.Input(
-                                type='number', 
-                                id='studentprofile_age',
-                                placeholder="Age"
-                            ),
-                            style={'width': '80%'}
-                        ),
-                    ]),
-                    # Gender Row
-                    html.Tr([
-                        html.Td(dbc.Label("Gender"), style={'width': '10%'}),
-                        html.Td(
-                            dbc.Select(
-                                id='studentprofile_gender',
-                                options=[
-                                    {'label': 'Male', 'value': 'Male'},
-                                    {'label': 'Female', 'value': 'Female'},
-                                    {'label': 'Prefer not to say', 'value': 'Prefer not to say'},
-                                ],
-                                value='Prefer not to say',  # Default value
-                                style={'width': '100%'}
-                            )
-                        ),
-                    ]),
-                    # City Row
-                    html.Tr([ 
-                        html.Td(dbc.Label("City"), style={'width': '10%'}),
-                        html.Td(
-                            dbc.Input(
-                                type='text', 
-                                id='studentprofile_city',
-                                placeholder="City"
-                            ),
-                            style={'width': '80%'}
-                        ),
-                    ]),
-                    # Address Row
-                    html.Tr([
-                        html.Td(dbc.Label("Address"), style={'width': '10%'}),
-                        html.Td(
-                            dbc.Input(
-                                type='text', 
-                                id='studentprofile_address',
-                                placeholder="Address"
-                            ),
-                            style={'width': '80%'}
-                        ),
-                    ]),
-                    # Grade Level Row
-                    html.Tr([ 
-                        html.Td(dbc.Label("Grade Level"), style={'width': '10%'}),
-                        html.Td(
-                            dbc.Select(
-                                id='studentprofile_gradelvl',
-                                options=[
-                                    {'label': 'Kindergarten', 'value': 'Kindergarten'},
-                                    {'label': 'Pre-school', 'value': 'Pre-school'},
-                                    {'label': 'Grade 1', 'value': 'Grade 1'},
-                                    {'label': 'Grade 2', 'value': 'Grade 2'},
-                                    {'label': 'Grade 3', 'value': 'Grade 3'},
-                                    {'label': 'Grade 4', 'value': 'Grade 4'},
-                                    {'label': 'Grade 5', 'value': 'Grade 5'},
-                                    {'label': 'Grade 6', 'value': 'Grade 6'},
-                                ],
-                                value='Kindergarten',  # Default value
-                                style={'width': '100%'}
-                            )
-                        ),
-                    ]),
-                ]   
-            )
-        ),
-        html.H2('Parent Details'),  # Page Header
-        html.Hr(),
-        dbc.Form(
-            dbc.Table(
-                [
-                    # Parent First Name Row
-                    html.Tr([ 
-                        html.Td(dbc.Label("Parent Full Name"), style={'width': '10%'}),
-                        html.Td(
-                            dbc.Input(
-                                type='text', 
-                                id='studentprofile_parent_fname',
-                                placeholder="Parent Full Name"
-                            ),
-                            style={'width': '80%'}
-                        ),
-                    ]),
-                    # Parent Email Row
-                    html.Tr([ 
-                        html.Td(dbc.Label("Parent Email"), style={'width': '10%'}),
-                        html.Td(
-                            dbc.Input(
-                                type='email', 
-                                id='studentprofile_parent_email',
-                                placeholder="Parent Email"
-                            ),
-                            style={'width': '80%'}
-                        ),
-                    ]),
-                    # Parent Job Row
-                    html.Tr([ 
-                        html.Td(dbc.Label("Parent Job"), style={'width': '10%'}),
-                        html.Td(
-                            dbc.Input(
-                                type='text', 
-                                id='studentprofile_parent_job',
-                                placeholder="Parent Job"
-                            ),
-                            style={'width': '80%'}
-                        ),
-                    ]),
-                    # Relationship Row
-                    html.Tr([ 
-                        html.Td(dbc.Label("Relationship"), style={'width': '10%'}),
-                        html.Td(
-                            dbc.Select(
-                                id='studentprofile_relationship',
-                                options=[
-                                    {'label': 'Mother', 'value': 'Mother'},
-                                    {'label': 'Father', 'value': 'Father'},
-                                    {'label': 'Guardian', 'value': 'Guardian'},
-                                ],
-                                value='Mother',  # Default value
-                                style={'width': '100%'}
-                            )
-                        ),
-                    ]),
-                ]
-            )
-        ),
+       dbc.Form(
+    dbc.Table(
+        [
+            # First Name Row
+            html.Tr([ 
+                html.Td(dbc.Label("First Name"), style={'width': '10%'}),
+                html.Td(
+                    dbc.Input(
+                        type='text', 
+                        id='studentprofile_fname',
+                        placeholder="First Name"
+                    ),
+                    style={'width': '80%'}
+                ),
+            ]),
+            # Last Name Row
+            html.Tr([ 
+                html.Td(dbc.Label("Last Name"), style={'width': '10%'}),
+                html.Td(
+                    dbc.Input(
+                        type='text', 
+                        id='studentprofile_lname',
+                        placeholder="Last Name"
+                    ),
+                    style={'width': '80%'}
+                ),
+            ]),
+            # Age Row
+            html.Tr([ 
+                html.Td(dbc.Label("Age"), style={'width': '10%'}),
+                html.Td(
+                    dbc.Input(
+                        type='number', 
+                        id='studentprofile_age',
+                        placeholder="Age"
+                    ),
+                    style={'width': '80%'}
+                ),
+            ]),
+            # Gender Row
+            html.Tr([ 
+                html.Td(dbc.Label("Gender"), style={'width': '10%'}),
+                html.Td(
+                    dbc.Select(
+                        id='studentprofile_gender',
+                        options=[
+                            {'label': 'Male', 'value': 'Male'},
+                            {'label': 'Female', 'value': 'Female'},
+                            {'label': 'Prefer not to say', 'value': 'Prefer not to say'},
+                        ],
+                        value='Prefer not to say',  # Default value
+                        style={'width': '100%'}
+                    )
+                ),
+            ]),
+            # City Row
+            html.Tr([ 
+                html.Td(dbc.Label("City"), style={'width': '10%'}),
+                html.Td(
+                    dbc.Input(
+                        type='text', 
+                        id='studentprofile_city',
+                        placeholder="City"
+                    ),
+                    style={'width': '80%'}
+                ),
+            ]),
+            # Address Row
+            html.Tr([ 
+                html.Td(dbc.Label("Address"), style={'width': '10%'}),
+                html.Td(
+                    dbc.Input(
+                        type='text', 
+                        id='studentprofile_address',
+                        placeholder="Address"
+                    ),
+                    style={'width': '80%'}
+                ),
+            ]),
+            # Grade Level Row
+            html.Tr([ 
+                html.Td(dbc.Label("Grade Level"), style={'width': '10%'}),
+                html.Td(
+                    dbc.Select(
+                        id='studentprofile_gradelvl',
+                        options=[
+                            {'label': 'Kindergarten', 'value': 'Kindergarten'},
+                            {'label': 'Pre-school', 'value': 'Pre-school'},
+                            {'label': 'Grade 1', 'value': 'Grade 1'},
+                            {'label': 'Grade 2', 'value': 'Grade 2'},
+                            {'label': 'Grade 3', 'value': 'Grade 3'},
+                            {'label': 'Grade 4', 'value': 'Grade 4'},
+                            {'label': 'Grade 5', 'value': 'Grade 5'},
+                            {'label': 'Grade 6', 'value': 'Grade 6'},
+                        ],
+                        value='Kindergarten',  # Default value
+                        style={'width': '100%'}
+                    )
+                ),
+            ]),
+        ]   
+    )
+),
+html.H2('Parent Details'),  # Page Header
+html.Hr(),
+dbc.Form(
+    dbc.Table(
+        [
+            # Parent Full Name Row
+            html.Tr([ 
+                html.Td(dbc.Label("Parent Full Name"), style={'width': '10%'}),
+                html.Td(
+                    dbc.Input(
+                        type='text', 
+                        id='studentprofile_parent_fname',
+                        placeholder="Parent Full Name"
+                    ),
+                    style={'width': '80%'}
+                ),
+            ]),
+            # Parent Email Row
+            html.Tr([ 
+                html.Td(dbc.Label("Parent Email"), style={'width': '10%'}),
+                html.Td(
+                    dbc.Input(
+                        type='email', 
+                        id='studentprofile_parent_email',
+                        placeholder="Parent Email"
+                    ),
+                    style={'width': '80%'}
+                ),
+            ]),
+            # Parent Job Row
+            html.Tr([ 
+                html.Td(dbc.Label("Parent Job"), style={'width': '10%'}),
+                html.Td(
+                    dbc.Input(
+                        type='text', 
+                        id='studentprofile_parent_job',
+                        placeholder="Parent Job"
+                    ),
+                    style={'width': '80%'}
+                ),
+            ]),
+            # Relationship Row
+            html.Tr([ 
+                html.Td(dbc.Label("Relationship"), style={'width': '10%'}),
+                html.Td(
+                    dbc.Select(
+                        id='studentprofile_relationship',
+                        options=[
+                            {'label': 'Mother', 'value': 'Mother'},
+                            {'label': 'Father', 'value': 'Father'},
+                            {'label': 'Guardian', 'value': 'Guardian'},
+                        ],
+                        value='Mother',  # Default value
+                        style={'width': '100%'}
+                    )
+                ),
+            ]),
+            # Delete Mark Row
+            html.Tr([ 
+                html.Td(dbc.Label("Mark as deleted?"), style={'width': '10%'}),
+                html.Td(
+                    dbc.Checklist(
+                        id='studentprofile_deleteind',
+                        options=[dict(value=1, label="")],
+                        value=[]
+                    ),
+                    style={'width': '80%'}
+                ),
+            ]),
+        ]
+    )
+),
 
-        html.H2('Enrollment Details'),  # Page Header
-        html.Hr(),
-        dbc.Form(
-            dbc.Table(
-                [
-                    html.Tr([ 
-                        html.Td(dbc.Label("Enrollment Status"), style={'width': '10%'}),
-                        html.Td(
-                            dbc.Select(
-                                id='studentprofile_enrollmentstatus',
-                                options=[
-                                    {'label': 'Not Enrolled', 'value': 'FALSE'},
-                                    {'label': 'Enrolled', 'value': 'TRUE'},
-                                ],
-                                value='FALSE',  # Default value
-                                style={'width': '100%'}
-                            )
-                        ),
-                    ]),
-                    # Delete Option Row
-                    html.Tr([ 
-                        html.Td(dbc.Label("Mark as deleted?"), style={'width': '10%'}),
-                        html.Td(
-                            dbc.Checklist(
-                                id='studentprofile_deleteind',
-                                options=[dict(value=1, label="")],
-                                value=[]
-                            ),
-                            style={'width': '80%'}
-                        ),
-                    ]),
-                ]
-            )
-        ),
         
+
+        # html.H2('Enrollment Details'),  # Page Header
+        # html.Hr(),
+                    # html.Tr([ 
+                    #     html.Td(dbc.Label("Enrollment Status"), style={'width': '10%'}),
+                    #     html.Td(
+                    #         dbc.Select(
+                    #             id='studentprofile_enrollmentstatus',
+                    #             options=[
+                    #                 {'label': 'Not Enrolled', 'value': 'FALSE'},
+                    #                 {'label': 'Enrolled', 'value': 'TRUE'},
+                    #             ],
+                    #             value='FALSE',  # Default value
+                    #             style={'width': '100%'}
+                    #         )
+                    #     ),
+                    # ]),
+                    # Delete Option Row
+                    
         # Ensure the div for studentprofile_deletediv exists
         html.Div(
             id='studentprofile_deletediv',  # Ensure this div exists
@@ -273,7 +270,6 @@ layout = html.Div(
         Output('studentprofile_parent_email', 'value'),
         Output('studentprofile_parent_job', 'value'),
         Output('studentprofile_relationship', 'value'),
-        Output('studentprofile_enrollmentstatus', 'value'),
     ],
     [Input('url', 'pathname')],
     [State('url', 'search')]
@@ -305,19 +301,18 @@ def studentprofile_populate(pathname, urlsearch):
                        parent_fname AS parent_fname,
                        parent_email AS parent_email,
                        parent_job AS parent_job,
-                       relationship AS relationship,
-                       enroll_status as enroll_status
+                       relationship AS relationship
                 FROM student WHERE stud_id = %s;
             """
             
             values = [studid]
             col = ['fname', 'lname', 'age', 'gender', 'city', 'address', 'gradelvl', 
-                   'parent_fname', 'parent_email', 'parent_job', 'relationship', 'enroll_status']
+                   'parent_fname', 'parent_email', 'parent_job', 'relationship']
             
             df = getDataFromDB(sql, values, col)
 
             # Ensure all 13 fields are returned even when editing an existing student
-            return deletediv, studid, df['fname'][0], df['lname'][0], df['age'][0], df['gender'][0], df['city'][0], df['address'][0], df['gradelvl'][0], df['parent_fname'][0], df['parent_email'][0], df['parent_job'][0], df['relationship'][0], df['enroll_status'][0]
+            return deletediv, studid, df['fname'][0], df['lname'][0], df['age'][0], df['gender'][0], df['city'][0], df['address'][0], df['gradelvl'][0], df['parent_fname'][0], df['parent_email'][0], df['parent_job'][0], df['relationship'][0]
     
     else:
         raise PreventUpdate
@@ -343,13 +338,13 @@ def studentprofile_populate(pathname, urlsearch):
         State('studentprofile_parent_email', 'value'),
         State('studentprofile_parent_job', 'value'),
         State('studentprofile_relationship', 'value'),
-        State('studentprofile_enrollmentstatus', 'value'),  # Ensure the correct variable name here
+       
         State('url', 'search'),
         State('studentprofile_studid', 'data'),
         State('studentprofile_deleteind', 'value'),
     ]
 )
-def studentprofile_saveprofile(submitbtn, fname, lname, age, gender, city, address, gradelvl, parent_fname, parent_email, parent_job, relationship, enroll_status, urlsearch, studid, deleteind):
+def studentprofile_saveprofile(submitbtn, fname, lname, age, gender, city, address, gradelvl, parent_fname, parent_email, parent_job, relationship, urlsearch, studid, deleteind):
     ctx = dash.callback_context
     if ctx.triggered:
         eventid = ctx.triggered[0]['prop_id'].split('.')[0]
@@ -394,10 +389,10 @@ def studentprofile_saveprofile(submitbtn, fname, lname, age, gender, city, addre
                 sql = '''
                     INSERT INTO student (stud_fname, stud_lname, stud_age, stud_gender, stud_city,
                                          stud_address, stud_gradelvl, parent_fname, parent_email,
-                                         parent_job, relationship, enroll_status, stud_delete_ind)
-                    VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
+                                         parent_job, relationship, stud_delete_ind)
+                    VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
                 '''
-                values = [fname, lname, age, gender, city, address, gradelvl, parent_fname, parent_email, parent_job, relationship, enroll_status, False]
+                values = [fname, lname, age, gender, city, address, gradelvl, parent_fname, parent_email, parent_job, relationship, False]
 
             elif create_mode == 'edit':
                 sql = '''
@@ -414,12 +409,11 @@ def studentprofile_saveprofile(submitbtn, fname, lname, age, gender, city, addre
                         parent_email = %s,
                         parent_job = %s,
                         relationship = %s,
-                        enroll_status = %s,
                         stud_delete_ind = %s
                     WHERE
                         stud_id = %s
                 '''
-                values = [fname, lname, age, gender, city, address, gradelvl, parent_fname, parent_email, parent_job, relationship, enroll_status,
+                values = [fname, lname, age, gender, city, address, gradelvl, parent_fname, parent_email, parent_job, relationship,
                           bool(deleteind), studid]
 
             else:
