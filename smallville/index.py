@@ -10,7 +10,7 @@ from app import app
 from apps import commonmodules as cm  # Assuming you have a common module for navbar etc.
 from apps import home  # Import the home layout
 from apps.student import student_profile, student_profile_edit
-from apps.schedule import student_sched
+from apps.schedule import student_sched, sched_assign, sched_edit, sched_form, sched_management
 from apps.payment import payment, payment_upload
 from apps.teacher import teacher_stud_list, teacher_stud_list_edit
 
@@ -49,6 +49,18 @@ def displaypage(pathname):
         
         elif pathname == '/student/student_sched':
             return student_sched.layout
+        
+        elif pathname == '/student/sched_assign':
+            return sched_assign.layout
+        
+        elif pathname == '/student/sched_edit':
+            return sched_edit.layout
+        
+        elif pathname == '/student/sched_form':
+            return sched_form.layout
+        
+        elif pathname == '/student/sched_management':
+            return sched_management.layout
 
         elif pathname == '/student/payment':
             return payment.layout
