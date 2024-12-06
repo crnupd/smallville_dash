@@ -23,7 +23,10 @@ layout = html.Div(
                     dbc.Row(  # Use Row to align text and button
                         [
                             dbc.Col(
+                                [
                                 html.H3('Manage Records'),
+                                html.P("You may manage your children's registration records using this page."),
+                                ],
                                 width=10  # Occupy 10 parts of the row
                             ),
                             dbc.Col(  # Wrap the button properly inside a column

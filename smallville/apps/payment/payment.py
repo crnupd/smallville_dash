@@ -8,7 +8,7 @@ from app import app
 from apps.dbconnect import getDataFromDB
 
 table_header = [
-    html.Thead(html.Tr([html.Th("PLAN"), html.Th("Amount per Payment (in pesos)"),  html.Th("Total to Pay (in pesos)")]))
+    html.Thead(html.Tr([html.Th("PLAN", style={'width':'33%'}), html.Th("Amount per Payment (in pesos)", style={'width':'33%'}),  html.Th("Total to Pay (in pesos)", style={'width':'33%'})]))
 ]
 
 row1 = html.Tr([html.Td("Monthly"), html.Td("6,125.00"), html.Td("73,500")])
@@ -17,7 +17,7 @@ row3 = html.Tr([html.Td("Yearly"), html.Td("70,000"), html.Td("70,000")])
 
 table_body = [html.Tbody([row1, row2, row3])]
 
-table = dbc.Table(table_header + table_body, bordered=True)
+table = dbc.Table(table_header + table_body, bordered=True, className='active')
 
 layout = html.Div(
     [
@@ -31,18 +31,13 @@ layout = html.Div(
         ),
         dbc.Card(  # Card Container
             [
-                dbc.CardHeader(  # Define Card Header
-                    [
-                        html.H3("Payment Plans")
-                    ]
-                ),
                 dbc.CardBody(  # Define Card Contents
                     [
                         html.Div(  
                             [
-                                table,
                                 html.H5("Payment Plan Details"),
                                 html.P("Total Tuition Fee: 70,000 pesos"),
+                                table,
                                 html.H6("Important Notice"),
                                 html.P(["- Families are encouraged to select the payment plan that best fits their financial situation.", html.Br(), 
                                         "- All payments are due on the first of each month or quarter as applicable.", html.Br(),
