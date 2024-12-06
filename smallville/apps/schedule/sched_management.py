@@ -24,10 +24,7 @@ layout = html.Div(
                     dbc.Row(  # Use Row to align text and button
                         [
                             dbc.Col(
-                                [
                                 html.H3('Manage Schedules'),
-                                html.P("Use this page to view and manage the class schedules.")
-                                ],
                                 width=10  # Occupy 10 parts of the row
                             ),
                             dbc.Col(  # Wrap the button properly inside a column
@@ -143,7 +140,7 @@ def updateScheduleTable(pathname, sort_column, n_clicks, sched_filter, prev_sort
         schedule AS "Schedule",
         id
     FROM class_sched
-    WHERE TRUE
+    WHERE sched_delete_ind = FALSE
     """
     val = []
 
