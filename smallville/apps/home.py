@@ -5,6 +5,7 @@ from dash.exceptions import PreventUpdate
 
 from app import app
 
+# Define content for tabs
 tab1_content = dbc.Card(
     dbc.CardBody(
         [
@@ -56,6 +57,7 @@ tab2_content = dbc.Card(
     className="mt-3",
 )
 
+# Define tabs
 tabs = dbc.Tabs(
     [
         dbc.Tab(tab1_content, label="Announcements"),
@@ -63,6 +65,7 @@ tabs = dbc.Tabs(
     ]
 )
 
+# Define row content
 row = html.Div(
     [
         dbc.Row(
@@ -105,65 +108,42 @@ row = html.Div(
     ]
 )
 
-# Define the layout variable instead of modifying app.layout directly
-layout = html.Div(  # Wrap everything in a Div
+# Define the main layout variable
+layout = html.Div(  # Wrap everything in a single Div
     [
+        # Header section with image and register button
         html.Div(
-            # className="h-50",
-            # style = {"background-image": "url('/assets/home.png')", "background-size": "contain", "background-repeat": "no-repeat", "border": "1px", 'padding':'3 px',
-            #          "height": "40vh", "width": "100%"},
-            children = [
+            children=[
                 html.Img(
                    src="/assets/home.png",
                    style={"width": "100%", "height": "auto", "padding": "0px 0px"},
-                ),  # Adjust size as needed
+                ),  
                 html.A(
                     dbc.Button(
-                        "Register", color="primary", className="btn btn-success", style = {'position': 'absolute', 'top': '280px',  # Distance from the top of the parent container
-                        'right': '1100px',  # Distance from the right of the parent container
-                        'z-index': 1000, }
+                        "Register", color="primary", className="btn btn-success", 
+                        style={
+                            'position': 'absolute',
+                            'top': '280px',
+                            'right': '1100px',
+                            'z-index': 1000,
+                        }
                     ),
                     href="/student/student_profile",
                 ),
             ]
         ),
-        # # Introduction Section
-        # html.Div(
-        #     style={'margin-left': '15px', 'margin-top': '10px'},
-        #     children=[
-        #         html.P("In Smallville Montessori, we believe in Montessori curriculum the way Maria Montessori herself practiced her teaching."),
-        #         html.P(style={'font-weight': 'bold'}, children="Why choose Smallville Montessori?"),
-        #         html.P("Child-Centered Learning: Our Montessori approach nurtures independence, curiosity, and a passion for discovery."),
-        #         html.P("Inclusive Community: We celebrate every child's unique journey and learning style."),
-        #         html.P("Holistic Development: Focusing on academics, social skills, and emotional growth.")
-        #     ]
-        # ),
         row,
-        # Button
-        # html.A(
-        #         dbc.Button("Register", color="primary", className="btn btn-success"), href="/student/student_profile",  # Specify the page to redirect to
-        #     style={
-        #         'position': 'absolute',
-        #         'top': '280px',  # Distance from the top of the parent container
-        #         'right': '1100px',  # Distance from the right of the parent container
-        #         'z-index': 1000,  # Ensure it appears above other elements
-        #     }
-        # ),
-        # Footer
+        # Footer section
         html.Footer(
             style={
                 "text-align": "center",
                 "padding": "6px",
                 "background-color": "#003093",
-                # 'position': 'fixed',
                 "bottom": 0,
                 "width": "100%",
-                "margin-top": "500px",
             },
             children=[
-                html.P(
-                    style={"color": "#f1f1f1"}, children="© 2024 Smallville Montessori"
-                )
+                html.P(style={"color": "#f1f1f1"}, children="© 2024 Smallville Montessori")
             ],
         ),
     ]

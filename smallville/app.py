@@ -9,9 +9,7 @@ import dash_bootstrap_components as dbc
 from dash import dcc, html,  Input, Output, State
 
 # Create the application object (stored in app variable), along with CSS stylesheets
-server = Flask(__name__)
-app = dash.Dash(__name__, server=server, suppress_callback_exceptions=True
-)
+app = dash.Dash(__name__)
 
 # Make sure that callbacks are not activated when input elements enter the layout; config is setting quality of app
 app.config.suppress_callback_exceptions = True
