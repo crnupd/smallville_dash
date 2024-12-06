@@ -9,6 +9,7 @@ from apps.dbconnect import getDataFromDB  # Assuming the database connection fun
 dash.register_page(__name__)
 
 # Add new comment for testing
+# Add some more comments
 # Login screen
 # layout = html.Div(
 #     [
