@@ -34,7 +34,7 @@ app.layout = html.Div(
         html.Div(cm.navbar, id='navbar_div'),  
 
         # Page Content
-        html.Div(id='page-content', className='m-2 p-2')
+        html.Div(style={'margin-top': '70px'},id='page-content', className='m-2 p-2')
     ]
 )
 

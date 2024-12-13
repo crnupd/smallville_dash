@@ -5,6 +5,19 @@ from dash.exceptions import PreventUpdate
 
 from app import app
 
+FOOTER_STYLE = {
+    "position": "fixed",
+    "bottom": 0,
+    "left": 0,
+    "right": 0,
+    "height": "30px",
+    "padding": "5px",
+    "background-color": "#003093",
+    "display": "flex",
+    "justify-content": "center",  # Center horizontally
+    "align-items": "center",      # Center vertically
+}
+
 # Define content for tabs
 tab1_content = dbc.Card(
     dbc.CardBody(
@@ -90,13 +103,22 @@ row = html.Div(
                                 children="Why choose Smallville Montessori?",
                             ),
                             html.P(
-                                "Child-Centered Learning: Our Montessori approach prioritizes the individual needs and interests of each child. We create an environment where children can thrive by nurturing their independence, curiosity, and passion for discovery."
+                                children=[
+                                    html.Strong("Child-Centered Learning: "),
+                                    "Our Montessori approach prioritizes the individual needs and interests of each child. We create an environment where children can thrive by nurturing their independence, curiosity, and passion for discovery."
+                                ]
                             ),
                             html.P(
-                                "Inclusive Community: At Smallville Montessori, we celebrate every child's unique journey and learning style. Our classrooms are designed to be inclusive, recognizing that each child brings their own strengths and perspectives."
+                                children=[
+                                    html.Strong("Inclusive Community: "),
+                                    "At Smallville Montessori, we celebrate every child's unique journey and learning style. Our classrooms are designed to be inclusive, recognizing that each child brings their own strengths and perspectives."
+                                ]
                             ),
                             html.P(
-                                "Holistic Development: We focus on the holistic development of each child, integrating academic learning with social-emotional growth. Our curriculum encompasses not only core subjects like mathematics and language but also emphasizes practical life skills, sensory experiences, and creative expression through art and music."
+                                children=[
+                                    html.Strong("Holistic Development: "),
+                                    "We focus on the holistic development of each child, integrating academic learning with social-emotional growth. Our curriculum encompasses not only core subjects like mathematics and language but also emphasizes practical life skills, sensory experiences, and creative expression through art and music."
+                                ]
                             ),
                         ],
                         className="divBorder",
@@ -112,11 +134,11 @@ row = html.Div(
 layout = html.Div(  # Wrap everything in a single Div
     [
         # Header section with image and register button
-        html.Div(
+        html.Div(style={'margin-top': '70px'},
             children=[
                 html.Img(
                    src="/assets/home.png",
-                   style={"width": "100%", "height": "auto", "padding": "0px 0px"},
+                   style={"width": "100%", "height": "auto", "padding": "0px 0px", 'z-index': 1},
                 ),  
                 html.A(
                     dbc.Button(
@@ -125,7 +147,7 @@ layout = html.Div(  # Wrap everything in a single Div
                             'position': 'absolute',
                             'top': '280px',
                             'right': '1100px',
-                            'z-index': 1000,
+                            'z-index': 2,
                         }
                     ),
                     href="/student/student_profile",
@@ -135,15 +157,9 @@ layout = html.Div(  # Wrap everything in a single Div
         row,
         # Footer section
         html.Footer(
-            style={
-                "text-align": "center",
-                "padding": "6px",
-                "background-color": "#003093",
-                "bottom": 0,
-                "width": "100%",
-            },
+            style=FOOTER_STYLE,
             children=[
-                html.P(style={"color": "#f1f1f1"}, children="© 2024 Smallville Montessori")
+                html.H6(style={"color": "#f1f1f1"}, children="© 2024 Smallville Montessori")
             ],
         ),
     ]

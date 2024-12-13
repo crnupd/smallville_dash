@@ -57,6 +57,19 @@ layout = html.Div(
                         ],
                     className="mb-3",
                         ),
+                    dbc.Row(
+                        dbc.RadioItems(
+                                            options=[
+                                                {"label": "Parent", "value": "parent"},
+                                                {"label": "Teacher", "value": "teacher"},
+                                            ],
+                                            value="parent",
+                                            id="role-radio",
+                                            inline=True,
+                                            style = {'margin-top':'10px'},
+                                        ),
+                    className="mb-3",
+                    ),
                     dbc.Button('Sign up', color="primary", id='singup_signupbtn'),
                     dbc.Modal(
                         [
