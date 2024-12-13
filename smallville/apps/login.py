@@ -103,28 +103,28 @@ def loginprocess(loginbtn, sessionlogout_time,
    
    
     if eventid == 'login_loginbtn': # trigger for login process
-        if username == "test" and password == "test":  # Example validation
-            currentuserid = 1
-        # if loginbtn and username and password:
-        #     sql = """SELECT user_id
-        #     FROM users
-        #     WHERE
-        #         user_name = %s AND
-        #         user_password = %s AND
-        #         NOT user_delete_ind"""
+        # if username == "test" and password == "test":  # Example validation
+        #     currentuserid = 1
+        if loginbtn and username and password:
+            sql = """SELECT user_id
+            FROM users
+            WHERE
+                user_name = %s AND
+                user_password = %s AND
+                NOT user_delete_ind"""
            
-        #     # we match the encrypted input to the encrypted password in the db
-        #     encrypt_string = lambda string: hashlib.sha256(string.encode('utf-8')).hexdigest()
+            # we match the encrypted input to the encrypted password in the db
+            encrypt_string = lambda string: hashlib.sha256(string.encode('utf-8')).hexdigest()
            
-        #     values = [username, encrypt_string(password)]
-        #     cols = ['userid']
-        #     df = db.getDataFromDB(sql, values, cols)
+            values = [username, encrypt_string(password)]
+            cols = ['userid']
+            df = db.getDataFromDB(sql, values, cols)
            
-        #     if df.shape[0]: # if query returns rows
-        #         currentuserid = df['userid'][0]
-        #     else:
-        #         currentuserid = -1
-        #         openalert = True
+            if df.shape[0]: # if query returns rows
+                currentuserid = df['userid'][0]
+            else:
+                currentuserid = -1
+                openalert = True
                
     elif eventid == 'sessionlogout' and pathname == '/logout': # reset the userid if logged out
         currentuserid = -1

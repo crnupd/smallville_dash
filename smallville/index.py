@@ -8,11 +8,13 @@ from dash.exceptions import PreventUpdate
 # Importing your app variable from app.py so we can use it
 from app import app
 from apps import commonmodules as cm  # Assuming you have a common module for navbar etc.
-from apps import home, login, signup  # Import the home layout
+from apps import home, login, signup, admin  # Import the home layout
 from apps.student import student_profile, student_profile_edit
 from apps.schedule import student_sched, sched_assign, sched_edit, sched_form, sched_management
 from apps.payment import payment, payment_upload
 from apps.teacher import teacher_stud_list, teacher_stud_list_edit
+
+ADMIN_USER_ID = 5
 
 # Define the main layout of the app
 app.layout = html.Div(
@@ -72,12 +74,18 @@ def displaypage (pathname, sessionlogout, userid):
            
             else:    
                 if pathname == '/logout':
-                    returnlayout = login.layout
-                    sessionlogout = True
+                    returnlayout = login.layout, True, ''
                    
                 elif pathname == '/home':
                     #return student_profile.layout  # Assuming you have this layout defined
                     return home.layout, sessionlogout, ''
+                
+                elif pathname == '/admin':
+                    if userid == ADMIN_USER_ID:  # Check if logged-in user is admin
+                        return admin.layout, sessionlogout, ''
+                    else:
+                        returnlayout = '403: Access Denied - Admins Only'
+                    ##currently still not working, your thoughts pls (working yung part na access denied, natatakpan lang ng navbar haha funny)
                
                 elif pathname == '/student/student_profile':
                     #return student_profile.layout  # Assuming you have this layout defined
