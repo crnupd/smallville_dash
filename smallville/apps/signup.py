@@ -57,6 +57,19 @@ layout = html.Div(
                         ],
                     className="mb-3",
                         ),
+                    dbc.Row(
+                        dbc.RadioItems(
+                                            options=[
+                                                {"label": "Parent", "value": "parent"},
+                                                {"label": "Teacher", "value": "teacher"},
+                                            ],
+                                            value="parent",
+                                            id="role-radio",
+                                            inline=True,
+                                            style = {'margin-top':'10px'},
+                                        ),
+                    className="mb-3",
+                    ),
                     dbc.Button('Sign up', color="primary", id='singup_signupbtn'),
                     dbc.Modal(
                         [
@@ -88,13 +101,13 @@ layout = html.Div(
         Input('signup_passwordconf', 'value'),
     ]
 )
-# def deactivatesignup(password, passwordconf):
+def deactivatesignup(password, passwordconf):
     
-#     # enable button if password exists and passwordconf exists 
-#     #  and password = passwordconf
-#     enablebtn = password and passwordconf and password == passwordconf
+    # enable button if password exists and passwordconf exists 
+    #  and password = passwordconf
+    enablebtn = password and passwordconf and password == passwordconf
 
-#     return [not enablebtn]
+    return [not enablebtn]
 
 
 # To save the user
@@ -111,9 +124,9 @@ layout = html.Div(
         State('signup_password', 'value')
     ]
 )
-def saveuser(loginbtn, username, password):
+def saveuser(login_loginbtn, username, password):
     openalert = openmodal = False
-    if loginbtn:
+    if login_loginbtn:
         if username and password:
             sql = """INSERT INTO users (user_name, user_password)
             VALUES (%s, %s)"""  
@@ -124,7 +137,7 @@ def saveuser(loginbtn, username, password):
             encrypt_string = lambda string: hashlib.sha256(string.encode('utf-8')).hexdigest()  
             
             values = [username, encrypt_string(password)]
-            db.modifydatabase(sql, values)
+            db.modifyDB(sql, values)
             
             openmodal = True
         else:

@@ -10,6 +10,16 @@ from app import app
 # Define a default style for nav links
 navlink_style = {'margin-left': '1em', 'color': '#000'}  # Adjust margin and color as needed
 
+HEADER_STYLE = {
+    "position": "fixed",
+    "top": 0,
+    "left": 0,
+    "right": 0,
+    "height": '70px',
+    "padding": "10px",
+    "z-index": '1000',
+}
+
 # Create a horizontal navbar using dbc.Navbar
 navbar = dbc.Navbar(
     [
@@ -32,14 +42,15 @@ navbar = dbc.Navbar(
                 dbc.NavLink("Payment", href="/student/payment", active="exact", style=navlink_style),
                 dbc.NavLink("Teacher's Student List", href="/teacher/teacher_stud_list", active="exact", style=navlink_style),
                 dbc.NavLink("Sign Out", href="/logout", active="exact", style=navlink_style),
+                dbc.NavLink("Admin", href="/admin", active="exact", style=navlink_style),
             ],
             className="ml-auto",  # Aligns nav links to the right
             pills=True,  # Optional: adds pill styling to links
         )
     ],
     color="light",  # Background color of the navbar
-    dark=False,     # Set to True for dark mode styling
-    style={"padding": "10px"},  # Padding for the navbar
+    dark=False,     # Set to True for dark mode styling,
+    style=HEADER_STYLE,  # Padding for the navbar 
 )
 
 # Example layout using the navbar (this would be part of your main layout)
