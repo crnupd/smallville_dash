@@ -96,7 +96,7 @@ layout = html.Div(
                 dbc.ModalBody("Schedule successfully updated."),
                 dbc.ModalFooter(
                     dbc.Button(
-                        "Proceed", href="/student/sched_management"  # Redirect after saving
+                        "Proceed", href="/admin"  # Redirect after saving
                     )
                 ),
             ],

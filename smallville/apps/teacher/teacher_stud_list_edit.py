@@ -19,7 +19,7 @@ layout = html.Div(
                     dbc.Button(
                         "Return",
                         color='primary',
-                        href=f'/teacher/teacher_stud_list',
+                        href=f'/admin',
                     ),
                     width=2,
                     className="text-end"
@@ -138,7 +138,7 @@ layout = html.Div(
             [
                 dbc.ModalHeader(html.H4('Save Success')),
                 dbc.ModalBody('Student details have been saved successfully!'),
-                dbc.ModalFooter(dbc.Button("Proceed", href='/teacher/teacher_stud_list'))  # Redirect to student list page
+                dbc.ModalFooter(dbc.Button("Proceed", href='/admin'))  # Redirect to student list page
             ],
             centered=True,
             id='studentprofile_modal_success',

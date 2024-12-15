@@ -57,7 +57,7 @@ layout = html.Div(
                     html.Div(
                         [
                         dbc.Button("Add", id="add_button", n_clicks=0, style={'margin-top':'10px'}),
-                        dbc.Button("Back", href=f'/student/sched_management', id="back_button", n_clicks=0, style={'margin-top': '10px'}),
+                        dbc.Button("Back", href=f'/admin', id="back_button", n_clicks=0, style={'margin-top': '10px'}),
                         ],
                         style={'display': 'flex',
                             'justify-content': 'space-between',
@@ -74,7 +74,7 @@ layout = html.Div(
                         dbc.ModalFooter(
                             dbc.Button(
                                 "Proceed",
-                                href = '/student/sched_management'
+                                href = '/admin'
                             )
                         )
                         ],
