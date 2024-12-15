@@ -1,10 +1,11 @@
 import dash
 import dash_bootstrap_components as dbc
-from dash import Output, Input, State, dcc, html
+from dash import Output, Input, State, dcc, html, ALL, ctx
 from dash.exceptions import PreventUpdate
 import pandas as pd
 from app import app
 from apps.dbconnect import getDataFromDB  # Assuming the database connection functions are implemented here
+
 
 # Layout for the Students Registration Records page
 layout = html.Div(
@@ -19,85 +20,48 @@ layout = html.Div(
         ),
         dbc.Card(  # Card Container
             [
-                dbc.CardHeader(  # Define Card Header
-                    dbc.Row(  # Use Row to align text and button
+                dbc.CardHeader(
+                    dbc.Row(
                         [
+                            dbc.Col(html.H3('Manage Records'), width=10),
                             dbc.Col(
-                                html.H3('Manage Records'),
-                                width=10  # Occupy 10 parts of the row
-                            ),
-                            dbc.Col(  # Wrap the button properly inside a column
                                 dbc.Button(
                                     "Add Student",
                                     href='/student/student_profile_edit?mode=add',
                                     color='primary',
                                     style={'float': 'right'}
                                 ),
-                                width=2,  # Occupy 2 parts of the row
-                                className="text-right"  # Align the button to the right
+                                width=2,
+                                className="text-right"
                             ),
                         ],
-                        justify="between",  # Spread the columns across the row
-                        align="center",  # Vertically align items in the row to the center
+                        justify="between",
+                        align="center",
                     ),
                 ),
-                dbc.CardBody(  # Define Card Contents
+                dbc.CardBody(
                     [
                         html.Hr(),
-                        html.Div(  # Create section to show list of students
+                        html.Div(
                             [
-                                html.H4('Sort Students'),
-                                # Place dropdown and button side by side inside one column
-                                dbc.Row([  # Sorting section first
-                                    dbc.Col(  # One column for both the dropdown and the button
-                                        dbc.Row([  # Use another Row to place them side by side inside this column
-                                            dbc.Col(  # Column for the dropdown
-                                                dcc.Dropdown(
-                                                    id="sort_column",
-                                                    options=[
-                                                        {'label': 'Student ID', 'value': 'stud_id'},
-                                                        {'label': 'First Name', 'value': 'stud_fname'},
-                                                        {'label': 'Last Name', 'value': 'stud_lname'},
-                                                        {'label': 'City', 'value': 'stud_city'},
-                                                        {'label': 'Grade Level', 'value': 'stud_gradelvl'},
-                                                        {'label': 'Enrollment Status', 'value': 'enroll_status'}  # Added Enrollment Status
-                                                    ],
-                                                    placeholder="Select Column to Sort",
-                                                    value='stud_fname',  # Default column to sort
-                                                    clearable=False,
-                                                    style={'margin': '2px 0px'}  # 2px margin top and bottom, 0px margin right
-                                                ),
-                                            ),
-                                            dbc.Col(  # Column for the button
-                                                dbc.Button(
-                                                    'Sort',
-                                                    id='sort_button',
-                                                    color='primary',
-                                                    n_clicks=0,
-                                                    style={'margin': '2px 0px'}  # 2px margin for the button
-                                                ),
-                                            ),
-                                        ]), 
-                                        width=12,  # Occupy full width for the parent column (12/12)
-                                    ),
-                                ]), 
-
+                                html.H4('Filter by Other Columns'),
+                                html.Div(id='filter-rows-container'),
+                                dbc.Button("Add Filter", id="add-filter-button", n_clicks=0, className="mt-2"),
                                 html.Hr(),
-
-                                html.H4('Find Students'),
-                                dbc.Row([  # Row for the label and filter text box
+                                html.H4('Filter by Last Name'),
+                                dbc.Row([
                                     dbc.Col(
                                         dbc.Input(
                                             type='text',
-                                            id='student_fnamefilter',
-                                            placeholder='Search by Selected Column',
-                                            value=''  # Set empty value for the filter textbox
+                                            id='student_lnamefilter',
+                                            placeholder='Filter by Last Name',
+                                            value=''
                                         ),
-                                        width=12  # Text box next to the label, occupies remaining space
+                                        width=12
                                     )
-                                ]), 
+                                ]),
                                 html.Hr(),
-                                html.Div(id='student_studentlist')  # Placeholder for student table
+                                html.Div(id='student_studentlist')
                             ]
                         )
                     ]
@@ -107,112 +71,168 @@ layout = html.Div(
     ]
 )
 
+
+@app.callback(
+    Output('filter-rows-container', 'children'),
+    Input('add-filter-button', 'n_clicks'),
+    State('filter-rows-container', 'children'),
+    prevent_initial_call=True
+)
+def add_filter_row(n_clicks, current_children):
+    if n_clicks is None:
+        raise PreventUpdate
+
+
+    if current_children is None:
+        current_children = []
+
+
+    new_index = len(current_children) // 2
+
+
+    # Check if any existing filter dropdown already selects 'enroll_status'
+    enroll_status_filter_exists = any(
+        isinstance(child, dbc.Row) and
+        len(child.children) > 0 and
+        isinstance(child.children[0], dbc.Col) and
+        isinstance(child.children[0].children, dcc.Dropdown) and
+        child.children[0].children.value == 'enroll_status'
+        for child in current_children
+    )
+
+
+    # Dynamically decide input type for new row
+    input_component = (
+        dcc.Dropdown(
+            id={"type": "filter-value-input", "index": new_index},
+            options=[
+                {'label': 'Enrolled', 'value': 'Enrolled'},
+                {'label': 'Not Enrolled', 'value': 'Not Enrolled'}
+            ],
+            placeholder='Select filter value',
+            style={'margin': '2px 0px'}
+        ) if enroll_status_filter_exists else
+        dbc.Input(
+            type='text',
+            id={"type": "filter-value-input", "index": new_index},
+            placeholder='Enter filter value',
+            value='',
+            style={'margin': '2px 0px'}
+        )
+    )
+
+
+    # Add the new row
+    new_row = dbc.Row(
+        [
+            dbc.Col(
+                dcc.Dropdown(
+                    id={"type": "filter-column-dropdown", "index": new_index},
+                    options=[
+                        {'label': 'Student ID', 'value': 'stud_id'},
+                        {'label': 'City', 'value': 'stud_city'},
+                        {'label': 'Grade Level', 'value': 'stud_gradelvl'},
+                        {'label': 'Enrollment Status', 'value': 'enroll_status'}
+                    ],
+                    placeholder="Select Column",
+                    clearable=False,
+                    style={'margin': '2px 0px'}
+                ),
+                width=6
+            ),
+            dbc.Col(
+                input_component,
+                width=6
+            )
+        ],
+        className="mb-2"
+    )
+
+
+    current_children.append(new_row)
+    return current_children
+
+
+
+
 @app.callback(
     [
         Output('student_studentlist', 'children'),
-        Output('student_fnamefilter', 'value')  # Update the filter textbox value
+        Output('student_lnamefilter', 'value')
     ],
     [
         Input('url', 'pathname'),
-        Input('sort_column', 'value'),  # The column to sort by
-        Input('sort_button', 'n_clicks'),  # The button to trigger the sorting
-        Input('student_fnamefilter', 'value')  # The filter value for the selected column
-    ],
-    State('sort_column', 'value')  # To keep track of the last selected column
+        Input({'type': 'filter-column-dropdown', 'index': ALL}, 'value'),
+        Input({'type': 'filter-value-input', 'index': ALL}, 'value'),
+        Input('student_lnamefilter', 'value')
+    ]
 )
-def updateRecordsTable(pathname, sort_column, n_clicks, student_fnamefilter, prev_sort_column):
-    print(f"Callback triggered. Pathname: {pathname}, Sort Column: {sort_column}, Filter: {student_fnamefilter}, Clicks: {n_clicks}")
-
-    # Only trigger the callback if the correct path is matched
+def updateRecordsTable(pathname, filter_columns, filter_values, student_lnamefilter):
     if pathname != '/student/student_profile':
-        print(f"Incorrect Path: {pathname}")
         return html.Div("This page doesn't exist."), ''
 
-    # SQL query for fetching data
-    sql = """ 
-    SELECT 
-        stud_id AS "Student ID",
-        stud_fname AS "First Name",
-        stud_lname AS "Last Name",
-        stud_city AS "City",
-        stud_address AS "Address",
-        stud_gradelvl AS "Grade Level",
-        enroll_status AS "Enrollment Status"  -- Add enroll_status column
-    FROM student
-    WHERE NOT stud_delete_ind
+
+    sql = """
+        SELECT
+            stud_id::text AS "Student ID",
+            stud_fname AS "First Name",
+            stud_lname AS "Last Name",
+            stud_city AS "City",
+            stud_address AS "Address",
+            stud_gradelvl AS "Grade Level",
+            enroll_status AS "Enrollment Status"
+        FROM student
+        WHERE NOT stud_delete_ind
     """
     val = []
 
-    # Apply filter based on the selected column and filter value
-    if student_fnamefilter and sort_column:
-        # If the selected sort column is 'enroll_status', treat the filter as specific to that column.
-        if sort_column == "enroll_status":
-            # We expect 'Enrolled' or 'Not Enrolled' as the filter value
-            student_fnamefilter = student_fnamefilter.lower()
-            if student_fnamefilter == 'enrolled':
-                sql += " AND enroll_status = TRUE"
-            elif student_fnamefilter == 'not enrolled':
-                sql += " AND enroll_status = FALSE"
+
+    for col, val_filter in zip(filter_columns or [], filter_values or []):
+        if col and val_filter:
+            if col == 'enroll_status':
+                if val_filter == 'Enrolled':
+                    sql += " AND enroll_status = TRUE"
+                elif val_filter == 'Not Enrolled':
+                    sql += " AND enroll_status = FALSE"
             else:
-                # If the filter is not 'Enrolled' or 'Not Enrolled', don't filter by this column
-                pass
-        else:
-            # For other columns, apply the filter normally (ILIKE for case-insensitive search)
-            sql += f""" AND {sort_column} ILIKE %s"""
-            val += [f'%{student_fnamefilter}%']
+                sql += f" AND {col} ILIKE %s"
+                val.append(f'%{val_filter}%')
 
-    # Handle sorting based on button clicks
-    # Alternate sorting direction on each button click
-    if n_clicks % 2 == 0:  # Even clicks -> ascending
-        sort_direction = "ASC"
-    else:  # Odd clicks -> descending
-        sort_direction = "DESC"
 
-    # Apply sorting to the selected column
-    if sort_column:
-        sql += f" ORDER BY {sort_column} {sort_direction}"
+    if student_lnamefilter:
+        sql += " AND stud_lname ILIKE %s"
+        val.append(f'%{student_lnamefilter}%')
 
-    # Columns for the DataFrame
+
     col = ["Student ID", "First Name", "Last Name", "City", "Address", "Grade Level", "Enrollment Status"]
 
-    # Fetch data from the database
+
     df = getDataFromDB(sql, val, col)
 
-    # If no data found, return a message
+
     if df.empty:
-        return html.Div("No data available"), student_fnamefilter
+        return html.Div("No data available"), student_lnamefilter
 
-    # Debug: Check the values in the 'Enrollment Status' column before applying the transformation
-    print("Enrollment Status Values before transformation:", df['Enrollment Status'].unique())
 
-    # Replace the enroll_status True/False values with 'Enrolled'/'Not Enrolled'
     df['Enrollment Status'] = df['Enrollment Status'].apply(lambda x: 'Enrolled' if x else 'Not Enrolled')
 
-    # Debug: Check the values after applying the transformation
-    print("Enrollment Status Values after transformation:", df['Enrollment Status'].unique())
 
-    # Generate 'Action' button column with edit links
     df['Action'] = [
         html.Div(
             dbc.Button(
-                "Edit", 
-                style={'backgroundColor': 'Maroon', 'color': 'white'},  # Crimson red button with white text
+                "Edit",
+                style={'backgroundColor': 'Maroon', 'color': 'white'},
                 size='sm',
-                href=f'/student/student_profile_edit?mode=edit&id={row["Student ID"]}'  # Using Student ID as the ID
+                href=f'/student/student_profile_edit?mode=edit&id={row["Student ID"]}'
             ),
             className='text-center'
         ) for _, row in df.iterrows()
     ]
 
-    # Reorganize columns for display
-    df = df[["Student ID", "First Name", "Last Name", "City", "Address", "Grade Level", "Enrollment Status", 'Action']]
 
-    # Generate the table from DataFrame
+    df = df[["Student ID", "First Name", "Last Name", "City", "Address", "Grade Level", "Enrollment Status", 'Action']]
+   
     student_table = dbc.Table.from_dataframe(df, striped=True, bordered=True, hover=True, size='sm')
 
-    # Return the table and reset the filter text box to an empty string
-    return student_table, student_fnamefilter  # The filter textbox state remains the same
 
-# Run the app in debug mode
-if __name__ == '__main__':
-    app.run_server(debug=True)
+    return student_table, student_lnamefilter
