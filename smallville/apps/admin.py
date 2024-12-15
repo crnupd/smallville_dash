@@ -311,12 +311,11 @@ def updateScheduleTable(pathname, sort_column, n_clicks, sched_filter, prev_sort
 @app.callback(
     Output('student_studentlist_teacher', 'children'),
     [
-        Input('url_teacher_stud_list', 'pathname'),
+        Input('url_admin', 'pathname'),
         Input('sort_column_teacher', 'value'),
         Input('sort_button_teacher', 'n_clicks'),
         Input('student_fnamefilter_teacher', 'value')
-    ],
-    prevent_initial_call=True  # Prevent the callback from triggering on initial page load
+    ]
 )
 def updateRecordsTable(pathname, sort_column, n_clicks, student_fnamefilter):
     print(f"Callback triggered. Pathname: {pathname}, Sort Column: {sort_column}, Filter: {student_fnamefilter}, Clicks: {n_clicks}")
@@ -397,8 +396,7 @@ def updateRecordsTable(pathname, sort_column, n_clicks, student_fnamefilter):
 # Separate callback to reset the filter value (used independently)
 @app.callback(
     Output('student_fnamefilter_teacher', 'value'),
-    [Input('url_teacher_stud_list', 'pathname')],
-    prevent_initial_call=True
+    [Input('url_admin', 'pathname')],
 )
 def reset_filter(pathname):
     # Reset the filter value only if the correct path is matched
