@@ -318,9 +318,12 @@ layout = html.Div(
         Output('studentprofile_parent_contact', 'value'),
     ],
     [Input('url', 'pathname')],
-    [State('url', 'search')]
+    [
+        State('url', 'search'),
+        State('currentuserid', 'data')]
 )
-def studentprofile_populate(pathname, urlsearch):
+def studentprofile_populate(pathname, urlsearch, currentuserid):
+    print(currentuserid)
     if pathname == '/student/student_profile_edit':
         parsed = urlparse(urlsearch)
         create_mode = parse_qs(parsed.query).get('mode', [None])[0]
@@ -389,9 +392,10 @@ def studentprofile_populate(pathname, urlsearch):
         State('url', 'search'),
         State('studentprofile_studid', 'data'),
         State('studentprofile_deleteind', 'value'),
+        State('currentuserid', 'data')
     ]
 )
-def studentprofile_saveprofile(submitbtn, fname, lname, age, gender, city, address, gradelvl, parent_fname, parent_email, parent_job, relationship, parent_contact, urlsearch, studid, deleteind):
+def studentprofile_saveprofile(submitbtn, fname, lname, age, gender, city, address, gradelvl, parent_fname, parent_email, parent_job, relationship, parent_contact, urlsearch, studid, deleteind, currentuserid):
     ctx = dash.callback_context
     if ctx.triggered:
         eventid = ctx.triggered[0]['prop_id'].split('.')[0]
@@ -436,14 +440,14 @@ def studentprofile_saveprofile(submitbtn, fname, lname, age, gender, city, addre
                 sql = '''
                     INSERT INTO student (stud_fname, stud_lname, stud_age, stud_gender, stud_city,
                                          stud_address, stud_gradelvl, parent_fname, parent_email,
-                                         parent_job, relationship, parent_contact, stud_delete_ind)
-                    VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
+                                         parent_job, relationship, parent_contact, stud_delete_ind, user_id)
+                    VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s  )
                 '''
-                values = [fname, lname, age, gender, city, address, gradelvl, parent_fname, parent_email, parent_job, relationship, parent_contact, False]
+                values = [fname, lname, age, gender, city, address, gradelvl, parent_fname, parent_email, parent_job, relationship, parent_contact, False, currentuserid]
 
             elif create_mode == 'edit':
                 sql = '''
-                    UPDATE student 
+                    UPDATE student
                     SET 
                         stud_fname = %s,
                         stud_lname = %s,
