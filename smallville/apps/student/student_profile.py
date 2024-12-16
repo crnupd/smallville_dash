@@ -165,11 +165,17 @@ def add_filter_row(n_clicks, current_children):
         Input({'type': 'filter-column-dropdown', 'index': ALL}, 'value'),
         Input({'type': 'filter-value-input', 'index': ALL}, 'value'),
         Input('student_lnamefilter', 'value')
+    ],
+    [
+        State('currentuserid', 'data')
     ]
 )
-def updateRecordsTable(pathname, filter_columns, filter_values, student_lnamefilter):
+def updateRecordsTable(pathname, filter_columns, filter_values, student_lnamefilter, currentuserid):
     if pathname != '/student/student_profile':
         return html.Div("This page doesn't exist."), ''
+    
+    if not currentuserid or currentuserid <= 0:
+        return html.Div("Please log in to view this page."), ''
 
 
     sql = """
@@ -183,8 +189,9 @@ def updateRecordsTable(pathname, filter_columns, filter_values, student_lnamefil
             enroll_status AS "Enrollment Status"
         FROM student
         WHERE NOT stud_delete_ind
+        AND user_id = %s
     """
-    val = []
+    val = [currentuserid]
 
 
     for col, val_filter in zip(filter_columns or [], filter_values or []):
