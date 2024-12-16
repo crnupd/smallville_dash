@@ -201,6 +201,9 @@ def updateRecordsTable(pathname, filter_columns, filter_values, student_lnamefil
                     sql += " AND enroll_status = TRUE"
                 elif val_filter == 'Not Enrolled':
                     sql += " AND enroll_status = FALSE"
+            elif col == 'stud_id':
+                sql += " AND stud_id = %s"
+                val.append(f'{val_filter}')
             else:
                 sql += f" AND {col} ILIKE %s"
                 val.append(f'%{val_filter}%')
