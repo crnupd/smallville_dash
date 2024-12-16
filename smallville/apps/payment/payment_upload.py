@@ -204,11 +204,12 @@ def update_image_preview(contents, filename):
         State('payment_date', 'value'),
         State('payment_method', 'value'),
         State('paymentupload_proof', 'contents'),
-        State('paymentupload_proof', 'filename')
+        State('paymentupload_proof', 'filename'),
+        State('currentuserid', 'data')
     ]
 )
 
-def paymentupload_populate(n_clicks, stud_id, pay_plan, pay_num, pay_amt, pay_date, pay_method, pay_proof, filename):
+def paymentupload_populate(n_clicks, stud_id, pay_plan, pay_num, pay_amt, pay_date, pay_method, pay_proof, filename, currentuserid):
     if not n_clicks:
         raise PreventUpdate
 
@@ -227,6 +228,8 @@ def paymentupload_populate(n_clicks, stud_id, pay_plan, pay_num, pay_amt, pay_da
         return True, 'danger', 'Please supply the payment method.', False
     elif not pay_proof:
         return True, 'danger', 'Please upload proof of payment.', False
+    elif not currentuserid or currentuserid <= 0:  # Ensure currentuserid is valid
+        return True, 'danger', 'You must be logged in to submit payment proof.', False
 
     try:
         # Decode the uploaded proof 
@@ -235,10 +238,10 @@ def paymentupload_populate(n_clicks, stud_id, pay_plan, pay_num, pay_amt, pay_da
     
             # Insert into database
             sql = '''
-                INSERT INTO payment (stud_id, pay_plan, pay_num, pay_amt, pay_date, pay_method, pay_proof)
-                VALUES (%s, %s, %s, %s, %s, %s, %s)
+                INSERT INTO payment (user_id, stud_id, pay_plan, pay_num, pay_amt, pay_date, pay_method, pay_proof)
+                VALUES (%s, %s, %s, %s, %s, %s, %s, %s)
             '''
-            values = (stud_id, pay_plan, pay_num, pay_amt, pay_date, pay_method, proof_data)
+            values = (currentuserid, stud_id, pay_plan, pay_num, pay_amt, pay_date, pay_method, proof_data)
 
             # Perform the database insert operation
             modifyDB(sql, values)
