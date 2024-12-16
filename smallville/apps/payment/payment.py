@@ -2,6 +2,7 @@ import dash
 import dash_bootstrap_components as dbc
 from dash import Input, Output, State, html
 from dash.exceptions import PreventUpdate
+from index import ADMIN_USER_ID
 import base64
 
 from app import app
@@ -99,17 +100,47 @@ layout = html.Div(
 
 @app.callback(
     Output('payment_history', 'children'),
-    [Input('url', 'pathname')]
+    [Input('url', 'pathname')],
+    [State('currentuserid', 'data')]
 )
-def updateRecordsTable(pathname):
+def updateRecordsTable(pathname, currentuserid):
     if pathname != '/student/payment':  # Corrected pathname check
         raise PreventUpdate
-
-    sql = """ 
-        SELECT pay_id, stud_id, pay_plan, pay_num, pay_amt, pay_date, pay_method, pay_proof 
-        FROM payment 
-    """
-    val = []
+    
+    if not currentuserid or currentuserid <= 0:
+        return html.Div("Please log in to view this page."), ''
+    
+    # Check if the user is admin (user_id = 1 for admin, tentative)
+    if currentuserid == ADMIN_USER_ID:  # Admin user ID
+        sql = """ 
+            SELECT 
+                pay_id, 
+                stud_id, 
+                pay_plan, 
+                pay_num, 
+                pay_amt, 
+                pay_date, 
+                pay_method, 
+                pay_proof 
+            FROM payment
+        """
+        val = []  # No specific condition since admin sees all payment history records
+    else:
+        sql = """ 
+            SELECT 
+                pay_id, 
+                stud_id, 
+                pay_plan, 
+                pay_num, 
+                pay_amt, 
+                pay_date, 
+                pay_method, 
+                pay_proof 
+            FROM payment
+            WHERE user_id = %s 
+        """
+        val = [currentuserid] # Normal users see only their payment history
+        
     col = ["Payment ID", "Student ID", "Plan", "Reference No.", "Amount", "Payment Date", "Payment Method", "Proof"]
 
     df = getDataFromDB(sql, val, col)
