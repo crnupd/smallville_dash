@@ -104,8 +104,8 @@ if __name__ == '__main__':
                     elif pathname == '/student/payment_upload':
                         return payment_upload.layout, sessionlogout, ''
         
-                    # elif pathname == '/student/sched_management':
-                    #     return sched_management.layout, sessionlogout, ''
+                    elif pathname == '/student/sched_assign':
+                        return sched_assign.layout, sessionlogout, ''
         
                     elif pathname == '/student/sched_form':
                         return sched_form.layout, sessionlogout, ''
