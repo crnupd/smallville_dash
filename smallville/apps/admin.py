@@ -1,6 +1,6 @@
 import dash
 import dash_bootstrap_components as dbc
-from dash import Output, Input, State, dcc, html
+from dash import Output, Input, State, dcc, html, ALL
 from dash.exceptions import PreventUpdate
 import pandas as pd
 from dash import dash_table
@@ -172,62 +172,29 @@ def render_content(tab):
                         align="center",  # Vertically align items in the row to the center
                     ),
                 ),
-                dbc.CardBody(  # Define Card Contents
+                dbc.CardBody(
                     [
                         html.Hr(),
-                        html.Div(  # Create section to show list of students
+                        html.Div(
                             [
-                                html.H4('Sort Students'),
-                                dbc.Row([  # Sorting section first
-                                    dbc.Col(
-                                        dbc.Row([  # Use another Row to place them side by side inside this column
-                                            dbc.Col(  # Column for the dropdown
-                                                dcc.Dropdown(
-                                                    id="sort_column_teacher",
-                                                    options=[
-                                                        {'label': 'Student ID', 'value': 'stud_id'},
-                                                        {'label': 'First Name', 'value': 'stud_fname'},
-                                                        {'label': 'Last Name', 'value': 'stud_lname'},
-                                                        {'label': 'City', 'value': 'stud_city'},
-                                                        {'label': 'Grade Level', 'value': 'stud_gradelvl'},
-                                                        {'label': 'Enrollment Status', 'value': 'enroll_status'}
-                                                    ],
-                                                    placeholder="Select Column to Sort",
-                                                    value='stud_fname',  # Default column to sort
-                                                    clearable=False,
-                                                    style={'margin': '2px 0px'}  # Margin adjustments
-                                                ),
-                                            ),
-                                            dbc.Col(  # Column for the button
-                                                dbc.Button(
-                                                    'Sort',
-                                                    id='sort_button_teacher',
-                                                    color='primary',
-                                                    n_clicks=0,
-                                                    style={'margin': '2px 0px'}  # 2px margin for the button
-                                                ),
-                                            ),
-                                        ]), 
-                                        width=12,  # Occupy full width for the parent column (12/12)
-                                    ),
-                                ]),  # Sorting section end
-
+                                html.H4('Filter by Other Columns'),
+                                html.Div(id='filter-rows-container'),
+                                dbc.Button("Add Filter", id="add-filter-button", n_clicks=0, className="mt-2"),
                                 html.Hr(),
-
-                                html.H4('Find Students'),
-                                dbc.Row([  # Row for the label and filter text box
+                                html.H4('Filter by Last Name'),
+                                dbc.Row([
                                     dbc.Col(
                                         dbc.Input(
                                             type='text',
-                                            id='student_fnamefilter_teacher',
-                                            placeholder='Search by Selected Column',
-                                            value=''  # Set empty value for the filter textbox
+                                            id='admin_student_lnamefilter',
+                                            placeholder='Filter by Last Name',
+                                            value=''
                                         ),
-                                        width=12  # Text box next to the label, occupies remaining space
+                                        width=12
                                     )
-                                ]),  # Find students filter end
+                                ]),
                                 html.Hr(),
-                                html.Div(id='student_studentlist_teacher')  # Placeholder for student table
+                                html.Div(id='admin_student_studentlist')  # Placeholder for student table
                             ]
                         )
                     ]
@@ -309,17 +276,100 @@ def updateScheduleTable(pathname, sort_column, n_clicks, sched_filter, prev_sort
 
 # Teacher Student List Callback
 @app.callback(
-    Output('student_studentlist_teacher', 'children'),
+    Output('admin-filter-rows-container', 'children'),
+    Input('add-filter-button', 'n_clicks'),
+    State('admin-filter-rows-container', 'children'),
+    prevent_initial_call=True
+)
+def add_filter_row(n_clicks, current_children):
+    if n_clicks is None:
+        raise PreventUpdate
+
+
+    if current_children is None:
+        current_children = []
+
+
+    new_index = len(current_children) // 2
+
+
+    # Check if any existing filter dropdown already selects 'enroll_status'
+    enroll_status_filter_exists = any(
+        isinstance(child, dbc.Row) and
+        len(child.children) > 0 and
+        isinstance(child.children[0], dbc.Col) and
+        isinstance(child.children[0].children, dcc.Dropdown) and
+        child.children[0].children.value == 'enroll_status'
+        for child in current_children
+    )
+
+
+    # Dynamically decide input type for new row
+    input_component = (
+        dcc.Dropdown(
+            id={"type": "filter-value-input", "index": new_index},
+            options=[
+                {'label': 'Enrolled', 'value': 'Enrolled'},
+                {'label': 'Not Enrolled', 'value': 'Not Enrolled'}
+            ],
+            placeholder='Select filter value',
+            style={'margin': '2px 0px'}
+        ) if enroll_status_filter_exists else
+        dbc.Input(
+            type='text',
+            id={"type": "filter-value-input", "index": new_index},
+            placeholder='Enter filter value',
+            value='',
+            style={'margin': '2px 0px'}
+        )
+    )
+
+
+    # Add the new row
+    new_row = dbc.Row(
+        [
+            dbc.Col(
+                dcc.Dropdown(
+                    id={"type": "filter-column-dropdown", "index": new_index},
+                    options=[
+                        {'label': 'Student ID', 'value': 'stud_id'},
+                        {'label': 'City', 'value': 'stud_city'},
+                        {'label': 'Grade Level', 'value': 'stud_gradelvl'},
+                        {'label': 'Enrollment Status', 'value': 'enroll_status'}
+                    ],
+                    placeholder="Select Column",
+                    clearable=False,
+                    style={'margin': '2px 0px'}
+                ),
+                width=6
+            ),
+            dbc.Col(
+                input_component,
+                width=6
+            )
+        ],
+        className="mb-2"
+    )
+
+
+    current_children.append(new_row)
+    return current_children
+
+
+
+@app.callback(
     [
-        Input('url_admin', 'pathname'),
-        Input('sort_column_teacher', 'value'),
-        Input('sort_button_teacher', 'n_clicks'),
-        Input('student_fnamefilter_teacher', 'value')
+        Output('admin_student_studentlist', 'children'),
+        Output('admin_student_lnamefilter', 'value')
+    ],
+    [
+        Input('url', 'pathname'),
+        Input({'type': 'filter-column-dropdown', 'index': ALL}, 'value'),
+        Input({'type': 'filter-value-input', 'index': ALL}, 'value'),
+        Input('admin_student_lnamefilter', 'value')
     ]
 )
-def updateRecordsTable(pathname, sort_column, n_clicks, student_fnamefilter):
-    print(f"Callback triggered. Pathname: {pathname}, Sort Column: {sort_column}, Filter: {student_fnamefilter}, Clicks: {n_clicks}")
-
+def updateRecordsTable(pathname, filter_columns, filter_values, admin_student_lnamefilter):
     # Only trigger the callback if the correct path is matched
     if pathname != '/admin':
         print(f"Incorrect Path: {pathname}")
@@ -341,21 +391,21 @@ def updateRecordsTable(pathname, sort_column, n_clicks, student_fnamefilter):
     val = []
 
     # Apply filter based on the selected column and filter value
-    if student_fnamefilter and sort_column:
-        if sort_column == "enroll_status":
-            student_fnamefilter = student_fnamefilter.lower()
-            if student_fnamefilter == 'enrolled':
-                sql += " AND enroll_status = TRUE"
-            elif student_fnamefilter == 'not enrolled':
-                sql += " AND enroll_status = FALSE"
-        else:
-            sql += f""" AND {sort_column} ILIKE %s"""
-            val += [f'%{student_fnamefilter}%']
+    for col, val_filter in zip(filter_columns or [], filter_values or []):
+        if col and val_filter:
+            if col == 'enroll_status':
+                if val_filter == 'Enrolled':
+                    sql += " AND enroll_status = TRUE"
+                elif val_filter == 'Not Enrolled':
+                    sql += " AND enroll_status = FALSE"
+            else:
+                sql += f" AND {col} ILIKE %s"
+                val.append(f'%{val_filter}%')
 
-    # Handle sorting based on button clicks
-    sort_direction = "ASC" if n_clicks % 2 == 0 else "DESC"
-    if sort_column:
-        sql += f" ORDER BY {sort_column} {sort_direction}"
+
+    if admin_student_lnamefilter:
+        sql += " AND stud_lname ILIKE %s"
+        val.append(f'%{admin_student_lnamefilter}%')
 
     # Columns for the DataFrame
     col = ["Student ID", "First Name", "Last Name", "City", "Address", "Grade Level", "Enrollment Status"]
@@ -365,8 +415,8 @@ def updateRecordsTable(pathname, sort_column, n_clicks, student_fnamefilter):
 
     # If no data found, return a message
     if df.empty:
-        return html.Div("No data available")  # Return empty filter value if no data
-
+        return html.Div("No data available"), admin_student_lnamefilter
+    
     # Replace enroll_status True/False values with 'Enrolled'/'Not Enrolled'
     df['Enrollment Status'] = df['Enrollment Status'].apply(lambda x: 'Enrolled' if x else 'Not Enrolled')
 
@@ -390,7 +440,7 @@ def updateRecordsTable(pathname, sort_column, n_clicks, student_fnamefilter):
     student_table = dbc.Table.from_dataframe(df, striped=True, bordered=True, hover=True, size='sm')
 
     # Return the updated table
-    return student_table
+    return student_table, admin_student_lnamefilter
 
 
 # Separate callback to reset the filter value (used independently)
