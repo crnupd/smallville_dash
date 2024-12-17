@@ -140,9 +140,9 @@ layout = html.Div(  # Wrap everything in a single Div
                    src="/assets/home.png",
                    style={"width": "100%", "height": "auto", "padding": "0px 0px", 'z-index': 1},
                 ),  
-                html.A(
+                dcc.Link(
                     dbc.Button(
-                        "Register", color="primary", className="btn btn-success", 
+                        "Register", color="primary", className="btn btn-success", active="exact",
                         style={
                             'position': 'absolute',
                             'top': '280px',
@@ -150,7 +150,7 @@ layout = html.Div(  # Wrap everything in a single Div
                             'z-index': 2,
                         }
                     ),
-                    href=f'/student/student_profile',
+                    href="/student/student_profile",
                 ),
             ]
         ),
