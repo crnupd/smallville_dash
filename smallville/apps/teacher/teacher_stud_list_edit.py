@@ -99,7 +99,7 @@ layout = html.Div(
                 ]
             )
         ),
-
+        
         # Enrollment Details Section (Only enrollment status is editable)
         html.H2('Enrollment Details'),
         html.Hr(),
