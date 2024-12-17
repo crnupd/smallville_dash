@@ -201,7 +201,7 @@ def studentprofile_populate(pathname, urlsearch):
             return hidden_delete, studid, record['fname'][0], record['lname'][0], record['age'][0], record['gender'][0], \
                    record['city'][0], record['address'][0], record['gradelvl'][0], record['parent_fname'][0], \
                    record['parent_email'][0], record['parent_contact'][0], record['parent_job'][0], record['relationship'][0], record['enroll_status'][0]
-    return PreventUpdate
+    raise PreventUpdate
 
 # Callback to submit data
 @app.callback(
@@ -218,4 +218,4 @@ def studentprofile_submit(n_clicks, studid, enroll_status):
             modifyDB(sql, [enroll_status, studid])
         
         return True
-    return PreventUpdate
+    raise PreventUpdate
