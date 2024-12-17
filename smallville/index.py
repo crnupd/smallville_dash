@@ -102,6 +102,9 @@ if __name__ == '__main__':
                     elif pathname == '/student/payment_upload':
                         returnlayout = payment_upload.layout
         
+                    elif pathname == '/student/sched_assign':
+                        returnlayout = sched_assign.layout
+        
                     elif pathname == '/student/sched_form':
                         returnlayout = sched_form.layout 
         

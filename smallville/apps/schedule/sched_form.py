@@ -11,8 +11,22 @@ from apps.dbconnect import getDataFromDB, modifyDB
 # Layout for the page
 layout = html.Div(
     [
-        html.H2('Schedule Management'), # Page Header
-        
+        # Page Header
+        dbc.Row(
+            [
+                dbc.Col(html.H2('Schedule Management', style={'width': "100%"}), width=10),  # Page Header
+                dbc.Col(
+                    dbc.Button(
+                        "Return",
+                        color='primary',
+                        href=f'/admin',
+                    ),
+                    width=2,
+                    className="text-end"  # Aligns the button to the right
+                )
+            ],
+            align="center"
+        ),
         html.Hr(),
         
         dbc.Card(  # Card Container
@@ -26,11 +40,25 @@ layout = html.Div(
                 # Input fields
                 html.Div([
                     dbc.Row(
-                        [dbc.Label("Grade Level", width=1, style={"textAlign":"left", 'margin-left':'15px'}),
-                            dbc.Col(
-                                dbc.Input(id="grade_level", type="text", placeholder="Grade Level"),
-                            width=3
-                            ),
+                    [
+                        dbc.Label("Grade Level", width=1, style={"textAlign":"left", 'margin-left':'15px'}),
+                        dbc.Col(
+                        dbc.Select(
+                            id='grade_level',
+                            options=[
+                                {'label': 'Kindergarten', 'value': 'Kindergarten'},
+                                {'label': 'Pre-school', 'value': 'Pre-school'},
+                                {'label': 'Grade 1', 'value': 'Grade 1'},
+                                {'label': 'Grade 2', 'value': 'Grade 2'},
+                                {'label': 'Grade 3', 'value': 'Grade 3'},
+                                {'label': 'Grade 4', 'value': 'Grade 4'},
+                                {'label': 'Grade 5', 'value': 'Grade 5'},
+                                {'label': 'Grade 6', 'value': 'Grade 6'},
+                            ],
+                            value='Kindergarten',
+                        ),
+                        width=3,
+                        ),
                         ]),
                     dbc.Row(
                         [dbc.Label("Subject", width=1, style={"textAlign":"left", 'margin-left':'15px'}),
@@ -55,10 +83,7 @@ layout = html.Div(
                         ]),
                     
                     html.Div(
-                        [
                         dbc.Button("Add", id="add_button", n_clicks=0, style={'margin-top':'10px'}),
-                        dbc.Button("Back", href=f'/admin', id="back_button", n_clicks=0, style={'margin-top': '10px'}),
-                        ],
                         style={'display': 'flex',
                             'justify-content': 'space-between',
                             'align-items': 'center',
@@ -100,10 +125,7 @@ layout = html.Div(
     Output('alert','is_open'),
     Output('sched_successmodal','is_open')
     ],
-    [
     Input('add_button', 'n_clicks'),
-    Input('back_button', 'n_clicks')
-    ],
     [
     State('grade_level', 'value'),
     State('subject', 'value'),
@@ -112,7 +134,7 @@ layout = html.Div(
     ]
 )
 
-def sched_save(submitbtn, backbtn, grade_level, subject, teacher, schedule):
+def sched_save(submitbtn, grade_level, subject, teacher, schedule):
     ctx = dash.callback_context
     if ctx.triggered:
         eventid = ctx.triggered[0]['prop_id'].split('.')[0]
@@ -151,8 +173,6 @@ def sched_save(submitbtn, backbtn, grade_level, subject, teacher, schedule):
 
                 return [alert_color, alert_text, alert_open, modal_open]
         
-        elif eventid == 'back_button' and backbtn:
-            raise PreventUpdate
         else: 
             raise PreventUpdate
     

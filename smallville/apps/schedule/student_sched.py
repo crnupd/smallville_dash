@@ -3,6 +3,7 @@ import dash_bootstrap_components as dbc
 from dash import Output, Input, State, dcc, html
 from dash.exceptions import PreventUpdate
 import pandas as pd
+
 from app import app
 from apps.dbconnect import getDataFromDB, modifyDB
 
@@ -66,9 +67,13 @@ def fetch_data_on_load(pathname):
 # Callback to display tables based on the data in `dcc.Store`
 @app.callback(
     Output('schedules-tables', 'children'),
-    Input('schedule-data', 'data')
+    Input('schedule-data', 'data'),
+    State('currentuserid', 'data')
 )
-def display_table(data):
+def display_table(data, currentuserid):
+    
+    from index import ADMIN_USER_ID
+    
     if data is None:
         raise PreventUpdate
 
@@ -88,7 +93,7 @@ def display_table(data):
         tables.append(
             html.Div(
                 [
-                    html.H3(f"Grade {grade_data['Grade Level']}", style={"marginTop": "20px", 'textAlign':'center'}),
+                    html.H3(f"{grade_data['Grade Level']}", style={"marginTop": "20px", 'textAlign':'center'}),
                     
                     html.Div(
                         dbc.Button(
@@ -96,7 +101,7 @@ def display_table(data):
                             href=f"/student/sched_assign?grade_level={grade_data['Grade Level']}",  # URL for the button
                             color="primary",  # Button styling
                             className="mb-2"  # Add margin on bottom for spacing
-                        ),
+                        ) if currentuserid == ADMIN_USER_ID else None,
                         style={'textAlign': 'center', 'margin-bottom':'10px'}
                     ),
                     
