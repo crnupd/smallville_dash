@@ -110,7 +110,7 @@ def update_records_table(search, first_name_filter, last_name_filter):
         return [html.Div("No data available")]
     
     # Exclude 'Student ID' column from display
-    df = df[["First Name", "Last Name"]]
+    df = df[["Grade Level", "First Name", "Last Name"]]
 
     # Create the table to display the filtered data
     sched_table = dbc.Table.from_dataframe(
