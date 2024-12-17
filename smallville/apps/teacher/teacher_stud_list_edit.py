@@ -89,6 +89,10 @@ layout = html.Div(
                         html.Td(html.Div(id='studentprofile_input_parent_email', style={'width': '80%'}))
                     ]),
                     html.Tr([
+                        html.Td(dbc.Label("Contact Number"), style={'width': '10%'}),
+                        html.Td(html.Div(id='studentprofile_input_parent_contact', style={'width': '80%'}))
+                    ]),
+                    html.Tr([
                         html.Td(dbc.Label("Parent Job"), style={'width': '10%'}),
                         html.Td(html.Div(id='studentprofile_input_parent_job', style={'width': '80%'}))
                     ]),
@@ -99,7 +103,7 @@ layout = html.Div(
                 ]
             )
         ),
-
+        
         # Enrollment Details Section (Only enrollment status is editable)
         html.H2('Enrollment Details'),
         html.Hr(),
@@ -116,6 +120,7 @@ layout = html.Div(
                                 {'label': 'Not Enrolled', 'value': 'FALSE'}
                             ],
                             value='FALSE',  # Default value is "Not Enrolled"
+                            placeholder="Not Enrolled",
                             disabled=False
                         ))
                     ]),
@@ -161,6 +166,7 @@ layout = html.Div(
         Output('studentprofile_select_gradelvl', 'children'),
         Output('studentprofile_input_parent_fname', 'children'),
         Output('studentprofile_input_parent_email', 'children'),
+        Output('studentprofile_input_parent_contact', 'children'),
         Output('studentprofile_input_parent_job', 'children'),
         Output('studentprofile_select_relationship', 'children'),
         Output('studentprofile_select_enrollmentstatus', 'value'),
@@ -176,7 +182,7 @@ def studentprofile_populate(pathname, urlsearch):
         if create_mode == 'add':
             studid = 0
             hidden_delete = 'd-none'  # Hide delete option for new students
-            return hidden_delete, studid, '', '', '', 'Prefer not to say', '', '', 'Kindergarten', '', '', 'Mother', 'FALSE'
+            return hidden_delete, studid, '', '', '', 'Prefer not to say', '', '', 'Kindergarten', '', '', '', 'Mother', 'FALSE'
 
         else:
             studid = int(parse_qs(parsed.query).get('id', [0])[0])
@@ -184,17 +190,17 @@ def studentprofile_populate(pathname, urlsearch):
             sql = """
                 SELECT stud_fname AS fname, stud_lname AS lname, stud_age AS age, stud_gender AS gender, 
                        stud_city AS city, stud_address AS address, stud_gradelvl AS gradelvl, 
-                       parent_fname AS parent_fname, parent_email AS parent_email, parent_job AS parent_job, 
+                       parent_fname AS parent_fname, parent_email AS parent_email, parent_contact as parent_contact, parent_job AS parent_job, 
                        relationship AS relationship, enroll_status as enroll_status
                 FROM student WHERE stud_id = %s;
             """
             values = [studid]
-            col = ['fname', 'lname', 'age', 'gender', 'city', 'address', 'gradelvl', 'parent_fname', 'parent_email', 
+            col = ['fname', 'lname', 'age', 'gender', 'city', 'address', 'gradelvl', 'parent_fname', 'parent_email', 'parent_contact',
                    'parent_job', 'relationship', 'enroll_status']
             record = getDataFromDB(sql, values, col)
             return hidden_delete, studid, record['fname'][0], record['lname'][0], record['age'][0], record['gender'][0], \
                    record['city'][0], record['address'][0], record['gradelvl'][0], record['parent_fname'][0], \
-                   record['parent_email'][0], record['parent_job'][0], record['relationship'][0], record['enroll_status'][0]
+                   record['parent_email'][0], record['parent_contact'][0], record['parent_job'][0], record['relationship'][0], record['enroll_status'][0]
     return PreventUpdate
 
 # Callback to submit data

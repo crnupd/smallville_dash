@@ -14,7 +14,7 @@ from apps.schedule import student_sched, sched_assign, sched_edit, sched_form, s
 from apps.payment import payment, payment_upload
 from apps.teacher import teacher_stud_list, teacher_stud_list_edit
 
-ADMIN_USER_ID = 2
+ADMIN_USER_ID = 1
 
 if __name__ == '__main__':
     # Define the main layout of the app
@@ -117,7 +117,7 @@ if __name__ == '__main__':
                     #     return teacher_stud_list.layout, sessionlogout, ''
                     
                     elif pathname == '/teacher/teacher_stud_list_edit':
-                        return teacher_stud_list_edit, sessionlogout, ''
+                        return teacher_stud_list_edit.layout, sessionlogout, ''
 
                     else:
                         returnlayout = '404: request not found after login'
