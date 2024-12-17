@@ -26,7 +26,7 @@ layout = html.Div(
                 html.H2('View Schedules'),
                 html.Hr(),
             ],
-            style={'margin-top': '15px'}
+            style={'margin-top': '70px'}
         ),
         
         # Store the schedule data in memory

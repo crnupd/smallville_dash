@@ -294,7 +294,8 @@ layout = html.Div(
             id='studentprofile_successmodal',
             backdrop='static'  # Dialog box does not go away if you click at the background
         )
-    ]
+    ],
+    style={'margin-top': '70px'}
 )
 
 # The rest of the code remains unchanged
