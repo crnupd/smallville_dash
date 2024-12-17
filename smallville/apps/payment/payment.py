@@ -1,6 +1,6 @@
 import dash
 import dash_bootstrap_components as dbc
-from dash import Input, Output, State, html
+from dash import Input, Output, State, html, dcc, ALL
 from dash.exceptions import PreventUpdate
 from index import ADMIN_USER_ID
 import base64
@@ -82,10 +82,32 @@ layout = html.Div(
                     html.H3('Payment History')
                 ),
                 dbc.CardBody(  # Define Card Contents
-                    html.Div(id='payment_history') # payment history list
-                )
-            ]
-        ),
+                [   
+                    html.Hr(),
+                    html.Div(
+                        [
+                            html.H4('Filter by Other Columns'),
+                            html.Div(id='pay-filter-rows-container'),
+                            dbc.Button("Add Filter", id="add-filter-button", n_clicks=0, className="mt-2"),
+                            html.Hr(),
+                            html.H4('Filter by Student ID'),
+                            dbc.Row([
+                                dbc.Col(
+                                    dbc.Input(
+                                        type='text',
+                                        id='payment_studidfilter',
+                                        placeholder='Filter by Student ID',
+                                        value=''
+                                    ),
+                                    width=12
+                                )
+                            ]),
+                            html.Hr(),
+                            html.Div(id='payment_history') # payment history list
+                        ]
+                    )
+                ]
+                ),
         dbc.Modal(
             [
                 dbc.ModalHeader(dbc.ModalTitle("Proof of Payment")),
@@ -94,16 +116,104 @@ layout = html.Div(
             id="payment-modal",
             size='lg',
             is_open=False,
-        )
+            )
+            ]       
+        )       
     ]
 )
 
+#callback for filters
 @app.callback(
-    Output('payment_history', 'children'),
-    [Input('url', 'pathname')],
+    Output('pay-filter-rows-container', 'children'),
+    [
+        Input('add-filter-button', 'n_clicks'),
+        Input({'type': 'remove-filter-button', 'index': ALL}, 'n_clicks')
+    ],
+    State('pay-filter-rows-container', 'children'),
+    prevent_initial_call=True
+)
+def manage_filter_rows(add_clicks, remove_clicks, current_children):
+    ctx = dash.callback_context
+
+    if current_children is None:
+        current_children = []
+
+    # Handle Add Filter button click
+    if ctx.triggered_id == 'add-filter-button':
+        new_index = len(current_children)
+
+        # Dynamically decide input type for new row
+        input_component = dbc.Input(
+            type='text',
+            id={"type": "filter-value-input", "index": new_index},
+            placeholder='Enter filter value',
+            style={'margin': '2px 0px'}
+        )
+
+        # Add a new row
+        new_row = dbc.Row(
+            id={"type": "filter-row", "index": new_index},
+            children=[
+                dbc.Col(
+                    dcc.Dropdown(
+                        id={"type": "filter-column-dropdown", "index": new_index},
+                        options=[
+                            {'label': 'Student ID', 'value': 'stud_id'},
+                            {'label': 'Plan', 'value': 'pay_plan'},
+                            {'label': 'Payment Date', 'value': 'pay_date'},
+                            {'label': 'Payment Method', 'value': 'pay_method'}
+                        ],
+                        placeholder="Select Column",
+                        clearable=False,
+                        style={'margin': '2px 0px'}
+                    ),
+                    width=5
+                ),
+                dbc.Col(input_component, width=5),
+                dbc.Col(
+                    dbc.Button(
+                        "Remove",
+                        id={"type": "remove-filter-button", "index": new_index},
+                        color="danger",
+                        size="sm",
+                        className="mt-1"
+                    ),
+                    width=2
+                )
+            ],
+            className="mb-2"
+        )
+
+        current_children.append(new_row)
+
+    # Handle Remove Filter button click
+    elif any(remove_clicks):
+        clicked_index = next(
+            (i for i, n_clicks in enumerate(remove_clicks) if n_clicks),
+            None
+        )
+        if clicked_index is not None:
+            current_children = [
+                child for i, child in enumerate(current_children) if i != clicked_index
+            ]
+
+    return current_children
+
+
+@app.callback(
+    [
+        Output('payment_history', 'children'),
+        Output('payment_studidfilter', 'value')
+    ],
+    [
+        Input('url', 'pathname'),
+        Input({'type': 'filter-column-dropdown', 'index': ALL}, 'value'),
+        Input({'type': 'filter-value-input', 'index': ALL}, 'value'),
+        Input('payment_studidfilter', 'value')
+    ],
     [State('currentuserid', 'data')]
 )
-def updateRecordsTable(pathname, currentuserid):
+def updateRecordsTable(pathname, filter_columns, filter_values, payment_studidfilter, currentuserid):
     if pathname != '/student/payment':  # Corrected pathname check
         raise PreventUpdate
     
@@ -123,7 +233,10 @@ def updateRecordsTable(pathname, currentuserid):
                 pay_method, 
                 pay_proof 
             FROM payment
+            WHERE 1=1 
         """
+        # Always true to allow appending AND conditions dynamically
+
         val = []  # No specific condition since admin sees all payment history records
     else:
         sql = """ 
@@ -140,13 +253,26 @@ def updateRecordsTable(pathname, currentuserid):
             WHERE user_id = %s 
         """
         val = [currentuserid] # Normal users see only their payment history
-        
+
+        # Apply filter based on the selected column and filter value
+    for col, val_filter in zip(filter_columns or [], filter_values or []):
+        if col and val_filter:
+            if col == 'pay_date':  # Special handling for date columns
+                sql += f" AND CAST({col} AS TEXT) ILIKE %s"
+            else:
+                sql += f" AND {col} ILIKE %s"
+            val.append(f'%{val_filter}%')
+
+    if payment_studidfilter:
+        sql += " AND stud_id ILIKE %s"
+        val.append(f'%{payment_studidfilter}%')
+    
     col = ["Payment ID", "Student ID", "Plan", "Reference No.", "Amount", "Payment Date", "Payment Method", "Proof"]
 
     df = getDataFromDB(sql, val, col)
 
     if df.empty:
-        return html.Div("No payment history found.")  # Provide feedback if no records exist
+        return [html.Div("No payment history found."), payment_studidfilter]  # Provide feedback if no records exist
 
     df['Proofs'] = [
         html.Div(
@@ -162,7 +288,7 @@ def updateRecordsTable(pathname, currentuserid):
     payment_table = dbc.Table.from_dataframe(df, striped=True, bordered=True,
                                               hover=True, size='sm')
 
-    return [payment_table]  # Return the generated table directly
+    return [payment_table, payment_studidfilter] # Return the generated table directly
 
 
 #callback for viewing photo proofs
