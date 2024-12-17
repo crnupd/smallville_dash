@@ -10,83 +10,72 @@ from apps import dbconnect as db
 
 layout = html.Div(
     className="d-flex justify-content-center align-items-center",
-    style={"height": "100vh", "background-color": "#f8f9fa"},  
+    style={"height": "100vh", "background-color": "#f0F8FF"},  
     children=[
-        dbc.Card(
-            
-            dbc.CardBody(
-                [
-                    html.H6("Smallville Montessori Katipunan", className='fw-bolder', style={'text-align': 'center', 'color':'#3459e6'}),
-                    html.H2('Fill up the details to sign up'),
-                    html.Hr(),
-                    dbc.Alert('Please supply details.', color="danger", id='signup_alert',
-                        is_open=False),
-                    dbc.Row(
-                        [
-                            dbc.Label("Username", width=5),
-                            dbc.Col(
-                                dbc.Input(
-                                type="text", id="signup_username", placeholder="Enter a username"
+        dbc.Row(
+            [
+                # Left side for signup details
+                dbc.Col(
+                    [
+                        html.H3('Fill up the details to sign up', className="text-center"),
+                        dbc.Alert('Please supply details.', color="danger", id='signup_alert', is_open=False),
+                        dbc.Row(
+                            [
+                                dbc.Label("Username", width=5),
+                                dbc.Col(
+                                    dbc.Input(type="text", id="signup_username", placeholder="Enter a username"),
+                                    width=6,
                                 ),
-                                width=6,
-                            ),
-                        ],
-                    className="mb-3",
+                            ],
+                            className="mb-3",
+                            style={'margin-top': '30px'}
                         ),
-                    dbc.Row(
-                        [
-                            dbc.Label("Password", width=5),
-                            dbc.Col(
-                            dbc.Input(
-                                type="password", id="signup_password", placeholder="Enter a password"
+                        dbc.Row(
+                            [
+                                dbc.Label("Password", width=5),
+                                dbc.Col(
+                                    dbc.Input(type="password", id="signup_password", placeholder="Enter a password"),
+                                    width=6,
                                 ),
-                            width=6,
-                            ),
-                        ],
-                    className="mb-3",
+                            ],
+                            className="mb-3",
                         ),
-                    dbc.Row(
-                        [
-                            dbc.Label("Confirm Password", width=5),
-                            dbc.Col(
-                            dbc.Input(
-                                type="password", id="signup_passwordconf", placeholder="Re-type the password"
+                        dbc.Row(
+                            [
+                                dbc.Label("Confirm Password", width=5),
+                                dbc.Col(
+                                    dbc.Input(type="password", id="signup_passwordconf", placeholder="Re-type the password"),
+                                    width=6,
                                 ),
-                            width=6,
-                            ),
-                        ],
-                    className="mb-3",
+                            ],
+                            className="mb-3",
                         ),
-                    dbc.Row(
-                        dbc.RadioItems(
-                                            options=[
-                                                {"label": "Parent", "value": "parent"},
-                                                {"label": "Teacher", "value": "teacher"},
-                                            ],
-                                            value="parent",
-                                            id="role-radio",
-                                            inline=True,
-                                            style = {'margin-top':'10px'},
-                                        ),
-                    className="mb-3",
-                    ),
-                    dbc.Button('Sign up', color="primary", id='singup_signupbtn'),
-                    dbc.Modal(
-                        [
-                    dbc.ModalHeader(dbc.ModalTitle("User Saved")),
-                    dbc.ModalBody("User has been saved", id='signup_confirmation'),
-                    dbc.ModalFooter(
-                    dbc.Button(
-                        "Okay", href='/'
-                                )
-                            ),
-                        ],
-                    id="signup_modal",
-                    is_open=False,
-                    )
-                ]
-            )
-        ),
+                        dbc.Button('Sign up', color="primary", id='singup_signupbtn'),
+                        dbc.Modal(
+                            [
+                                dbc.ModalHeader(dbc.ModalTitle("User Saved")),
+                                dbc.ModalBody("User has been saved", id='signup_confirmation'),
+                                dbc.ModalFooter(
+                                    dbc.Button("Okay", href=f'/login')
+                                ),
+                            ],
+                            id="signup_modal",
+                            is_open=False,
+                        )
+                    ],
+                    width=6,  # Set width for the signup form column
+                    align='center',
+                ),
+                # Right side for logo/image
+                dbc.Col(
+                    html.Img(src="/assets/signup.png", style={"width": "90%"}),
+                    width=6,  # Set width for the image column
+                    style={'padding-left': '20px'}  # Remove padding to ensure full use of column space
+                ),
+            ],
+            align="center",
+            className="g-0"  # Remove gutter spacing between columns
+        )
     ]
 )
 
@@ -124,9 +113,9 @@ def deactivatesignup(password, passwordconf):
         State('signup_password', 'value')
     ]
 )
-def saveuser(login_loginbtn, username, password):
+def saveuser(signup_sginbtn, username, password):
     openalert = openmodal = False
-    if login_loginbtn:
+    if signup_sginbtn:
         if username and password:
             sql = """INSERT INTO users (user_name, user_password)
             VALUES (%s, %s)"""  
