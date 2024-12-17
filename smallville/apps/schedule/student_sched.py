@@ -3,6 +3,7 @@ import dash_bootstrap_components as dbc
 from dash import Output, Input, State, dcc, html
 from dash.exceptions import PreventUpdate
 import pandas as pd
+from constants import ADMIN_USER_ID
 
 from app import app
 from apps.dbconnect import getDataFromDB, modifyDB
@@ -71,8 +72,6 @@ def fetch_data_on_load(pathname):
     State('currentuserid', 'data')
 )
 def display_table(data, currentuserid):
-    
-    from index import ADMIN_USER_ID
     
     if data is None:
         raise PreventUpdate
