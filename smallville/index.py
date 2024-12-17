@@ -13,8 +13,7 @@ from apps.student import student_profile, student_profile_edit
 from apps.schedule import student_sched, sched_assign, sched_edit, sched_form, sched_management
 from apps.payment import payment, payment_upload
 from apps.teacher import teacher_stud_list, teacher_stud_list_edit
-
-ADMIN_USER_ID = 1
+from constants import ADMIN_USER_ID
 
 if __name__ == '__main__':
     # Define the main layout of the app
@@ -58,8 +57,6 @@ if __name__ == '__main__':
             State('currentuserid', 'data'),
         ]
     )
-
-
     def displaypage (pathname, sessionlogout, userid):
         ctx = dash.callback_context
         if ctx.triggered:
@@ -75,49 +72,47 @@ if __name__ == '__main__':
             
                 else:    
                     if pathname == '/logout':
+                        print("path changed to /logout")
                         returnlayout = login.layout, True, ''
                     
                     elif pathname == '/home':
                         #return student_profile.layout  # Assuming you have this layout defined
-                        return home.layout, sessionlogout, ''
+                        returnlayout = home.layout
                     
                     elif pathname == '/admin':
                         if userid == ADMIN_USER_ID:  # Check if logged-in user is admin
-                            return admin.layout, sessionlogout, ''
+                            returnlayout = admin.layout
                         else:
                             returnlayout = '403: Access Denied - Admins Only'
                         ##currently still not working, your thoughts pls (working yung part na access denied, natatakpan lang ng navbar haha funny)
                 
                     elif pathname == '/student/student_profile':
                         #return student_profile.layout  # Assuming you have this layout defined
-                        return student_profile.layout, sessionlogout, ''
+                        returnlayout = student_profile.layout
         
                     elif pathname == '/student/student_profile_edit':
-                        return student_profile_edit.layout, sessionlogout, ''
+                        returnlayout = student_profile_edit.layout
         
                     elif pathname == '/student/student_sched':
-                        return student_sched.layout, sessionlogout, ''
+                        returnlayout = student_sched.layout
 
                     elif pathname == '/student/payment':
-                        return payment.layout, sessionlogout, ''
+                        returnlayout = payment.layout
 
                     elif pathname == '/student/payment_upload':
-                        return payment_upload.layout, sessionlogout, ''
+                        returnlayout = payment_upload.layout
         
                     elif pathname == '/student/sched_assign':
-                        return sched_assign.layout, sessionlogout, ''
+                        returnlayout = sched_assign.layout
         
                     elif pathname == '/student/sched_form':
-                        return sched_form.layout, sessionlogout, ''
+                        returnlayout = sched_form.layout 
         
                     elif pathname == '/student/sched_edit':
-                        return sched_edit.layout, sessionlogout, ''
-                    
-                    # elif pathname == '/teacher/teacher_stud_list':
-                    #     return teacher_stud_list.layout, sessionlogout, ''
+                        returnlayout = sched_edit
                     
                     elif pathname == '/teacher/teacher_stud_list_edit':
-                        return teacher_stud_list_edit.layout, sessionlogout, ''
+                        returnlayout = teacher_stud_list_edit.layout
 
                     else:
                         returnlayout = '404: request not found after login'
@@ -129,17 +124,16 @@ if __name__ == '__main__':
                     not userid
                 ]
                 sessionlogout = any(logout_conditions)
-            
+                print(sessionlogout)
+                print('--')
                 # hide navbar if logged-out; else, set class/style to default
                 navbar_classname = 'd-none' if sessionlogout else ''
         
             else:
                 raise PreventUpdate
-    
+            
             return [returnlayout, sessionlogout, navbar_classname]
         else:
             raise PreventUpdate
 
-    if __name__ == '__main__':
-        webbrowser.open('http://127.0.0.1:8050/', new=0, autoraise=True)
-        app.run_server(debug=True)  # Set debug=True for development
+    app.run_server(debug=True)  # Set debug=True for development
