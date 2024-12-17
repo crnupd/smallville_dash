@@ -74,84 +74,81 @@ layout = html.Div(
 
 @app.callback(
     Output('filter-rows-container', 'children'),
-    Input('add-filter-button', 'n_clicks'),
+    [
+        Input('add-filter-button', 'n_clicks'),
+        Input({'type': 'remove-filter-button', 'index': ALL}, 'n_clicks')
+    ],
     State('filter-rows-container', 'children'),
     prevent_initial_call=True
 )
-def add_filter_row(n_clicks, current_children):
-    if n_clicks is None:
-        raise PreventUpdate
+def manage_filter_rows(add_clicks, remove_clicks, current_children):
+    ctx = dash.callback_context
 
-
+    # Initialize current_children if None
     if current_children is None:
         current_children = []
 
+    # Handle Add Filter button click
+    if ctx.triggered_id == 'add-filter-button':
+        new_index = len(current_children)
 
-    new_index = len(current_children) // 2
-
-
-    # Check if any existing filter dropdown already selects 'enroll_status'
-    enroll_status_filter_exists = any(
-        isinstance(child, dbc.Row) and
-        len(child.children) > 0 and
-        isinstance(child.children[0], dbc.Col) and
-        isinstance(child.children[0].children, dcc.Dropdown) and
-        child.children[0].children.value == 'enroll_status'
-        for child in current_children
-    )
-
-
-    # Dynamically decide input type for new row
-    input_component = (
-        dcc.Dropdown(
-            id={"type": "filter-value-input", "index": new_index},
-            options=[
-                {'label': 'Enrolled', 'value': 'Enrolled'},
-                {'label': 'Not Enrolled', 'value': 'Not Enrolled'}
-            ],
-            placeholder='Select filter value',
-            style={'margin': '2px 0px'}
-        ) if enroll_status_filter_exists else
-        dbc.Input(
+        # Dynamically decide input type for new row
+        input_component = dbc.Input(
             type='text',
             id={"type": "filter-value-input", "index": new_index},
             placeholder='Enter filter value',
-            value='',
             style={'margin': '2px 0px'}
         )
-    )
 
-
-    # Add the new row
-    new_row = dbc.Row(
-        [
-            dbc.Col(
-                dcc.Dropdown(
-                    id={"type": "filter-column-dropdown", "index": new_index},
-                    options=[
-                        {'label': 'Student ID', 'value': 'stud_id'},
-                        {'label': 'City', 'value': 'stud_city'},
-                        {'label': 'Grade Level', 'value': 'stud_gradelvl'},
-                        {'label': 'Enrollment Status', 'value': 'enroll_status'}
-                    ],
-                    placeholder="Select Column",
-                    clearable=False,
-                    style={'margin': '2px 0px'}
+        # Add a new row
+        new_row = dbc.Row(
+            id={"type": "filter-row", "index": new_index},
+            children=[
+                dbc.Col(
+                    dcc.Dropdown(
+                        id={"type": "filter-column-dropdown", "index": new_index},
+                        options=[
+                            {'label': 'Student ID', 'value': 'stud_id'},
+                            {'label': 'City', 'value': 'stud_city'},
+                            {'label': 'Address', 'value': 'stud_address'},
+                            {'label': 'Grade Level', 'value': 'stud_gradelvl'},
+                            {'label': 'Enrollment Status', 'value': 'enroll_status'}
+                        ],
+                        placeholder="Select Column",
+                        clearable=False,
+                        style={'margin': '2px 0px'}
+                    ),
+                    width=5
                 ),
-                width=6
-            ),
-            dbc.Col(
-                input_component,
-                width=6
-            )
-        ],
-        className="mb-2"
-    )
+                dbc.Col(input_component, width=5),
+                dbc.Col(
+                    dbc.Button(
+                        "Remove",
+                        id={"type": "remove-filter-button", "index": new_index},
+                        color="danger",
+                        size="sm",
+                        className="mt-1"
+                    ),
+                    width=2
+                )
+            ],
+            className="mb-2"
+        )
 
+        current_children.append(new_row)
 
-    current_children.append(new_row)
+    # Handle Remove Filter button click
+    elif any(remove_clicks):
+        clicked_index = next(
+            (i for i, n_clicks in enumerate(remove_clicks) if n_clicks),
+            None
+        )
+        if clicked_index is not None:
+            current_children = [
+                child for i, child in enumerate(current_children) if i != clicked_index
+            ]
+
     return current_children
-
 
 
 
