@@ -28,7 +28,7 @@ layout = html.Div(
                 html.H2('Payment Page'),
                 html.Hr(),
             ],
-            style={'margin-top': '15px'}  # Adjust margin to avoid overlap with navbar
+            style={'margin-top': '70px'}  # Adjust margin to avoid overlap with navbar
         ),
         dbc.Card(  # Card Container
             [

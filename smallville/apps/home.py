@@ -150,7 +150,7 @@ layout = html.Div(  # Wrap everything in a single Div
                             'z-index': 2,
                         }
                     ),
-                    href="/student/student_profile",
+                    href=f'/student/student_profile',
                 ),
             ]
         ),

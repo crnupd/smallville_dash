@@ -89,7 +89,8 @@ layout = html.Div(
                 ], style={"textAlign": "center"}),
             ]
         )
-    ]
+    ],
+    style={'margin-top': '70px'}
 )
 
 @app.callback(

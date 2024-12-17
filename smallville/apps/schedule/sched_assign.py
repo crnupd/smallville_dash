@@ -14,7 +14,7 @@ layout = html.Div(
                 html.H2('Student Assignment'),
                 html.Hr(),
             ],
-            style={'margin-top': '15px'}
+            style={'margin-top': '70px'}
         ),
         
         dbc.Card(  # Card Container

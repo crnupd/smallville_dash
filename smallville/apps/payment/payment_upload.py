@@ -162,7 +162,8 @@ layout = html.Div(
             dbc.ModalBody('Proof of payment has been uploaded successfully!'),
             dbc.ModalFooter(dbc.Button("Proceed", href='/student/payment'))
         ], centered=True, id='paymentupload_successmodal', backdrop='static')
-    ]
+    ],
+    style={'margin-top': '70px'}
 )
 
 def parse_contents(contents, filename):
