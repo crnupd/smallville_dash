@@ -2,7 +2,7 @@ import dash
 import dash_bootstrap_components as dbc
 from dash import Input, Output, State, html, dcc, ALL
 from dash.exceptions import PreventUpdate
-from index import ADMIN_USER_ID
+from constants import ADMIN_USER_ID
 import base64
 
 from app import app

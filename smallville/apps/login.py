@@ -40,15 +40,14 @@ layout = html.Div(
                     ],
                     width=5,
                     align='center',
-                    style={'padding-right': '20px'}  # Add some padding to the right side
+                    style={'padding-right': '20px'}  
                 ),
             ],
             align="center",
-            className="g-0"  # Remove gutter spacing between columns
+            className="g-0"  
         )
     ]
 )
-
 
 @app.callback(
     [
@@ -67,12 +66,15 @@ layout = html.Div(
         State('url', 'pathname'),
     ]
 )
-def loginprocess(loginbtn, sessionlogout_time,
-                 
-                 username, password,
-                 sessionlogout, currentuserid,
-                 pathname):
-   
+def loginprocess(loginbtn,
+    sessionlogout_time,
+    username,
+    password,
+    sessionlogout,
+    currentuserid,
+    pathname
+):
+    print(sessionlogout)
     ctx = callback_context
    
     if ctx.triggered:
@@ -80,7 +82,6 @@ def loginprocess(loginbtn, sessionlogout_time,
         eventid = ctx.triggered[0]['prop_id'].split('.')[0]
     else:
         raise PreventUpdate
-   
    
     if eventid == 'login_loginbtn': # trigger for login process
         if loginbtn and username and password:
