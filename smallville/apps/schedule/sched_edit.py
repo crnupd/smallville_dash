@@ -11,14 +11,25 @@ import pandas as pd
 layout = html.Div(
     [
         # Page Header
-        html.Div(
+dbc.Row(
             [
-                html.H2("Update Schedule"),
-                html.Hr(),
+                dbc.Col(html.H2('Update Schedule', style={'width': "100%"}), width=10),
+                dbc.Col(
+                    dbc.Button(
+                        "Return",
+                        color='primary',
+                        href=f'/admin'
+                    ),
+                    width=2,
+                    className="text-end"  # Aligns the button to the right
+                )
             ],
-            style={"margin-top": "70px"},  # Adjust margin to avoid overlap with navbar
+            align="center",
+            style={'margin-top': '70px'}  # Adjust margin to avoid overlap with navbar
         ),
+
         dcc.Store(id="sched_id", storage_type="memory", data=0),
+        html.Hr(),
         dbc.Alert(id="sched_alert", is_open=False),  # For feedback purposes
         
         dbc.Form(
@@ -27,10 +38,20 @@ layout = html.Div(
                     [
                         dbc.Label("Grade Level", width=1),
                         dbc.Col(
-                            dbc.Input(
-                                type="text", id="sched_grade_level", placeholder="Grade Level"
-                            ),
-                            width=5,
+                        dbc.Select(
+                            id='sched_grade_level',
+                            options=[
+                                {'label': 'Kindergarten', 'value': 'Kindergarten'},
+                                {'label': 'Pre-school', 'value': 'Pre-school'},
+                                {'label': 'Grade 1', 'value': 'Grade 1'},
+                                {'label': 'Grade 2', 'value': 'Grade 2'},
+                                {'label': 'Grade 3', 'value': 'Grade 3'},
+                                {'label': 'Grade 4', 'value': 'Grade 4'},
+                                {'label': 'Grade 5', 'value': 'Grade 5'},
+                                {'label': 'Grade 6', 'value': 'Grade 6'},
+                            ],
+                        ),
+                        width=5,
                         ),
                     ],
                     className="mb-3",

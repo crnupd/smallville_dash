@@ -8,20 +8,24 @@ from apps.dbconnect import modifyDB
 
 layout = html.Div(
     [
-        html.H2('New Payment Form'),
-        html.P('Fill out the form to submit your tuition fee proof of payment.'),
-        html.Hr(),
-        dbc.Alert(id='paymentupload_alert', is_open=False),
-        html.Div(
+        dbc.Row(
             [
-                dbc.Button(
-                    "Return",
-                    color='primary',
-                    href=f'/student/payment',
+                dbc.Col(html.H2('New Payment Form', style={'width': "100%"}), width=10),  # Page Header
+                dbc.Col(
+                    dbc.Button(
+                        "Return",
+                        color='primary',
+                        href=f'/admin',
+                    ),
+                    width=2,
+                    className="text-end"  # Aligns the button to the right
                 )
             ],
+            align="center"
         ),
-        html.Br(),
+
+        dbc.Alert(id='paymentupload_alert', is_open=False),
+        html.Hr(),
         dbc.Form(
             dbc.Table(
                 [
@@ -172,7 +176,7 @@ def parse_contents(contents, filename):
             html.H5(filename), 
             # HTML images accept base64 encoded strings in the same format
             # that is supplied by the upload
-            html.Img(src=contents, style={'width': '100%', 'height': 'auto'})
+            html.Img(src=contents, style={'max-width': '60%', 'max-height': 'auto'})
         ])
     return html.Div(["No image uploaded."])
 
