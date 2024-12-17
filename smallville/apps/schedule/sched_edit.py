@@ -16,7 +16,7 @@ layout = html.Div(
                 html.H2("Update Schedule"),
                 html.Hr(),
             ],
-            style={"margin-top": "15px"},  # Adjust margin to avoid overlap with navbar
+            style={"margin-top": "70px"},  # Adjust margin to avoid overlap with navbar
         ),
         dcc.Store(id="sched_id", storage_type="memory", data=0),
         dbc.Alert(id="sched_alert", is_open=False),  # For feedback purposes
