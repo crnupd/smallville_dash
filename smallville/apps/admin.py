@@ -194,7 +194,7 @@ def render_content(tab):
                                     )
                                 ]),
                                 html.Hr(),
-                                html.Div(id='admin_student_studentlist')  # Placeholder for student table
+                                html.Div(id='admin_studentlist')  # Placeholder for student table
                             ]
                         )
                     ]
@@ -359,7 +359,7 @@ def add_filter_row(n_clicks, current_children):
 
 @app.callback(
     [
-        Output('admin_student_studentlist', 'children'),
+        Output('admin_studentlist', 'children'),
         Output('admin_student_lnamefilter', 'value')
     ],
     [
@@ -441,20 +441,6 @@ def updateRecordsTable(pathname, filter_columns, filter_values, admin_student_ln
 
     # Return the updated table
     return student_table, admin_student_lnamefilter
-
-
-# Separate callback to reset the filter value (used independently)
-@app.callback(
-    Output('student_fnamefilter_teacher', 'value'),
-    [Input('url_admin', 'pathname')],
-)
-def reset_filter(pathname):
-    # Reset the filter value only if the correct path is matched
-    if pathname == '/admin':
-        return ''  # Reset filter to empty on page load or navigation
-    raise PreventUpdate  # Prevent update when not on the correct page
-
-
 
 if __name__ == '__main__':
     app.run(debug=True)
