@@ -86,22 +86,9 @@ layout = html.Div(
                     html.Hr(),
                     html.Div(
                         [
-                            html.H4('Filter by Other Columns'),
+                            html.H4('Filter by Columns'),
                             html.Div(id='pay-filter-rows-container'),
                             dbc.Button("Add Filter", id="add-filter-button", n_clicks=0, className="mt-2"),
-                            html.Hr(),
-                            html.H4('Filter by Student ID'),
-                            dbc.Row([
-                                dbc.Col(
-                                    dbc.Input(
-                                        type='text',
-                                        id='payment_studidfilter',
-                                        placeholder='Filter by Student ID',
-                                        value=''
-                                    ),
-                                    width=12
-                                )
-                            ]),
                             html.Hr(),
                             html.Div(id='payment_history') # payment history list
                         ]
@@ -201,19 +188,15 @@ def manage_filter_rows(add_clicks, remove_clicks, current_children):
 
 
 @app.callback(
-    [
-        Output('payment_history', 'children'),
-        Output('payment_studidfilter', 'value')
-    ],
+    Output('payment_history', 'children'),
     [
         Input('url', 'pathname'),
         Input({'type': 'filter-column-dropdown', 'index': ALL}, 'value'),
-        Input({'type': 'filter-value-input', 'index': ALL}, 'value'),
-        Input('payment_studidfilter', 'value')
+        Input({'type': 'filter-value-input', 'index': ALL}, 'value')
     ],
     [State('currentuserid', 'data')]
 )
-def updateRecordsTable(pathname, filter_columns, filter_values, payment_studidfilter, currentuserid):
+def updateRecordsTable(pathname, filter_columns, filter_values, currentuserid):
     if pathname != '/student/payment':  # Corrected pathname check
         raise PreventUpdate
     
@@ -263,16 +246,12 @@ def updateRecordsTable(pathname, filter_columns, filter_values, payment_studidfi
                 sql += f" AND {col} ILIKE %s"
             val.append(f'%{val_filter}%')
 
-    if payment_studidfilter:
-        sql += " AND stud_id ILIKE %s"
-        val.append(f'%{payment_studidfilter}%')
-    
     col = ["Payment ID", "Student ID", "Plan", "Reference No.", "Amount", "Payment Date", "Payment Method", "Proof"]
 
     df = getDataFromDB(sql, val, col)
 
     if df.empty:
-        return [html.Div("No payment history found."), payment_studidfilter]  # Provide feedback if no records exist
+        return html.Div("No payment history found.")  # Provide feedback if no records exist
 
     df['Proofs'] = [
         html.Div(
@@ -288,7 +267,7 @@ def updateRecordsTable(pathname, filter_columns, filter_values, payment_studidfi
     payment_table = dbc.Table.from_dataframe(df, striped=True, bordered=True,
                                               hover=True, size='sm')
 
-    return [payment_table, payment_studidfilter] # Return the generated table directly
+    return payment_table # Return the generated table directly
 
 
 #callback for viewing photo proofs

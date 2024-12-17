@@ -15,7 +15,7 @@ layout = html.Div(
                     dbc.Button(
                         "Return",
                         color='primary',
-                        href=f'/admin',
+                        href=f'/student/payment',
                     ),
                     width=2,
                     className="text-end"  # Aligns the button to the right
