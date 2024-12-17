@@ -177,22 +177,10 @@ def render_content(tab):
                         html.Hr(),
                         html.Div(
                             [
-                                html.H4('Filter by Other Columns'),
-                                html.Div(id='filter-rows-container'),
+                                html.H4('Filter by Columns'),
+                                html.Div(id='admin-filter-rows-container'),
                                 dbc.Button("Add Filter", id="add-filter-button", n_clicks=0, className="mt-2"),
-                                html.Hr(),
-                                html.H4('Filter by Last Name'),
-                                dbc.Row([
-                                    dbc.Col(
-                                        dbc.Input(
-                                            type='text',
-                                            id='admin_student_lnamefilter',
-                                            placeholder='Filter by Last Name',
-                                            value=''
-                                        ),
-                                        width=12
-                                    )
-                                ]),
+
                                 html.Hr(),
                                 html.Div(id='admin_studentlist')  # Placeholder for student table
                             ]
@@ -279,7 +267,7 @@ def updateScheduleTable(pathname, sort_column, n_clicks, sched_filter, prev_sort
     Output('admin-filter-rows-container', 'children'),
     [
         Input('add-filter-button', 'n_clicks'),
-        Input({'type': 'admin-remove-filter-button', 'index': ALL}, 'n_clicks')
+        Input({'type': 'remove-filter-button', 'index': ALL}, 'n_clicks')
     ],
     State('admin-filter-rows-container', 'children'),
     prevent_initial_call=True
@@ -313,6 +301,7 @@ def manage_filter_rows(add_clicks, remove_clicks, current_children):
                         id={"type": "filter-column-dropdown", "index": new_index},
                         options=[
                             {'label': 'Student ID', 'value': 'stud_id'},
+                            {'label': 'Last Name', 'value': 'stud_lname'},
                             {'label': 'City', 'value': 'stud_city'},
                             {'label': 'Address', 'value': 'stud_address'},
                             {'label': 'Grade Level', 'value': 'stud_gradelvl'},
@@ -356,22 +345,18 @@ def manage_filter_rows(add_clicks, remove_clicks, current_children):
 
 
 @app.callback(
-    [
-        Output('admin_studentlist', 'children'),
-        Output('admin_student_lnamefilter', 'value')
-    ],
+    Output('admin_studentlist', 'children'),
     [
         Input('url', 'pathname'),
         Input({'type': 'filter-column-dropdown', 'index': ALL}, 'value'),
-        Input({'type': 'filter-value-input', 'index': ALL}, 'value'),
-        Input('admin_student_lnamefilter', 'value')
+        Input({'type': 'filter-value-input', 'index': ALL}, 'value')
     ]
 )
-def updateRecordsTable(pathname, filter_columns, filter_values, admin_student_lnamefilter):
+def updateRecordsTable(pathname, filter_columns, filter_values):
     # Only trigger the callback if the correct path is matched
     if pathname != '/admin':
         print(f"Incorrect Path: {pathname}")
-        return html.Div("This page doesn't exist.")  # Return empty filter value if path doesn't match
+        return html.Div("This page doesn't exist."), ''  # Return empty filter value if path doesn't match
 
     # SQL query for fetching data
     sql = """ 
@@ -403,11 +388,6 @@ def updateRecordsTable(pathname, filter_columns, filter_values, admin_student_ln
                 sql += f" AND {col} ILIKE %s"
                 val.append(f'%{val_filter}%')
 
-
-    if admin_student_lnamefilter:
-        sql += " AND stud_lname ILIKE %s"
-        val.append(f'%{admin_student_lnamefilter}%')
-
     # Columns for the DataFrame
     col = ["Student ID", "First Name", "Last Name", "City", "Address", "Grade Level", "Enrollment Status"]
 
@@ -416,7 +396,7 @@ def updateRecordsTable(pathname, filter_columns, filter_values, admin_student_ln
 
     # If no data found, return a message
     if df.empty:
-        return html.Div("No data available"), admin_student_lnamefilter
+        return html.Div("No data available")
     
     # Replace enroll_status True/False values with 'Enrolled'/'Not Enrolled'
     df['Enrollment Status'] = df['Enrollment Status'].apply(lambda x: 'Enrolled' if x else 'Not Enrolled')
@@ -441,7 +421,7 @@ def updateRecordsTable(pathname, filter_columns, filter_values, admin_student_ln
     student_table = dbc.Table.from_dataframe(df, striped=True, bordered=True, hover=True, size='sm')
 
     # Return the updated table
-    return [student_table, admin_student_lnamefilter]
+    return student_table
 
 if __name__ == '__main__':
     app.run(debug=True)
