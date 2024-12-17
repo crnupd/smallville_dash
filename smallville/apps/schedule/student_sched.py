@@ -88,7 +88,7 @@ def display_table(data):
         tables.append(
             html.Div(
                 [
-                    html.H3(f"Grade {grade_data['Grade Level']}", style={"marginTop": "20px", 'textAlign':'center'}),
+                    html.H3(f"{grade_data['Grade Level']}", style={"marginTop": "20px", 'textAlign':'center'}),
                     
                     html.Div(
                         dbc.Button(
