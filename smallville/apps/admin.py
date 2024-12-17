@@ -396,7 +396,7 @@ def updateRecordsTable(pathname, filter_columns, filter_values):
 
     # If no data found, return a message
     if df.empty:
-        return html.Div("No data available")
+        return html.Div("No data available"), ''
     
     # Replace enroll_status True/False values with 'Enrolled'/'Not Enrolled'
     df['Enrollment Status'] = df['Enrollment Status'].apply(lambda x: 'Enrolled' if x else 'Not Enrolled')
