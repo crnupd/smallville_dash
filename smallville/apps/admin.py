@@ -79,6 +79,24 @@ def render_content(tab):
                     dbc.CardBody( # Define Card Contents
                         [   
                             html.Hr(),
+                            
+                            # Filter Section
+                            html.Div(
+                                [
+                                    html.H4('Filter by Columns'),
+                                    html.Div(id='sched-filter-rows-container'),
+                                    dbc.Button(
+                                        "Add Filter",
+                                        id="add-sched-filter-button",
+                                        color='primary',
+                                        n_clicks=0,
+                                        className="mt-2"
+                                    ),
+                                    html.Hr(),
+                                    html.Div(id="sched-list-2")
+                                ]
+                            ),
+                            
                             html.H4('Sort Schedules'),
                             # Place dropdown and button side by side inside one column
                             dbc.Row([
@@ -168,24 +186,24 @@ def render_content(tab):
             )
         ])
 
-#Schedule Management Callback
+#Schedule Management Sort Callback
 @app.callback(
-    [
-        Output('sched_list', 'children'),
-    ],
+    Output('sched_list', 'children'),
     [
         Input('url', 'pathname'),
         Input('sort_column', 'value'),
         Input('sort_button', 'n_clicks'),
-    ],
-        State('sort_column', 'value')
+        Input({'type': 'sched-filter-column-dropdown', 'index': ALL}, 'value'),
+        Input({'type': 'sched-filter-value-input', 'index': ALL}, 'value')
+    ]
 )
-
-def updateScheduleTable(pathname, sort_column, n_clicks, prev_sort):
+def updateScheduleTable(pathname, sort_column, sort_clicks, filter_columns, filter_values):
+    # Only trigger for the correct pathname
     if pathname != '/admin':
         print(f"Incorrect Path: {pathname}")
         return [html.Div("This page doesn't exist.")]
-    
+
+    # Start base SQL
     sql = """
     SELECT 
         grade_level AS "Grade Level",
@@ -196,42 +214,179 @@ def updateScheduleTable(pathname, sort_column, n_clicks, prev_sort):
     FROM class_sched
     WHERE sched_delete_ind = FALSE
     """
-        
-    if n_clicks % 2 == 0:  # Even clicks -> ascending
-        sort_direction = "ASC"
-    else:  # Odd clicks -> descending
-        sort_direction = "DESC"
-        
-    if sort_column:
-        sql += f" ORDER BY {sort_column} {sort_direction}"
-    
-    col = ["Grade Level", "Subject", "Teacher", "Schedule", "id"]
+    val = []
 
-    # Fetch data from database
-    df = getDataFromDB(sql, [], col)
-    
+    # Add filtering logic
+    for col, val_filter in zip(filter_columns or [], filter_values or []):
+        if col and val_filter:
+            sql += f" AND {col} ILIKE %s"
+            val.append(f"%{val_filter}%")
+
+    # Determine sorting direction
+    if sort_column:
+        sort_direction = "ASC" if sort_clicks % 2 == 0 else "DESC"
+        sql += f" ORDER BY {sort_column} {sort_direction}"
+
+    # Fetch data from the database
+    col_names = ["Grade Level", "Subject", "Teacher", "Schedule", "id"]
+    df = getDataFromDB(sql, val, col_names)
+
+    # If no data is found
     if df.empty:
         return [html.Div("No data available")]
 
+    # Add action buttons for editing
     df['Action'] = [
         html.Div(
-            dbc.Button("Edit", color='warning', size='sm', 
-                       href=f'/student/sched_edit?mode=edit&id={row["id"]}'),
+            dbc.Button(
+                "Edit", color='warning', size='sm', 
+                href=f'/student/sched_edit?mode=edit&id={row["id"]}'
+            ),
             className='text-center'
         ) for _, row in df.iterrows()
     ]
-    
-    # Exclude 'id' column
-    df = df[["Grade Level", "Subject", "Teacher", "Schedule","Action"]]
 
-    # Create the table to display the filtered data
-    sched_table = dbc.Table.from_dataframe(df, striped=True, bordered=True, hover=True, size='sm',
-                                           style={'textAlign':'center'})
+    # Remove ID column
+    df = df[["Grade Level", "Subject", "Teacher", "Schedule", "Action"]]
+
+    # Convert DataFrame to a Dash table
+    sched_table = dbc.Table.from_dataframe(df, striped=True, bordered=True, hover=True, size='sm')
 
     return [sched_table]
 
 
+# Schedule Management Filter Callback
+@app.callback(
+    Output('sched-filter-rows-container', 'children'),
+    [
+        Input('add-sched-filter-button', 'n_clicks'),
+        Input({'type': 'remove-sched-filter-button', 'index': ALL}, 'n_clicks')
+    ],
+    State('sched-filter-rows-container', 'children'),
+    prevent_initial_call=True
+)
 
+def manage_filter_rows(add_clicks, remove_clicks, current_children):
+    ctx = dash.callback_context
+
+    # Initialize if None
+    if current_children is None:
+        current_children = []
+
+    # Add a new filter row
+    if ctx.triggered_id == 'add-sched-filter-button':
+        new_index = len(current_children)
+        
+        # Dynamically decide input type for new row
+        input_component = dbc.Input(
+            type='text',
+            id={"type": "sched-filter-value-input", "index": new_index},
+            placeholder='Enter filter value',
+            style={'margin': '2px 0px'}
+        )
+        
+        # Add a new row
+        new_row = dbc.Row(
+            id={"type": "sched-filter-row", "index": new_index},
+            children=[
+                dbc.Col(
+                    dcc.Dropdown(
+                        id={"type": "sched-filter-column-dropdown", "index": new_index},
+                        options=[
+                            {'label': 'Grade', 'value': 'grade_level'},
+                            {'label': 'Subject', 'value': 'subject'},
+                            {'label': 'Teacher', 'value': 'teacher'},
+                            {'label': 'Schedule', 'value': 'schedule'}
+                        ],
+                        placeholder="Select Column",
+                        clearable=False,
+                        style={'margin': '2px 0px'}
+                    ),
+                    width=5
+                ),
+                dbc.Col(input_component, width=5),
+                dbc.Col(
+                    dbc.Button(
+                        "Remove",
+                        id={"type": "remove-sched-filter-button", "index": new_index},
+                        color="danger",
+                        size="sm",
+                        className="mt-1"
+                    ),
+                    width=2
+                )
+            ],
+            className="mb-2"
+        )
+        
+        current_children.append(new_row)
+        
+        # Handle Remove Filter button click
+    elif any(remove_clicks):
+        clicked_index = next(
+            (i for i, n_clicks in enumerate(remove_clicks) if n_clicks),
+            None
+        )
+        if clicked_index is not None:
+            current_children = [
+                child for i, child in enumerate(current_children) if i != clicked_index
+            ]
+
+    return current_children
+
+def updateSchedTable(pathname, filter_columns, filter_values):
+    # Only trigger the callback if the correct path is matched
+    if pathname != '/admin':
+        print(f"Incorrect Path: {pathname}")
+        return html.Div("This page doesn't exist."), ''  # Return empty filter value if path doesn't match
+
+    # SQL query for fetching data
+    sql = """
+    SELECT 
+        grade_level AS "Grade Level",
+        subject AS "Subject",
+        teacher AS "Teacher",
+        schedule AS "Schedule",
+        id
+    FROM class_sched
+    WHERE sched_delete_ind = FALSE
+    """
+    val = []
+
+    # Apply filter based on the selected column and filter value
+    for col, val_filter in zip(filter_columns or [], filter_values or []):
+        if col and val_filter:
+            sql += f" AND {col} ILIKE %s"
+            val.append(f"%{val_filter}%")
+
+    # Columns for the DataFrame
+    col_names = ["Grade Level", "Subject", "Teacher", "Schedule", "id"]
+    df = getDataFromDB(sql, val, col_names)
+
+    # If no data found, return a message
+    if df.empty:
+        return html.Div("No data available"), ''
+    
+    # Add edit action
+    df['Action'] = [
+        html.Div(
+            dbc.Button(
+                "Edit",
+                color='warning',
+                size='sm',
+                href=f'/schedule/edit?mode=edit&id={row["id"]}'
+            ),
+            className='text-center'
+        ) for _, row in df.iterrows()
+    ]
+
+    # Remove id column from display
+    df = df[["Grade Level", "Subject", "Teacher", "Schedule", "Action"]]
+
+    # Convert DataFrame to Dash table
+    sched_table = dbc.Table.from_dataframe(df, striped=True, bordered=True, hover=True, size='sm')
+
+    return sched_table
 
 # Teacher Student List Callback
 @app.callback(
