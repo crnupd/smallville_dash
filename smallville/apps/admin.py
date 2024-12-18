@@ -372,7 +372,7 @@ def updateSchedTable(pathname, filter_columns, filter_values):
         html.Div(
             dbc.Button(
                 "Edit",
-                color='warning',
+                color='danger',
                 size='sm',
                 href=f'/schedule/edit?mode=edit&id={row["id"]}'
             ),
