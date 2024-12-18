@@ -47,7 +47,7 @@ layout = html.Div(
                             id='grade_level',
                             options=[
                                 {'label': 'Kindergarten', 'value': 'Kindergarten'},
-                                {'label': 'Pre-school', 'value': 'Pre-school'},
+                                {'label': 'Pre-School', 'value': 'Pre-School'},
                                 {'label': 'Grade 1', 'value': 'Grade 1'},
                                 {'label': 'Grade 2', 'value': 'Grade 2'},
                                 {'label': 'Grade 3', 'value': 'Grade 3'},
