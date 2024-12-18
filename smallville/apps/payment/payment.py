@@ -240,10 +240,7 @@ def updateRecordsTable(pathname, filter_columns, filter_values, currentuserid):
         # Apply filter based on the selected column and filter value
     for col, val_filter in zip(filter_columns or [], filter_values or []):
         if col and val_filter:
-            if col == 'pay_date':  # Special handling for date columns
-                sql += f" AND CAST({col} AS TEXT) ILIKE %s"
-            else:
-                sql += f" AND {col} ILIKE %s"
+            sql += f" AND CAST({col} AS TEXT) ILIKE %s"
             val.append(f'%{val_filter}%')
 
     col = ["Payment ID", "Student ID", "Plan", "Reference No.", "Amount", "Payment Date", "Payment Method", "Proof"]
