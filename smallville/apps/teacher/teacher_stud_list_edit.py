@@ -149,7 +149,8 @@ layout = html.Div(
             id='studentprofile_modal_success',
             backdrop='static'
         )
-    ]
+    ],
+    style={'margin-top': '70px'}
 )
 
 # Callback to populate the form when editing or adding a student

@@ -119,4 +119,4 @@ if __name__ == '__main__':
         else:
             raise PreventUpdate
 
-    app.run_server(debug=True) 
+    app.run_server(debug=False) 
