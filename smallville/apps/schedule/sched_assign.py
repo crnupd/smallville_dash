@@ -87,7 +87,7 @@ def update_records_table(search, first_name_filter, last_name_filter):
         SELECT 
             stud_id, stud_fname, stud_lname, stud_gradelvl
         FROM student 
-        WHERE stud_gradelvl = %s AND stud_delete_ind = False
+        WHERE stud_gradelvl = %s AND stud_delete_ind = False AND enroll_status = True
     """
     val = [grade_level]  # Start with grade_level filter
 
