@@ -77,30 +77,7 @@ def render_content(tab):
                     ),
                     
                     dbc.CardBody( # Define Card Contents
-                        [
-                            html.Hr(),
-                            html.Div( 
-                                [
-                                    html.H4('Find Schedule'),
-                                    html.Div(
-                                        dbc.Form(
-                                            dbc.Row(
-                                                [
-                                                    dbc.Label("Search by Grade Level", width=2),
-                                                    dbc.Col(
-                                                        dbc.Input(
-                                                            type='text',
-                                                            id='sched_filter'
-                                                        ),
-                                                        width=3
-                                                    ),
-                                                ],
-                                            )
-                                        )
-                                    )
-                                ]
-                            ),
-                            
+                        [   
                             html.Hr(),
                             html.H4('Sort Schedules'),
                             # Place dropdown and button side by side inside one column
@@ -200,12 +177,11 @@ def render_content(tab):
         Input('url', 'pathname'),
         Input('sort_column', 'value'),
         Input('sort_button', 'n_clicks'),
-        Input('sched_filter', 'value')
     ],
         State('sort_column', 'value')
 )
 
-def updateScheduleTable(pathname, sort_column, n_clicks, sched_filter, prev_sort):
+def updateScheduleTable(pathname, sort_column, n_clicks, prev_sort):
     if pathname != '/admin':
         print(f"Incorrect Path: {pathname}")
         return [html.Div("This page doesn't exist.")]
@@ -220,11 +196,6 @@ def updateScheduleTable(pathname, sort_column, n_clicks, sched_filter, prev_sort
     FROM class_sched
     WHERE sched_delete_ind = FALSE
     """
-    val = []
-
-    if sched_filter:
-        sql += """ AND grade_level ILIKE %s"""
-        val += [f'%{sched_filter}%']
         
     if n_clicks % 2 == 0:  # Even clicks -> ascending
         sort_direction = "ASC"
@@ -237,7 +208,7 @@ def updateScheduleTable(pathname, sort_column, n_clicks, sched_filter, prev_sort
     col = ["Grade Level", "Subject", "Teacher", "Schedule", "id"]
 
     # Fetch data from database
-    df = getDataFromDB(sql, val, col)
+    df = getDataFromDB(sql, [], col)
     
     if df.empty:
         return [html.Div("No data available")]
