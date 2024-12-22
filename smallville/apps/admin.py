@@ -488,8 +488,8 @@ def updateRecordsTable(pathname, filter_columns, filter_values):
             CONCAT(student.stud_city, ', ', student.stud_address) AS "City and Address",
             student.stud_gradelvl AS "Grade Level",
             CASE 
-                WHEN SUM(payment.pay_amt) > 0 THEN 'Paid'
-                ELSE 'Unpaid'
+                WHEN COUNT(payment.pay_id) > 0 THEN 'Paid' 
+                ELSE 'Unpaid' 
             END AS "Payment Status",
             COALESCE(SUM(payment.pay_amt), 0) AS "Amount Paid",
             student.enroll_status AS "Enrollment Status"
@@ -513,7 +513,7 @@ def updateRecordsTable(pathname, filter_columns, filter_values):
                 if val_filter == 'Paid':
                     sql += " AND pay_status = TRUE"
                 elif val_filter == 'Unpaid':
-                    sql += " AND pay_status = FALSE"
+                    sql += " AND pay_status is NULL"
             elif col == 'stud_id':
                 sql += " AND student.stud_id = %s"
                 val.append(f'{val_filter}')
@@ -559,8 +559,19 @@ def updateRecordsTable(pathname, filter_columns, filter_values):
     # Reorganize columns for display
     df = df[["Student ID", "First Name", "Last Name", "City and Address", "Grade Level", "Payment Status", "Amount Paid", "Enrollment Status", 'Action']]
 
-    # Generate the table from DataFrame
-    student_table = dbc.Table.from_dataframe(df, striped=True, bordered=True, hover=True, size='sm')
+    # Apply specific alignment to the "Amount Paid" column
+    student_table = dbc.Table(
+        children=[
+            html.Thead(html.Tr([html.Th(col) for col in df.columns])),
+            html.Tbody([
+                html.Tr([
+                    html.Td(row[col]) if col != "Amount Paid" else html.Td(row[col], style={'textAlign': 'right'})
+                    for col in df.columns
+                ]) for idx, row in df.iterrows()
+            ])
+        ],
+        striped=True, bordered=True, hover=True, size='sm'
+    )
 
     # Return the updated table
     return student_table

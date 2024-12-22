@@ -258,6 +258,7 @@ def updateRecordsTable(pathname, filter_columns, filter_values, currentuserid):
 
     df["Amount Paid"] = df["Amount Paid"].apply(lambda x: f"{x:,.2f}")
 
+    
     df['Proofs'] = [
         html.Div(
             dbc.Button("View", color='warning', size='sm', 
@@ -269,9 +270,19 @@ def updateRecordsTable(pathname, filter_columns, filter_values, currentuserid):
     # Exclude 'proof' from display and replace with button
     df = df[["Student ID", "Plan", "Reference No.","Amount Paid","Payment Date", "Payment Method", "Proofs"]]
 
-    payment_table = dbc.Table.from_dataframe(df, striped=True, bordered=True,
-                                              hover=True, size='sm')
-
+    # Apply specific alignment to the "Amount Paid" column
+    payment_table = dbc.Table(
+        children=[
+            html.Thead(html.Tr([html.Th(col) for col in df.columns])),
+            html.Tbody([
+                html.Tr([
+                    html.Td(row[col]) if col != "Amount Paid" else html.Td(row[col], style={'textAlign': 'right'})
+                    for col in df.columns
+                ]) for idx, row in df.iterrows()
+            ])
+        ],
+        striped=True, bordered=True, hover=True, size='sm'
+    )
     return payment_table # Return the generated table directly
 
 
