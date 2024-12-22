@@ -198,9 +198,7 @@ def render_content(tab):
     ]
 )
 def updateScheduleTable(pathname, sort_column, sort_clicks, filter_columns, filter_values):
-    # Only trigger for the correct pathname
     if pathname != '/admin':
-        print(f"Incorrect Path: {pathname}")
         return [html.Div("This page doesn't exist.")]
 
     # Start base SQL
@@ -335,9 +333,7 @@ def manage_filter_rows(add_clicks, remove_clicks, current_children):
     return current_children
 
 def updateSchedTable(pathname, filter_columns, filter_values):
-    # Only trigger the callback if the correct path is matched
     if pathname != '/admin':
-        print(f"Incorrect Path: {pathname}")
         return html.Div("This page doesn't exist."), ''  # Return empty filter value if path doesn't match
 
     # SQL query for fetching data
@@ -431,6 +427,7 @@ def manage_filter_rows(add_clicks, remove_clicks, current_children):
                             {'label': 'City', 'value': 'stud_city'},
                             {'label': 'Address', 'value': 'stud_address'},
                             {'label': 'Grade Level', 'value': 'stud_gradelvl'},
+                            {'label': 'Payment Status', 'value': 'pay_status'},
                             {'label': 'Enrollment Status', 'value': 'enroll_status'}
                         ],
                         placeholder="Select Column",
@@ -479,23 +476,29 @@ def manage_filter_rows(add_clicks, remove_clicks, current_children):
     ]
 )
 def updateRecordsTable(pathname, filter_columns, filter_values):
-    # Only trigger the callback if the correct path is matched
     if pathname != '/admin':
-        print(f"Incorrect Path: {pathname}")
         return html.Div("This page doesn't exist."), ''  # Return empty filter value if path doesn't match
 
     # SQL query for fetching data
-    sql = """ 
-    SELECT 
-        stud_id AS "Student ID",
-        stud_fname AS "First Name",
-        stud_lname AS "Last Name",
-        stud_city AS "City",
-        stud_address AS "Address",
-        stud_gradelvl AS "Grade Level",
-        enroll_status AS "Enrollment Status"
-    FROM student
-    WHERE NOT stud_delete_ind
+    sql = """
+        SELECT 
+            student.stud_id AS "Student ID",
+            student.stud_fname AS "First Name",
+            student.stud_lname AS "Last Name",
+            CONCAT(student.stud_city, ', ', student.stud_address) AS "City and Address",
+            student.stud_gradelvl AS "Grade Level",
+            CASE 
+                WHEN SUM(payment.pay_amt) > 0 THEN 'Paid'
+                ELSE 'Unpaid'
+            END AS "Payment Status",
+            COALESCE(SUM(payment.pay_amt), 0) AS "Amount Paid",
+            student.enroll_status AS "Enrollment Status"
+        FROM student
+        LEFT JOIN payment
+            ON student.stud_id = payment.stud_id
+        WHERE NOT student.stud_delete_ind
+        GROUP BY 
+            student.stud_id, student.stud_fname, student.stud_lname, student.stud_city, student.stud_address, student.stud_gradelvl, student.enroll_status;
     """
     val = []
 
@@ -507,6 +510,11 @@ def updateRecordsTable(pathname, filter_columns, filter_values):
                     sql += " AND enroll_status = TRUE"
                 elif val_filter == 'Not Enrolled':
                     sql += " AND enroll_status = FALSE"
+            elif col == 'pay_status':
+                if val_filter == 'Paid':
+                    sql += " AND pay_status = TRUE"
+                elif val_filter == 'Unpaid':
+                    sql += " AND pay_status = FALSE"
             elif col == 'stud_id':
                 sql += " AND stud_id = %s"
                 val.append(f'{val_filter}')
@@ -515,7 +523,7 @@ def updateRecordsTable(pathname, filter_columns, filter_values):
                 val.append(f'%{val_filter}%')
 
     # Columns for the DataFrame
-    col = ["Student ID", "First Name", "Last Name", "City", "Address", "Grade Level", "Enrollment Status"]
+    col = ["Student ID", "First Name", "Last Name", "City and Address", "Grade Level", "Payment Status", "Amount Paid", "Enrollment Status"]
 
     # Fetch data from the database
     df = getDataFromDB(sql, val, col)
@@ -526,6 +534,9 @@ def updateRecordsTable(pathname, filter_columns, filter_values):
     
     # Replace enroll_status True/False values with 'Enrolled'/'Not Enrolled'
     df['Enrollment Status'] = df['Enrollment Status'].apply(lambda x: 'Enrolled' if x else 'Not Enrolled')
+
+    #Format amount values with commas 
+    df["Amount Paid"] = df["Amount Paid"].apply(lambda x: f"{x:,.2f}")
 
     # Generate 'Action' button column with edit links
     df['Action'] = [
@@ -541,7 +552,7 @@ def updateRecordsTable(pathname, filter_columns, filter_values):
     ]
 
     # Reorganize columns for display
-    df = df[["Student ID", "First Name", "Last Name", "City", "Address", "Grade Level", "Enrollment Status", 'Action']]
+    df = df[["Student ID", "First Name", "Last Name", "City and Address", "Grade Level", "Payment Status", "Amount Paid", "Enrollment Status", 'Action']]
 
     # Generate the table from DataFrame
     student_table = dbc.Table.from_dataframe(df, striped=True, bordered=True, hover=True, size='sm')
