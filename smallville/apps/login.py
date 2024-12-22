@@ -74,7 +74,6 @@ def loginprocess(loginbtn,
     currentuserid,
     pathname
 ):
-    print(sessionlogout)
     ctx = callback_context
    
     if ctx.triggered:

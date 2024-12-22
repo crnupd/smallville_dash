@@ -61,7 +61,6 @@ if __name__ == '__main__':
             
                 else:    
                     if pathname == '/logout':
-                        print("path changed to /logout")
                         returnlayout = login.layout, True, ''
                     
                     elif pathname == '/home':
