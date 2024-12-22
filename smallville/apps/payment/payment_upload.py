@@ -25,20 +25,22 @@ layout = html.Div(
         ),
 
         dbc.Alert(id='paymentupload_alert', is_open=False),
-        html.Hr(),
+        html.Hr(style={'border-top': '3px solid #343a40'}),
         dbc.Form(
             dbc.Table(
                 [
+                    html.Br(),
                     html.Tr([
                         html.Td(
                             dbc.Label("Student ID"), 
-                            style={'width': '10%'}
+                            style={'width': '20%'}
                         ),
                         html.Td(
                             dbc.Input(
                                 type='text', 
                                 id='student_id', 
-                                placeholder="Student ID"
+                                placeholder="Student ID",
+                                style={'width': '90%', 'border': '2px solid #CCCECF'}
                             ), 
                             style={'width': '80%'}
                         )
@@ -49,7 +51,7 @@ layout = html.Div(
                     html.Tr([
                         html.Td(
                             dbc.Label("Chosen Payment Plan"), 
-                            style={'width': '10%'}
+                            style={'width': '20%'}
                         ),
                         html.Td(
                             dbc.Select(
@@ -57,7 +59,8 @@ layout = html.Div(
                                 options=[{"label": "Monthly", "value": "Monthly"}, 
                                          {"label": "Quarterly", "value": "Quarterly"},
                                          {"label": "Yearly", "value": "Yearly"}], 
-                                placeholder="Select Payment Plan"
+                                placeholder="Select Payment Plan",
+                                style={'width': '90%', 'border': '2px solid #CCCECF'}
                             ),  
                             style={'width': '80%'}
                         )
@@ -68,13 +71,14 @@ layout = html.Div(
                     html.Tr([
                         html.Td(
                             dbc.Label("Reference Number"), 
-                            style={'width': '10%'}
+                            style={'width': '20%'}
                         ),
                         html.Td(
                             dbc.Input(
                                 type='text', 
                                 id='payment_num', 
-                                placeholder="Reference Number"
+                                placeholder="Reference Number",
+                                style={'width': '90%', 'border': '2px solid #CCCECF'}
                             ),
                             style={'width': '80%'}
                         )
@@ -85,13 +89,14 @@ layout = html.Div(
                     html.Tr([
                         html.Td(
                             dbc.Label("Amount"), 
-                            style={'width': '10%'}
+                            style={'width': '20%'}
                         ),
                         html.Td(
                             dbc.Input(
                                 type='text', 
                                 id='payment_amt', 
-                                placeholder="Payment Amount"
+                                placeholder="Payment Amount",
+                                style={'width': '90%', 'border': '2px solid #CCCECF'}
                             ),
                             style={'width': '80%'}
                         )
@@ -102,12 +107,13 @@ layout = html.Div(
                     html.Tr([
                         html.Td(
                             dbc.Label("Date"), 
-                            style={'width': '10%'} 
+                            style={'width': '20%'} 
                         ),
                         html.Td(
                             dbc.Input(
                                 type='date', 
-                                id='payment_date'
+                                id='payment_date',
+                                style={'width': '90%', 'border': '2px solid #CCCECF'}
                             ), 
                             style={'width': '80%'}
                         )
@@ -118,14 +124,15 @@ layout = html.Div(
                     html.Tr([
                         html.Td(
                             dbc.Label("Payment Method"), 
-                            style={'width': '10%'}
+                            style={'width': '20%'}
                         ),
                         html.Td(
                             dbc.Select(
                                 id='payment_method', 
                                 options=[{"label": "BDO", "value": "BDO"}, 
                                          {"label": "BPI", "value": "BPI"}], 
-                                placeholder="Select Payment Method"
+                                placeholder="Select Payment Method",
+                                style={'width': '90%', 'border': '2px solid #CCCECF'}
                             ), 
                             style={'width': '80%'}
                         )
@@ -136,21 +143,25 @@ layout = html.Div(
                     html.Tr([
                         html.Td(
                             dbc.Label("Upload Proof of Payment"), 
-                            style={'width': '10%'}
+                            style={'width': '20%'}
                         ),
                         html.Td(
                             dcc.Upload(
                                 id='paymentupload_proof', 
-                                children=html.Button('Upload Proof'), 
-                                multiple=False
+                                children=dbc.Button(
+                                    'Upload Proof', 
+                                    color='warning',  # Match with the 'Submit' button color
+                                    style={'font-weight': 'bold'}
+                                ), 
+                                multiple=False,
                             ), 
                             style={'width': '80%'}
-                        )
+                        ),
                     ]),
                     html.Tr([
                         html.Td(
                             dbc.Label(" "), 
-                            style={'width': '10%'}
+                            style={'width': '20%'}
                         ), 
                         html.Td(
                             html.Div(id='output-image-upload'), 
@@ -160,14 +171,32 @@ layout = html.Div(
                 ]
             )
         ),
-        dbc.Button('Submit', id='submit_payment', n_clicks=0),
+        dbc.Button(
+            'Submit', 
+            id='submit_payment', 
+            n_clicks=0,
+            style={
+                'background-color': '#218838',
+                'color': '#fff',
+                'border': '2px solid #155724',
+                'margin-top': '15px',
+                'font-weight': 'bold'
+            }
+        ),
         dbc.Modal([
             dbc.ModalHeader(html.H4('Upload Success')),
             dbc.ModalBody('Proof of payment has been uploaded successfully!'),
             dbc.ModalFooter(dbc.Button("Proceed", href='/student/payment'))
         ], centered=True, id='paymentupload_successmodal', backdrop='static')
     ],
-    style={'margin-top': '70px'}
+    style={
+        'margin-top': '70px',
+        'background-color': '#ffffff',
+        'color': '#212529',
+        'padding': '20px',
+        'border-radius': '10px',
+        'box-shadow': '0px 4px 6px rgba(0, 0, 0, 0.2)'
+    }
 )
 
 def parse_contents(contents, filename):

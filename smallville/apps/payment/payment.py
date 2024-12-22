@@ -12,9 +12,15 @@ table_header = [
     html.Thead(html.Tr([html.Th("PLAN", style={'width':'33%'}), html.Th("Amount per Payment (in pesos)", style={'width':'33%'}),  html.Th("Total to Pay (in pesos)", style={'width':'33%'})]))
 ]
 
-row1 = html.Tr([html.Td("Monthly"), html.Td("6,125.00"), html.Td("73,500")])
-row2 = html.Tr([html.Td("Quarterly"), html.Td("18,025.00"), html.Td("72,100")])
-row3 = html.Tr([html.Td("Yearly"), html.Td("70,000"), html.Td("70,000")])
+row1 = html.Tr([html.Td("Monthly"), 
+                html.Td("6,125.00", style={'textAlign': 'right'}),
+                html.Td("73,500.00", style={'textAlign': 'right'})])
+row2 = html.Tr([html.Td("Quarterly"), 
+                html.Td("18,025.00", style={'textAlign': 'right'}), 
+                html.Td("72,100.00", style={'textAlign': 'right'})])
+row3 = html.Tr([html.Td("Yearly"), 
+                html.Td("70,000.00", style={'textAlign': 'right'}), 
+                html.Td("70,000.00", style={'textAlign': 'right'})])
 
 table_body = [html.Tbody([row1, row2, row3])]
 
@@ -37,7 +43,7 @@ layout = html.Div(
                         html.Div(  
                             [
                                 html.H5("Payment Plan Details"),
-                                html.P("Total Tuition Fee: 70,000 pesos"),
+                                html.P("Total Tuition Fee: 70,000.00 pesos"),
                                 table,
                                 html.H6("Important Notice"),
                                 html.P(["- Families are encouraged to select the payment plan that best fits their financial situation.", html.Br(), 
@@ -243,12 +249,14 @@ def updateRecordsTable(pathname, filter_columns, filter_values, currentuserid):
             sql += f" AND CAST({col} AS TEXT) ILIKE %s"
             val.append(f'%{val_filter}%')
 
-    col = ["Payment ID", "Student ID", "Plan", "Reference No.", "Amount", "Payment Date", "Payment Method", "Proof"]
+    col = ["Payment ID", "Student ID", "Plan", "Reference No.", "Amount Paid", "Payment Date", "Payment Method", "Proof"]
 
     df = getDataFromDB(sql, val, col)
 
     if df.empty:
         return html.Div("No payment history found.")  # Provide feedback if no records exist
+
+    df["Amount Paid"] = df["Amount Paid"].apply(lambda x: f"{x:,.2f}")
 
     df['Proofs'] = [
         html.Div(
@@ -259,7 +267,7 @@ def updateRecordsTable(pathname, filter_columns, filter_values, currentuserid):
     ]
 
     # Exclude 'proof' from display and replace with button
-    df = df[["Student ID", "Plan", "Reference No.","Amount","Payment Date", "Payment Method", "Proofs"]]
+    df = df[["Student ID", "Plan", "Reference No.","Amount Paid","Payment Date", "Payment Method", "Proofs"]]
 
     payment_table = dbc.Table.from_dataframe(df, striped=True, bordered=True,
                                               hover=True, size='sm')
