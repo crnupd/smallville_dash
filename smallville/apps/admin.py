@@ -497,10 +497,9 @@ def updateRecordsTable(pathname, filter_columns, filter_values):
         LEFT JOIN payment
             ON student.stud_id = payment.stud_id
         WHERE NOT student.stud_delete_ind
-        GROUP BY 
-            student.stud_id, student.stud_fname, student.stud_lname, student.stud_city, student.stud_address, student.stud_gradelvl, student.enroll_status;
     """
     val = []
+    conditions = []  # List to hold conditions
 
     # Apply filter based on the selected column and filter value
     for col, val_filter in zip(filter_columns or [], filter_values or []):
@@ -516,12 +515,18 @@ def updateRecordsTable(pathname, filter_columns, filter_values):
                 elif val_filter == 'Unpaid':
                     sql += " AND pay_status = FALSE"
             elif col == 'stud_id':
-                sql += " AND stud_id = %s"
+                sql += " AND student.stud_id = %s"
                 val.append(f'{val_filter}')
             else:
                 sql += f" AND {col} ILIKE %s"
                 val.append(f'%{val_filter}%')
 
+    # If there are conditions, append them to the SQL query
+    if conditions:
+        sql += " AND " + " AND ".join(conditions)
+
+    sql += " GROUP BY student.stud_id, student.stud_fname, student.stud_lname, student.stud_city, student.stud_address, student.stud_gradelvl, student.enroll_status;"
+    
     # Columns for the DataFrame
     col = ["Student ID", "First Name", "Last Name", "City and Address", "Grade Level", "Payment Status", "Amount Paid", "Enrollment Status"]
 
