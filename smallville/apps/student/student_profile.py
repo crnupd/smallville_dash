@@ -16,7 +16,7 @@ layout = html.Div(
                 html.H2('Students Registration Records'),
                 html.Hr(),
             ],
-            style={'margin-top': '70px'}  # Adjust margin to avoid overlap with navbar
+            style={'margin-top': '15px'}  # Adjust margin to avoid overlap with navbar
         ),
         dbc.Card(  # Card Container
             [
@@ -180,8 +180,7 @@ def updateRecordsTable(pathname, filter_columns, filter_values, student_lnamefil
             stud_id::text AS "Student ID",
             stud_fname AS "First Name",
             stud_lname AS "Last Name",
-            stud_city AS "City",
-            stud_address AS "Address",
+            CONCAT(stud_city, ', ', stud_address) AS "City and Address",
             stud_gradelvl AS "Grade Level",
             enroll_status AS "Enrollment Status"
         FROM student
@@ -211,7 +210,7 @@ def updateRecordsTable(pathname, filter_columns, filter_values, student_lnamefil
         val.append(f'%{student_lnamefilter}%')
 
 
-    col = ["Student ID", "First Name", "Last Name", "City", "Address", "Grade Level", "Enrollment Status"]
+    col = ["Student ID", "First Name", "Last Name", "City and Address", "Grade Level", "Enrollment Status"]
 
 
     df = getDataFromDB(sql, val, col)
@@ -237,7 +236,7 @@ def updateRecordsTable(pathname, filter_columns, filter_values, student_lnamefil
     ]
 
 
-    df = df[["Student ID", "First Name", "Last Name", "City", "Address", "Grade Level", "Enrollment Status", 'Action']]
+    df = df[["Student ID", "First Name", "Last Name", "City and Address", "Grade Level", "Enrollment Status", 'Action']]
    
     student_table = dbc.Table.from_dataframe(df, striped=True, bordered=True, hover=True, size='sm')
 
