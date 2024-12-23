@@ -2,19 +2,16 @@ import dash
 import dash_bootstrap_components as dbc
 from dash import Output, Input, State, dcc, html
 from dash.exceptions import PreventUpdate
-
 import psycopg2
 from psycopg2 import sql
 from app import app
 from apps.dbconnect import getDataFromDB, modifyDB
 
-# Layout for the page
 layout = html.Div(
     [
-        # Page Header
         dbc.Row(
             [
-                dbc.Col(html.H2('Schedule Management', style={'width': "100%"}), width=10),  # Page Header
+                dbc.Col(html.H2('Schedule Management', style={'width': "100%"}), width=10), 
                 dbc.Col(
                     dbc.Button(
                         "Return",
@@ -22,22 +19,22 @@ layout = html.Div(
                         href=f'/admin',
                     ),
                     width=2,
-                    className="text-end"  # Aligns the button to the right
+                    className="text-end"
                 )
             ],
             align="center"
         ),
         html.Hr(),
         
-        dbc.Card(  # Card Container
+        dbc.Card( 
             [
                 dbc.Alert(id='sched_alert', is_open=False), 
-                dbc.CardHeader(  # Define Card Header
+                dbc.CardHeader( 
                     html.H2("Add a Schedule", style={"textAlign": "center"}),
                 ),
                 
                 html.Br(),
-                # Input fields
+            
                 html.Div([
                     dbc.Row(
                     [
@@ -88,7 +85,7 @@ layout = html.Div(
                             'justify-content': 'space-between',
                             'align-items': 'center',
                             'margin-left': '15px',
-                            'margin-right': '15px'}  # Aligns the button on the right side
+                            'margin-right': '15px'} 
                     ),            
 
                     dbc.Modal(
@@ -107,8 +104,6 @@ layout = html.Div(
                         id="sched_successmodal",
                         backdrop="static"
                     ),
-
-                    # dcc.Input(id="search-bar", type="text", placeholder="Search schedules...", style={"margin": "10px", "width": "300px"}),
 
                     html.Div(id="alert", style={"marginTop": "10px", "color": "green", "fontWeight": "bold"}),
                 ], style={"textAlign": "center"}),
@@ -143,7 +138,7 @@ def sched_save(submitbtn, grade_level, subject, teacher, schedule):
             modal_open = False
             alert_color = ''
             alert_text = ''
-            if not grade_level: # If title is blank, not title = True
+            if not grade_level: 
                 alert_open = True
                 alert_color = 'danger'
                 alert_text = 'Check your inputs. Please supply the grade level.'
@@ -168,7 +163,6 @@ def sched_save(submitbtn, grade_level, subject, teacher, schedule):
 
                 modifyDB(sql, values)
 
-                    # If this is successful, we want the successmodal to show
                 modal_open = True
 
                 return [alert_color, alert_text, alert_open, modal_open]

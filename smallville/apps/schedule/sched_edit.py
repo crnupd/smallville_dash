@@ -7,10 +7,8 @@ from app import app
 from apps.dbconnect import getDataFromDB, modifyDB
 import pandas as pd
 
-# Layout Definition
 layout = html.Div(
     [
-        # Page Header
 dbc.Row(
             [
                 dbc.Col(html.H2('Update Schedule', style={'width': "100%"}), width=10),
@@ -21,16 +19,16 @@ dbc.Row(
                         href=f'/admin'
                     ),
                     width=2,
-                    className="text-end"  # Aligns the button to the right
+                    className="text-end"  
                 )
             ],
             align="center",
-            style={'margin-top': '70px'}  # Adjust margin to avoid overlap with navbar
+            style={'margin-top': '70px'} 
         ),
 
         dcc.Store(id="sched_id", storage_type="memory", data=0),
         html.Hr(),
-        dbc.Alert(id="sched_alert", is_open=False),  # For feedback purposes
+        dbc.Alert(id="sched_alert", is_open=False), 
         
         dbc.Form(
             [
@@ -108,7 +106,7 @@ dbc.Row(
         dbc.Button(
             "Submit",
             id="sched_submit",
-            n_clicks=0,  # Initialize number of clicks
+            n_clicks=0, 
             style={"margin-top": "20px"},
         ),
         dbc.Modal(
@@ -117,18 +115,18 @@ dbc.Row(
                 dbc.ModalBody("Schedule successfully updated."),
                 dbc.ModalFooter(
                     dbc.Button(
-                        "Proceed", href="/admin"  # Redirect after saving
+                        "Proceed", href="/admin" 
                     )
                 ),
             ],
             centered=True,
             id="sched2_successmodal",
-            backdrop="static",  # Prevent modal dismissal by clicking outside
+            backdrop="static", 
         ),
     ]
 )
 
-# Callback for Parsing the URL and Setting Initial States
+# parsing the URL and setting initial states
 @app.callback(
     [
         Output("sched_id", "data"),
@@ -150,17 +148,15 @@ def sched_editprofile(pathname, urlsearch):
         parsed = urlparse(urlsearch)
         create_mode = parse_qs(parsed.query)["mode"][0]
 
-        # Determine ID and delete div class based on mode
+        # determine ID and delete div class based on mode
         if create_mode == "add":
             id = 0
-            deletediv = "d-none"  # Hide the delete checkbox for new entries
-            # Return empty values if creating a new entry
+            deletediv = "d-none" 
             return [id, deletediv, "", "", "", ""]
         else:
             id = int(parse_qs(parsed.query)["id"][0])
-            deletediv = ""  # Show the delete checkbox for editing
+            deletediv = "" 
 
-            # Fetch current data from the database
             sql = '''
                 SELECT grade_level, subject, teacher, schedule
                 FROM class_sched
@@ -169,7 +165,7 @@ def sched_editprofile(pathname, urlsearch):
             result = getDataFromDB(sql, [id], ["grade_level", "subject", "teacher", "schedule"])
 
             if not result.empty:
-                # Return current values as placeholders
+                # return current values as placeholders
                 return [
                     id,
                     deletediv,
@@ -185,7 +181,7 @@ def sched_editprofile(pathname, urlsearch):
         raise PreventUpdate
 
 
-# Callback for Saving or Deleting the Schedule
+# callback for saving or deleting schedule
 @app.callback(
     [
         Output("sched_alert", "color"),
@@ -194,7 +190,7 @@ def sched_editprofile(pathname, urlsearch):
         Output("sched2_successmodal", "is_open"),
     ],
     [
-        Input("sched_submit", "n_clicks"),  # Trigger when the submit button is clicked
+        Input("sched_submit", "n_clicks"), 
     ],
     [
         State("sched_delete", "value"),
@@ -217,13 +213,11 @@ def sched_submit_action(submitbtn, delete_value, grade_level, subject, teacher, 
     alert_color = ""
     alert_text = ""
 
-    # Parse the URL for mode
+    # parse the URL
     parsed = urlparse(urlsearch)
     create_mode = parse_qs(parsed.query)["mode"][0]
 
-    # Check if the delete checkbox is ticked
     if delete_value:
-        # Mark the record as deleted
         sql = '''
             UPDATE class_sched
             SET sched_delete_ind = %s
@@ -238,7 +232,7 @@ def sched_submit_action(submitbtn, delete_value, grade_level, subject, teacher, 
         modal_open = True
 
     else:
-        # Validate inputs for regular updates or additions
+        # validate inputs for regular updates or additions
         if not grade_level:
             alert_open = True
             alert_color = "danger"
@@ -256,7 +250,7 @@ def sched_submit_action(submitbtn, delete_value, grade_level, subject, teacher, 
             alert_color = "danger"
             alert_text = "Check your inputs. Please supply the schedule."
         else:
-            # Insert or update the record in the database
+            # insert or update the record in the database
             if create_mode == "add":
                 sql = '''
                     INSERT INTO class_sched (grade_level, subject, teacher, schedule, sched_delete_ind)
