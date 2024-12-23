@@ -9,13 +9,16 @@ from apps.dbconnect import getDataFromDB, modifyDB
 
 sql = """
 SELECT 
-    grade_level AS "Grade Level",
-    subject AS "Subject",
-    teacher AS "Teacher",
-    schedule AS "Schedule",
-    id
-FROM class_sched
-WHERE sched_delete_ind = False  -- Only show non-deleted records
+    cs.grade_level AS "Grade Level",
+    cs.subject AS "Subject",
+    cs.teacher AS "Teacher",
+    cs.schedule AS "Schedule",
+    cs.id AS "Sched_ID",
+    student.stud_id AS "Stud_ID",
+    student.user_id AS "User_ID"
+FROM class_sched AS cs
+JOIN student ON cs.grade_level = student.stud_gradelvl  -- Adjust based on the real relationship between schedules and students
+WHERE cs.sched_delete_ind = False
 """
 
 layout = html.Div(
@@ -48,32 +51,41 @@ layout = html.Div(
     ]
 )
 
-# fetch and store the data from DB
 @app.callback(
     Output('schedule-data', 'data'),
-    Input('url', 'pathname'),
+    Input('url', 'pathname'), 
 )
 def fetch_data_on_load(pathname):
     val = []
-    col = ["Grade Level", "Subject", "Teacher", "Schedule", "id"]
+    col = ["Grade Level", "Subject", "Teacher", "Schedule", "Sched_ID", "Stud_ID", "User_ID"]
     df = getDataFromDB(sql, val, col)
-    return df.to_dict(orient='records')
+    return df.to_dict(orient='records')  
 
-# display tables based on dcc.Store
+# display tables based on the data in `dcc.Store`
 @app.callback(
     Output('schedules-tables', 'children'),
     Input('schedule-data', 'data'),
     State('currentuserid', 'data')
 )
 def display_table(data, currentuserid):
-    
     if data is None:
         raise PreventUpdate
 
     df = pd.DataFrame(data)
-    
-    # group by grade level
-    df_grouped = df.groupby('Grade Level').agg({
+    df['Grade Level'] = df['Grade Level']
+
+    if currentuserid != ADMIN_USER_ID:
+        user_data = df[df['User_ID'] == currentuserid]
+    else:
+        user_data = df
+
+    if user_data.empty:
+        return html.Div(["No schedules available for this user."])
+
+    user_data_unique = user_data.drop_duplicates(subset=['Grade Level', 'Subject', 'Teacher', 'Schedule'])
+
+    # Group by Grade Level
+    df_grouped = user_data_unique.groupby('Grade Level').agg({
         'Subject': list, 
         'Teacher': list, 
         'Schedule': list
@@ -85,18 +97,19 @@ def display_table(data, currentuserid):
         tables.append(
             html.Div(
                 [
-                    html.H3(f"{grade_data['Grade Level']}", style={"marginTop": "20px", 'textAlign':'center'}),
-                    
+    
+                    html.H3(f"{grade_data['Grade Level']}", style={"marginTop": "20px", 'textAlign': 'center'}),
+
                     html.Div(
                         dbc.Button(
-                            "View Assigned Students", 
-                            href=f"/student/sched_assign?grade_level={grade_data['Grade Level']}", 
-                            color="primary", 
-                            className="mb-2" 
+                            "View Assigned Students",  
+                            href=f"/student/sched_assign?grade_level={grade_data['Grade Level']}",  
+                            color="primary",  
+                            className="mb-2"  
                         ) if currentuserid == ADMIN_USER_ID else None,
                         style={'textAlign': 'center', 'margin-bottom':'10px'}
                     ),
-                    
+
                     dbc.Table(
                         id=f"schedule-table-{grade_data['Grade Level']}", 
                         children=[
@@ -119,8 +132,8 @@ def display_table(data, currentuserid):
                                         ]
                                     )
                                     for subject, teacher, schedule in zip(
-                                        grade_data['Subject'], 
-                                        grade_data['Teacher'], 
+                                        grade_data['Subject'],
+                                        grade_data['Teacher'],
                                         grade_data['Schedule']
                                     )
                                 ]
@@ -131,11 +144,15 @@ def display_table(data, currentuserid):
                     ),
                     html.Hr(style={'borderTop':'5px solid'})
                 ],
-                style={"marginBottom": "50px"} 
+                style={"marginBottom": "50px"}  
             )
         )
-    
+
     return tables
+
+
+
+
 
 # manually update the data after a database change
 @app.callback(
@@ -159,7 +176,7 @@ def update_schedule_data(n_clicks, grade_level, subject, teacher, schedule, dele
             SET sched_delete_ind = %s
             WHERE id = %s
         '''
-        modifyDB(sql, [True, id])
+        modifyDB(sql, [True, id]) 
     else:
         if id == 0: 
             sql = '''
@@ -175,7 +192,7 @@ def update_schedule_data(n_clicks, grade_level, subject, teacher, schedule, dele
             '''
             modifyDB(sql, [grade_level, subject, teacher, schedule, id])
 
-    # re-fetch data
+    # re-fetch the data
     val = []
     col = ["Grade Level", "Subject", "Teacher", "Schedule", "id"]
     df = getDataFromDB(sql, val, col)
