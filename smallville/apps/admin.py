@@ -6,7 +6,7 @@ import pandas as pd
 from dash import dash_table
 
 from app import app
-from apps.dbconnect import getDataFromDB
+from apps.dbconnect import getDataFromDB, modifyDB
 
 
 # Define the main layout variable
@@ -35,6 +35,8 @@ layout = html.Div(  # Wrap everything in a single Div
         ])
     ]
 )
+
+
 
 #for tab selection
 @app.callback(Output('tabs-content-props', 'children'),
@@ -177,6 +179,60 @@ def render_content(tab):
                                 dbc.Button("Add Filter", id="add-filter-button", n_clicks=0, className="mt-2"),
 
                                 html.Hr(),
+                                html.Div(
+                                    [
+                                        html.H4("Reset Payment Records"),
+                                        html.Div(
+                                            [
+                                                dbc.Label(
+                                                    "Reset Payment Records for Admin Table?", 
+                                                    html_for='reset_payments_checkbox',
+                                                    style={
+                                                        'margin-right': '20px',
+                                                        'color': '#000',
+                                                        'margin-left': '20px'
+                                                    }
+                                                ),
+                                                dbc.Checklist(
+                                                    id='reset_payments_checkbox',
+                                                    options=[dict(value=1, label="")],
+                                                    value=[],
+                                                    style={'display': 'inline-block'}
+                                                ),
+                                            ],
+                                            style={
+                                                'display': 'flex',
+                                                'align-items': 'center',
+                                                'background-color': '#f8d7da',
+                                                'padding': '10px',
+                                                'border-radius': '5px',
+                                                'border': '2px solid #CCCECF',
+                                                'width': '30%',
+                                            }
+                                        ),
+                                        dbc.Button(
+                                            "Apply Reset",
+                                            id="reset_button",
+                                            color="danger",
+                                            style={'margin-top': '10px'}
+                                        )
+                                    ],
+                                    style={'margin-bottom': '20px'}
+                                ),
+                                dbc.Modal(
+                                    [
+                                        dbc.ModalHeader(html.H4("Reset Status")),
+                                        dbc.ModalBody(id='reset-status-message', children=""),
+                                        dbc.ModalFooter(
+                                            dbc.Button("Close", id="close-reset-status-modal", className="ml-auto")
+                                        ),
+                                    ],
+                                    centered=True,
+                                    id="reset-status-modal",
+                                    is_open=False,
+                                    backdrop='static'
+                                ),
+                                html.Hr(),
                                 html.Div(id='admin_studentlist')  # Placeholder for student table
                             ]
                         )
@@ -185,6 +241,38 @@ def render_content(tab):
             ]
             )
         ])
+
+# Callback to trigger the reset and open the modal
+@app.callback(
+    [
+        Output('reset-status-modal', 'is_open'),
+        Output('reset-status-message', 'children')
+    ],
+    [
+        Input('reset_button', 'n_clicks'),
+        Input('close-reset-status-modal', 'n_clicks')
+    ],
+    [State('reset_payments_checkbox', 'value')],
+    prevent_initial_call=True
+)
+def reset_payments_status(reset_button_clicks, close_clicks, reset_button_value):
+     # If the close button is clicked, close the modal and reset the message
+    if close_clicks:
+        return False, ""
+
+    # If Apply Reset button was clicked
+    if reset_button_clicks > 0:
+        if reset_button_value:
+            # Display success message and open modal
+            return True, "Payments have been successfully reset."
+        else:
+            # If no reset is triggered, just return with no message
+            return False, "Error in resetting payment records"
+
+    # Return False (closed) and no message if reset is not triggered
+    return False, ""
+
+
 
 #Schedule Management Sort Callback
 @app.callback(
@@ -472,12 +560,20 @@ def manage_filter_rows(add_clicks, remove_clicks, current_children):
     [
         Input('url', 'pathname'),
         Input({'type': 'filter-column-dropdown', 'index': ALL}, 'value'),
-        Input({'type': 'filter-value-input', 'index': ALL}, 'value')
-    ]
+        Input({'type': 'filter-value-input', 'index': ALL}, 'value'),
+        Input('reset_button', 'n_clicks')
+    ],
+    State('reset_payments_checkbox', 'value'),
 )
-def updateRecordsTable(pathname, filter_columns, filter_values):
+def updateRecordsTable(pathname, filter_columns, filter_values, reset_button_clicks,reset_checkbox_value):
     if pathname != '/admin':
         return html.Div("This page doesn't exist."), ''  # Return empty filter value if path doesn't match
+
+    if reset_button_clicks is None:
+        reset_button_clicks = 0  # Assign a default value if it's None
+    # If the Apply Reset button is clicked and the checkbox is checked, reset payments
+    if reset_button_clicks > 0 and 1 in reset_checkbox_value:
+        reset_payments()  # Call the function to reset payments
 
     # SQL query for fetching data
     sql = """
@@ -495,7 +591,7 @@ def updateRecordsTable(pathname, filter_columns, filter_values):
             student.enroll_status AS "Enrollment Status"
         FROM student
         LEFT JOIN payment
-            ON student.stud_id = payment.stud_id
+            ON student.stud_id = payment.stud_id AND payment.reset_flag = FALSE
         WHERE NOT student.stud_delete_ind
     """
     val = []
@@ -575,6 +671,14 @@ def updateRecordsTable(pathname, filter_columns, filter_values):
 
     # Return the updated table
     return student_table
+
+def reset_payments():
+    sql = """
+        UPDATE payment
+        SET reset_flag = TRUE
+        WHERE reset_flag = FALSE;
+    """
+    modifyDB(sql, [])
 
 if __name__ == '__main__':
     app.run(debug=True)
